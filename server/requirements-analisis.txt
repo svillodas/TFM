@@ -1,0 +1,19 @@
+# Fase 4 — analisis y ML. Se instala SOLO en el equipo de desarrollo.
+#
+# Deliberadamente separado de requirements.txt: el concentrador solo necesita
+# registrar, y provision-pi.sh instala ese fichero. Meter scikit-learn en la
+# Raspberry Pi compila durante media hora y no aporta nada al registro de datos.
+#
+#   .venv/bin/pip install -r server/requirements-analisis.txt
+joblib==1.5.3
+numpy==2.5.2
+pandas==3.0.5
+python-dateutil==2.9.0.post0
+scikit-learn==1.9.0
+scipy==1.18.1
+threadpoolctl==3.6.0
+
+# Cuadernos de auditoria (server/analisis/cuadernos/). No los necesita el
+# pipeline: los scripts son la fuente de verdad y corren sin jupyter.
+jupyter==1.1.1
+matplotlib==3.11.1

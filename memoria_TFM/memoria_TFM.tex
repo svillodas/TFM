@@ -1,0 +1,95 @@
+% ==================================================================
+% MEMORIA DEL TFM — Sistema IoT Edge para mantenimiento predictivo
+% Máster Universitario en Internet das Cousas (MUIoT) — UDC
+% Autor: Sergio Villodas Zapata · Tutor: Tiago Manuel Fernández Caramés
+%
+% Compilar:  latexmk -pdf memoria_TFM.tex   (desde este directorio)
+% NO MODIFICAR: tfm-muiot.sty, IEEEtran.bst, logo_*.pdf (plantilla oficial)
+% El contenido vive en capitulos/ — este fichero solo lo ensambla.
+% ==================================================================
+\documentclass[%
+    paper=A4,               % Tamaño de papel A4
+    twoside,                % Páginas pares e impares con diseño diferenciado
+    parskip=full,           % Renglón libre entre párrafos
+    12pt,                   % Tamaño de fuente. No inferior a 12 puntos
+    titlepage=on,           % Página independiente para el título
+    captions=tableabove,    % Los títulos de las tablas en la parte superior
+]{book}
+
+% **************************************************
+% * Idioma: galician, spanish, english
+% **************************************************
+\usepackage[spanish]{babel}
+
+% **************************************************
+% * Universidad: uvigo, udc, usc
+% **************************************************
+\usepackage[udc]{tfm-muiot}
+
+% **************************************************
+% * Diagramas. Añadido para el diagrama de bloques de la arquitectura
+% * (capitulos/05-diseno.tex). No forma parte de la plantilla oficial.
+% **************************************************
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, fit, backgrounds}
+
+% **************************************************
+% * Datos para la portada
+% **************************************************
+\title{Sistema IoT Edge para mantenimiento predictivo de compresores de refrigeración}
+\author{Sergio Villodas Zapata}
+\advisor{Tiago Manuel Fernández Caramés}
+\course{2025/2026}
+
+% **************************************************
+% * Cabeceras (opcionales). Se activan con "true"
+% **************************************************
+\headers{true}
+
+% **************************************************
+% * Inicio del documento
+% **************************************************
+\begin{document}
+
+\maketitle
+\clearemptydoublepage
+
+% **************************************************
+% * Dedicatoria
+% **************************************************
+\dedication{Dedicatoria}
+\clearemptydoublepage
+
+% **************************************************
+% * Tabla de contenidos
+% **************************************************
+\tableofcontents
+\clearemptydoublepage
+
+% **************************************************
+% * Contenido — estructura obligatoria (Guía, apdo. 3)
+% * Extensión objetivo: 25-50 páginas sin contar anexos
+% **************************************************
+\include{capitulos/01-introduccion}      % A. Introducción al problema
+\include{capitulos/02-estado-del-arte}   % B. Análisis de necesidades y estado del arte
+\include{capitulos/03-objetivos}         % C. Objetivos
+\include{capitulos/04-metodologia}       % D. Metodología desarrollada
+\include{capitulos/05-diseno}            % E. Decisiones técnicas, normas y estándares
+\include{capitulos/06-resultados}        % F. Resultados obtenidos
+\include{capitulos/07-conclusiones}      % G. Discusión, conclusiones y líneas futuras
+
+% **************************************************
+% * Apéndices — I. Anexos técnicos
+% **************************************************
+\part*{Apéndices}
+\appendix
+\include{capitulos/A1-anexo-hardware}
+\include{capitulos/A2-anexo-software}
+
+% **************************************************
+% * Bibliografía — H. Estilo IEEE (referencias.bib)
+% **************************************************
+\bibliographystyle{IEEEtran}
+\bibliography{referencias}
+
+\end{document}

@@ -1,0 +1,51 @@
+% G. Discusión y conclusiones, incluyendo responsabilidad legal, ética y profesional
+% (Guía apdo. 3.G). Extensión orientativa: 3-4 páginas.
+\chapter{Discusión y conclusiones}
+\label{cap:conclusiones}
+
+\section{Discusión}
+
+% TODO: interpretar los resultados del capítulo anterior. Contrastar con el estado del arte
+% revisado en el capítulo 2 y señalar las limitaciones de la evidencia obtenida.
+
+\section{Conclusiones}
+
+% TODO: cerrar sobre los objetivos del capítulo 3, uno por uno, indicando el grado de
+% consecución alcanzado.
+
+\section{Consideraciones legales, éticas y profesionales}
+
+El sistema desarrollado incorpora un micrófono, lo que exige delimitar su uso. La señal
+acústica se procesa para obtener un único indicador de nivel agregado por ventana y no se
+almacena audio en bruto, de modo que el sistema no permite reconstruir conversaciones ni
+identificar personas. Esta decisión de diseño limita el tratamiento de datos personales en
+el sentido del Reglamento (UE) 2016/679, de protección de datos~\cite{gdpr}, y resulta especialmente
+relevante si el activo monitorizado se ubica en un espacio ocupado por personas.
+
+En cuanto a la seguridad, la prueba de concepto opera sin cifrado ni autenticación en el
+canal MQTT, según se detalla en el capítulo~\ref{cap:diseno}. Trasladar el sistema a un
+entorno de explotación sin añadir ambos mecanismos supondría exponer la telemetría del
+activo y abrir una superficie de ataque hacia la red que lo aloja. Cabe añadir que, en un
+sistema cuyo propósito es alimentar un modelo de diagnóstico, la ausencia de autenticación
+compromete además la integridad del conjunto de datos y no solo su confidencialidad.
+
+Desde la perspectiva profesional, procede advertir que un sistema de diagnóstico predictivo
+basado en sensores de bajo coste y en un modelo entrenado sobre un único activo no
+constituye un sustituto de la inspección reglamentaria del equipo, sino un complemento
+orientado a anticipar la intervención.
+
+% TODO: revisar y ampliar esta sección en función del alcance final alcanzado.
+
+\section{Líneas futuras}
+
+\begin{itemize}
+    \item Incrementar la frecuencia de muestreo de la vibración mediante captura por
+        ventanas, habilitando el análisis espectral de la señal.
+    \item Ejecutar la inferencia íntegramente en el nodo y publicar únicamente el veredicto
+        de salud, reduciendo el tráfico de telemetría.
+    \item Extender la validación a varios activos para evaluar la capacidad de
+        generalización del modelo.
+    \item Incorporar autenticación y cifrado TLS en el canal MQTT.
+    \item Añadir una segunda sonda de contacto sobre la carcasa del motor, dado que la
+        temperatura interna del acelerómetro constituye un indicador indirecto.
+\end{itemize}

@@ -1,0 +1,54 @@
+# Credenciales — nunca versionar
+device/secrets.h
+server/.env
+*.pem
+*.key
+
+# Configuración local de herramientas de desarrollo
+.claude/
+.cursor/
+.aider*
+
+# Páginas web guardadas en el directorio de fotos: no son material del proyecto
+hardware/fotos/*.html
+hardware/fotos/*_files/
+
+# Datos experimentales locales (descomentar si el dataset crece demasiado para git)
+# server/data/*.csv
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+server/features/
+server/models/
+
+# Arduino / arduino-cli
+build/
+*.bin
+*.elf
+*.hex
+
+# macOS
+.DS_Store
+
+# Editores
+.vscode/
+.idea/
+
+# LaTeX — artefactos de compilación
+*.aux
+*.log
+*.toc
+*.out
+*.bbl
+*.blg
+*.lof
+*.lot
+*.xdv
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+memoria_TFM/memoria_TFM.pdf

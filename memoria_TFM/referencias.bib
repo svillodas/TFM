@@ -1,0 +1,187 @@
+% Bibliografía de la memoria del TFM — estilo IEEE (IEEEtran.bst)
+%
+% REGLA DEL PROYECTO: no se añade ninguna entrada de una fuente que no se haya leído,
+% y no se cita nada que no tenga entrada aquí. Los documentos electrónicos requieren
+% URL de acceso y fecha de consulta (exigencia de la guía de la memoria).
+
+% ------------------------------------------------------------------
+% Normas y estándares aplicados en el diseño
+% ------------------------------------------------------------------
+@misc{isoiec20922,
+  author       = {{International Organization for Standardization}},
+  title        = {{ISO/IEC 20922:2016 Information technology --- Message Queuing Telemetry
+                  Transport (MQTT) v3.1.1}},
+  howpublished = {Norma internacional},
+  year         = {2016},
+  organization = {ISO/IEC}
+}
+
+@misc{ieee80211,
+  author       = {{IEEE}},
+  title        = {{IEEE Std 802.11-2020: IEEE Standard for Information Technology ---
+                  Telecommunications and Information Exchange between Systems --- Local and
+                  Metropolitan Area Networks --- Specific Requirements --- Part 11: Wireless
+                  LAN Medium Access Control (MAC) and Physical Layer (PHY) Specifications}},
+  howpublished = {Norma},
+  year         = {2021},
+  organization = {IEEE}
+}
+
+@misc{gdpr,
+  author       = {{Parlamento Europeo y Consejo de la Unión Europea}},
+  title        = {{Reglamento (UE) 2016/679 relativo a la protección de las personas físicas
+                  en lo que respecta al tratamiento de datos personales y a la libre
+                  circulación de estos datos}},
+  howpublished = {Diario Oficial de la Unión Europea, L 119},
+  year         = {2016}
+}
+
+% ------------------------------------------------------------------
+% Hojas de características de los componentes
+% TODO: completar el campo 'note' de cada entrada con la URL de descarga y la fecha de
+% consulta antes de la entrega (la guía lo exige para documentos electrónicos).
+% ------------------------------------------------------------------
+@manual{esp32datasheet,
+  title        = {{ESP32 Series Datasheet}},
+  organization = {Espressif Systems},
+  note         = {TODO: URL y fecha de consulta}
+}
+
+@manual{mpu6050,
+  title        = {{MPU-6000 and MPU-6050 Product Specification}},
+  organization = {InvenSense},
+  note         = {TODO: revisión, URL y fecha de consulta}
+}
+
+@manual{ds18b20,
+  title        = {{DS18B20 Programmable Resolution 1-Wire Digital Thermometer}},
+  organization = {Analog Devices (Maxim Integrated)},
+  note         = {TODO: URL y fecha de consulta}
+}
+
+@manual{inmp441,
+  title        = {{INMP441 Omnidirectional Microphone with Bottom Port and I2S Digital
+                  Output}},
+  organization = {InvenSense},
+  note         = {TODO: URL y fecha de consulta}
+}
+
+% ------------------------------------------------------------------
+% Estado del arte
+%
+% Metadatos bibliográficos verificados el 2026-08-26 contra el editor o el
+% repositorio correspondiente (DOI, volumen, páginas, ISBN, edición vigente).
+%
+% PENDIENTE ANTES DE LA ENTREGA: la verificación anterior es de los DATOS de
+% cada referencia, no de su CONTENIDO. Queda por consultar el texto completo
+% de cada fuente y comprobar que respalda la afirmación concreta que la cita
+% en el capítulo 2. Las marcadas CONTENIDO PENDIENTE son las que requieren
+% acceso de pago (IEEE Xplore / ISO / editor) y no se han podido leer.
+% Si alguna no se llega a consultar, procede retirar la cita y la afirmación
+% que la sostiene, no dejarla sin verificar.
+% ------------------------------------------------------------------
+
+@book{randall2011,
+  author    = {Randall, Robert Bond},
+  title     = {{Vibration-based Condition Monitoring: Industrial, Aerospace and Automotive
+               Applications}},
+  publisher = {John Wiley \& Sons},
+  address   = {Chichester, Reino Unido},
+  year      = {2011},
+  edition   = {1},
+  isbn      = {978-0-470-74785-8},
+  doi       = {10.1002/9780470977668},
+  note      = {CONTENIDO PENDIENTE: localizar los capítulos que respaldan las afirmaciones
+               sobre valor eficaz, kurtosis y análisis espectral}
+}
+
+@misc{iso20816,
+  author       = {{International Organization for Standardization}},
+  title        = {{ISO 20816-1:2016 Mechanical vibration --- Measurement and evaluation of
+                  machine vibration --- Part 1: General guidelines}},
+  howpublished = {Norma internacional},
+  year         = {2016},
+  organization = {ISO},
+  note         = {Sustituye a la ISO 10816-1. Los límites para maquinaria industrial residen
+                  en la parte 3. CONTENIDO PENDIENTE: acceso de pago}
+}
+
+@misc{iso5348,
+  author       = {{International Organization for Standardization}},
+  title        = {{ISO 5348:2021 Mechanical vibration and shock --- Mechanical mounting of
+                  accelerometers}},
+  howpublished = {Norma internacional},
+  year         = {2021},
+  organization = {ISO},
+  note         = {Edición vigente; sustituye a la de 1998. Especifica las propiedades de los
+                  métodos de fijación y su influencia en la respuesta en frecuencia.
+                  CONTENIDO PENDIENTE: acceso de pago}
+}
+
+@inproceedings{liu2008,
+  author    = {Liu, Fei Tony and Ting, Kai Ming and Zhou, Zhi-Hua},
+  title     = {{Isolation Forest}},
+  booktitle = {Proceedings of the Eighth IEEE International Conference on Data Mining (ICDM)},
+  year      = {2008},
+  pages     = {413--422},
+  publisher = {IEEE},
+  doi       = {10.1109/ICDM.2008.17}
+}
+
+@article{scholkopf2001,
+  author  = {Sch{\"o}lkopf, Bernhard and Platt, John C. and Shawe-Taylor, John and
+             Smola, Alex J. and Williamson, Robert C.},
+  title   = {{Estimating the Support of a High-Dimensional Distribution}},
+  journal = {Neural Computation},
+  year    = {2001},
+  volume  = {13},
+  number  = {7},
+  pages   = {1443--1471},
+  doi     = {10.1162/089976601750264965}
+}
+
+@book{warden2019,
+  author    = {Warden, Pete and Situnayake, Daniel},
+  title     = {{TinyML: Machine Learning with TensorFlow Lite on Arduino and Ultra-Low-Power
+               Microcontrollers}},
+  publisher = {O'Reilly Media},
+  year      = {2019},
+  isbn      = {978-1-492-05204-3},
+  note      = {CONTENIDO PENDIENTE: localizar los capítulos que respaldan las restricciones
+               de memoria y consumo citadas}
+}
+
+@inproceedings{david2021,
+  author    = {David, Robert and Duke, Jared and Jain, Advait and Janapa Reddi, Vijay and
+               Jeffries, Nat and Li, Jian and Kreeger, Nick and Nappier, Ian and
+               Natraj, Meghna and Wang, Tiezhen and Warden, Pete and Rhodes, Rocky},
+  title     = {{TensorFlow Lite Micro: Embedded Machine Learning for TinyML Systems}},
+  booktitle = {Proceedings of Machine Learning and Systems (MLSys)},
+  year      = {2021},
+  volume    = {3},
+  pages     = {800--811},
+  note      = {Preimpresión de acceso abierto disponible en arXiv:2010.08678}
+}
+
+@inproceedings{breunig2000,
+  author    = {Breunig, Markus M. and Kriegel, Hans-Peter and Ng, Raymond T. and
+               Sander, J{\"o}rg},
+  title     = {{LOF: Identifying Density-Based Local Outliers}},
+  booktitle = {Proceedings of the 2000 ACM SIGMOD International Conference on
+               Management of Data},
+  year      = {2000},
+  pages     = {93--104},
+  publisher = {ACM},
+  doi       = {10.1145/335191.335388}
+}
+
+@article{rousseeuw1999,
+  author  = {Rousseeuw, Peter J. and Van Driessen, Katrien},
+  title   = {{A Fast Algorithm for the Minimum Covariance Determinant Estimator}},
+  journal = {Technometrics},
+  year    = {1999},
+  volume  = {41},
+  number  = {3},
+  pages   = {212--223},
+  doi     = {10.1080/00401706.1999.10485670}
+}

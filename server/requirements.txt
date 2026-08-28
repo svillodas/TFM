@@ -1,0 +1,8 @@
+# Hub local (Raspberry Pi) — Python 3.11+
+paho-mqtt==2.1.0
+python-dotenv==1.0.1
+
+# Las dependencias de análisis y ML están en requirements-analisis.txt y NO
+# se instalan aquí: este fichero lo instala provision-pi.sh en el concentrador,
+# que solo necesita registrar. Compilar scikit-learn en la Raspberry Pi tarda
+# media hora y no aporta nada al registro.

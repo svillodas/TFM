@@ -1,0 +1,186 @@
+% B. Análisis de necesidades y estudio del estado del arte (Guía apdo. 3.B)
+% Extensión orientativa: 5-7 páginas. Capítulo con mayor densidad de citas IEEE.
+\chapter{Análisis de necesidades y estado del arte}
+\label{cap:estado-arte}
+
+\section{Análisis de necesidades}
+
+El sistema debe satisfacer los siguientes requisitos, derivados del escenario de aplicación:
+
+\begin{itemize}
+    \item \textbf{Captura multivariable.} Un único tipo de señal no basta para discriminar
+        modos de fallo: la vibración revela desequilibrios mecánicos, la temperatura revela
+        pérdidas de rendimiento térmico y la firma acústica revela anomalías del régimen de
+        giro.
+    \item \textbf{Resiliencia mecánica.} El nodo opera acoplado a un elemento en vibración
+        permanente, lo que degrada conexiones y cableado. El sistema debe seguir midiendo
+        ante fallos físicos transitorios.
+    \item \textbf{Operación autónoma prolongada.} La construcción del modelo de
+        comportamiento nominal exige campañas de captura de días, sin supervisión.
+    \item \textbf{Independencia de la nube.} El diagnóstico debe poder resolverse en el
+        nodo, con la infraestructura externa limitada al entrenamiento y al análisis.
+    \item \textbf{Coste contenido.} La solución debe construirse con componentes de bajo
+        coste para resultar aplicable a activos de valor moderado.
+\end{itemize}
+
+\section{Mantenimiento predictivo basado en señales físicas}
+
+La monitorización de condición de máquina rotativa se apoya en un conjunto de indicadores
+consolidado, cuya elección responde a que cada uno resulta sensible a una familia distinta de
+mecanismos de fallo~\cite{randall2011}. Esa correspondencia entre indicador y mecanismo es la
+que justifica la selección de características descrita en el capítulo~\ref{cap:diseno}.
+
+El valor eficaz de la componente alterna de la aceleración constituye el indicador de
+severidad global. Su evolución es monótona con la degradación, lo que lo hace adecuado para
+seguimiento de tendencia, y existen criterios normativos que relacionan su magnitud con
+estados admisibles de la máquina según su clase~\cite{iso20816}. Su limitación es la
+contrapartida de esa robustez: al promediar sobre toda la ventana, atenúa los eventos poco
+frecuentes.
+
+La kurtosis cubre precisamente ese hueco. Al ser el cuarto momento normalizado de la
+distribución de amplitudes, cuantifica la impulsividad de la señal y no su magnitud, con lo
+que responde a la aparición de impactos aislados antes de que estos alteren el valor
+eficaz~\cite{randall2011}. Es el indicador clásico del deterioro incipiente de rodamientos, y
+su interpretación se apoya en dos valores de referencia analíticos: 3 para ruido gaussiano y
+1,5 para una señal senoidal pura. El par formado por el valor eficaz y la kurtosis discrimina
+así entre mecanismos que un único indicador confundiría: un desequilibrio de masa eleva el
+primero manteniendo el segundo próximo al de una senoide, mientras que un rodamiento en
+deterioro incipiente apenas altera el primero y sin embargo eleva el segundo.
+
+El análisis espectral aporta la dimensión que los indicadores temporales no pueden ofrecer: la
+localización en frecuencia. La componente correspondiente a la frecuencia de giro y la
+relación entre esta y sus armónicos permiten distinguir desequilibrio de masa, desalineación
+y aflojamiento del anclaje, mecanismos que producen niveles globales semejantes pero
+distribuciones espectrales distintas~\cite{randall2011}.
+
+Procede señalar una condición que la literatura recoge y que resultó determinante en este
+trabajo: la banda de frecuencias efectivamente utilizable no la fija el sensor sino su
+montaje. La fijación del acelerómetro sobre la superficie a medir constituye un sistema
+elástico cuya resonancia limita el intervalo en que la medida es fiel, y existen criterios
+normalizados para el montaje precisamente por esa razón~\cite{iso5348}. El
+capítulo~\ref{cap:resultados} documenta la magnitud de ese efecto en el montaje empleado.
+
+La monitorización acústica se plantea como modalidad complementaria y no como alternativa. Su
+interés reside en que un micrófono capta la señal radiada al aire sin requerir contacto
+mecánico, lo que la hace sensible a fenómenos que la vibración estructural no transmite bien,
+como la obstrucción del caudal de aire. Su inconveniente, contrastado experimentalmente en
+este trabajo, es que un micrófono solidario a la estructura recibe la vibración por conducción
+y deja de medir el aire.
+
+\section{Inteligencia en el borde de la red}
+
+La ejecución de modelos de aprendizaje automático sobre microcontroladores de bajo consumo
+constituye un campo con denominación propia, habitualmente designado como \textit{TinyML}, y
+su desarrollo responde a restricciones que no aparecen en los entornos de cómputo
+convencionales: memoria del orden de decenas o centenares de kilobytes, ausencia de sistema
+operativo de propósito general y presupuesto energético acotado~\cite{warden2019}. Las
+herramientas que han hecho practicable ese despliegue, en particular los entornos de
+ejecución de modelos reducidos para microcontroladores, prescinden de asignación dinámica de
+memoria y de gran parte del repertorio de operadores de sus equivalentes de
+servidor~\cite{david2021}.
+
+Conviene precisar el alcance de esas herramientas, porque condiciona la solución que se adopta
+en el capítulo~\ref{cap:resultados}. Su repertorio de operadores corresponde a
+\textbf{redes neuronales}: convoluciones, capas densas y funciones de activación. Un modelo que
+no pertenezca a esa familia —una envolvente estadística, un método basado en vecindad, un
+conjunto de árboles— no es ejecutable en ellas, de modo que su despliegue sobre el
+microcontrolador exige programarlo directamente. La disponibilidad de un entorno de inferencia
+no es por tanto un requisito del cómputo en el borde, sino una facilidad aplicable a una
+familia concreta de modelos.
+
+El contraste con una arquitectura orientada a la nube resulta cuantificable en el caso que
+nos ocupa, y no es una cuestión de preferencia. Transmitir la señal de vibración en bruto de
+los tres ejes a la frecuencia que exige el análisis frecuencial supone del orden de 3000
+valores por segundo de forma continua. Extraer las características en el nodo y transmitir
+únicamente estas reduce el volumen a un mensaje cada \mbox{30 s}, tres órdenes de magnitud por
+debajo. La diferencia no afecta solo al ancho de banda: condiciona la autonomía del nodo, el
+coste de almacenamiento y, sobre todo, la dependencia operativa de un enlace externo.
+
+Esa última consideración es la que motiva el planteamiento de este trabajo. Un sistema de
+diagnóstico cuya lógica reside en un servidor remoto deja de diagnosticar cuando el enlace
+falla, circunstancia que en un entorno industrial no es excepcional. Situar la inferencia en
+el nodo convierte la infraestructura externa en soporte de entrenamiento y análisis en lugar
+de requisito de operación.
+
+Conviene precisar que el planteamiento no exige necesariamente una red neuronal. Cuando el
+problema admite una formulación estadística, el modelo embarcado puede reducirse a un
+conjunto de parámetros de unos pocos kilobytes, sin la infraestructura de un entorno de
+ejecución de aprendizaje automático. El capítulo~\ref{cap:diseno} desarrolla esta alternativa
+y su justificación.
+
+\section{Detección de anomalías no supervisada}
+
+La formulación del problema de detección responde a una asimetría en la disponibilidad de
+datos que es característica del mantenimiento predictivo. De un activo en servicio se obtiene
+con facilidad un registro extenso de su comportamiento normal, mientras que los ejemplos de
+fallo son escasos, difíciles de etiquetar y, cuando se obtienen de forma deliberada, costosos.
+Un clasificador supervisado requeriría un número de ejemplos de cada modo de fallo que no es
+alcanzable en este contexto, de modo que el planteamiento adecuado es el de detección de
+anomalías con una sola clase: el modelo se ajusta exclusivamente sobre el estado nominal y
+señala como anómala toda observación suficientemente alejada de la región que ha aprendido a
+describir.
+
+Entre los métodos aplicables destaca por su idoneidad el basado en árboles de aislamiento, que
+en lugar de modelar la densidad de la distribución normal explota que las observaciones
+anómalas resultan más fáciles de separar del resto mediante particiones
+aleatorias~\cite{liu2008}. Su interés práctico reside en un coste computacional reducido y en
+que no requiere estimar una densidad en un espacio de características de dimensión elevada,
+condición que otros métodos encuentran problemática.
+
+La alternativa clásica formula el problema como la estimación del soporte de una distribución
+de dimensión elevada, buscando la frontera que encierra la fracción especificada de los datos
+de entrenamiento~\cite{scholkopf2001}. Su comportamiento depende de la elección del núcleo y
+de sus parámetros, y su coste crece con el número de observaciones, lo que la hace menos
+conveniente cuando el conjunto de referencia es extenso.
+
+Procede añadir dos métodos que el desarrollo de este trabajo mostró pertinentes y que la
+formulación inicial no contemplaba. El primero estima la densidad local de cada observación y la
+compara con la de su vecindad, con lo que declara atípico aquello que reside en una región
+menos poblada que su entorno inmediato~\cite{breunig2000}. Su interés en este caso reside en
+que no presupone una forma concreta para la distribución del estado nominal, circunstancia
+favorable cuando ese estado agrupa condiciones de operación heterogéneas, como son los ciclos
+de marcha de duración desigual de un compresor sometido a uso doméstico.
+
+El segundo ajusta una envolvente elipsoidal mediante una estimación robusta de la matriz de
+covarianza, obtenida a partir del subconjunto de observaciones de menor determinante, lo que
+impide que unas pocas observaciones atípicas del propio conjunto de ajuste desplacen la
+frontera~\cite{rousseeuw1999}. Su ventaja para el objetivo de este trabajo es que la regla de
+decisión resultante es una forma cuadrática con parámetros precalculados, ejecutable en el nodo
+con una ocupación de memoria del orden de centenares de bytes.
+
+Una tercera vía la constituyen los autocodificadores, que se entrenan para reconstruir la
+señal de entrada y emplean el error de reconstrucción como puntuación de anomalía. Su ventaja
+es que encajan de forma natural en los entornos de ejecución para microcontroladores, dado
+que son redes neuronales; su inconveniente, un coste de entrenamiento y una necesidad de datos
+superiores a los de los dos métodos anteriores.
+
+En los tres casos, la decisión final descansa sobre un umbral aplicado a una puntuación
+escalar. Fijar ese umbral sobre un percentil de la distribución de puntuaciones del propio
+conjunto nominal hace explícita y ajustable la tasa de falsos positivos admitida, lo que
+resulta preferible a un valor arbitrario.
+
+\section{Síntesis y aportación de este trabajo}
+
+Los trabajos revisados abordan por separado las tres cuestiones que este proyecto integra: los
+indicadores de condición sobre señal de vibración, el despliegue de inferencia en
+microcontroladores y la detección de anomalías con una sola clase. La combinación de las tres
+sobre una plataforma de coste reducido está menos explorada, y es donde este trabajo pretende
+aportar.
+
+Existe además una circunstancia que la literatura consultada tiende a no abordar, y que en la
+práctica de este proyecto resultó ser la determinante. Los métodos de monitorización de
+condición se formulan asumiendo instrumentación de calidad y adquisición fiable: acelerómetros
+acoplados de forma rígida y una cadena de medida que entrega las muestras que se le piden. Al
+trasladar esos métodos a hardware de prototipado adherido a una máquina en vibración, ninguna
+de las dos premisas se cumple. El bus de comunicación con el sensor falla de forma
+intermitente, la fijación del acelerómetro introduce una resonancia que limita la banda
+utilizable, y ambos efectos degradan precisamente los indicadores más sensibles.
+
+La aportación de este trabajo se sitúa por tanto en dos planos. En el primero, la integración
+de tres modalidades de sensado de bajo coste con extracción de características e inferencia en
+el propio nodo. En el segundo, y con mayor valor práctico, la documentación cuantificada de
+las limitaciones que impone ese hardware y de los mecanismos que permiten operar con ellas: la
+validación de la integridad del dato en la adquisición, la instrumentación que hace medible la
+calidad de cada medida, y la acotación explícita de la banda de frecuencias en que las
+características resultan interpretables. El capítulo~\ref{cap:conclusiones} valora en qué
+medida esas limitaciones condicionan el alcance alcanzado.

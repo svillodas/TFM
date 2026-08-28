@@ -1,0 +1,58 @@
+% C. Objetivos (Guía apdo. 3.C)
+% Extensión orientativa: 2-3 páginas
+\chapter{Objetivos}
+\label{cap:objetivos}
+
+\section{Objetivo general}
+
+Diseñar e implementar un sistema modular de monitorización que emplee técnicas de
+aprendizaje automático para el diagnóstico preventivo de sistemas electromecánicos,
+analizando variables físicas --vibración, temperatura y sonido-- con el fin de identificar
+desviaciones respecto al funcionamiento nominal del activo, y desplazando la lógica de
+diagnóstico al extremo de la red.
+
+\section{Objetivos específicos}
+
+Los objetivos específicos se corresponden con las tareas comprometidas en la solicitud de
+asignación de tema del presente TFM:
+
+\begin{enumerate}
+    \item \textbf{Definición del escenario de prueba.} Identificar un activo
+        representativo y caracterizar su firma operativa.
+    \item \textbf{Diseño de la arquitectura del sistema.} Definir el modelo de intercambio
+        de datos entre los nodos sensores y la plataforma de monitorización, priorizando la
+        eficiencia en el procesamiento local.
+    \item \textbf{Selección de componentes de hardware y software.} Elegir la plataforma de
+        procesado y los sensores adecuados para la captura de señales con la precisión
+        requerida.
+    \item \textbf{Desarrollo del motor de análisis inteligente.} Implementar algoritmos de
+        aprendizaje automático para la extracción de características y la clasificación
+        automática de los estados de salud del sistema monitorizado.
+    \item \textbf{Validación experimental.} Realizar pruebas en un entorno controlado para
+        calibrar el sistema y verificar la precisión del diagnóstico ante distintos tipos
+        de fallo.
+    \item \textbf{Pruebas en entorno real.} Desplegar una prueba de concepto sobre un
+        activo operativo para validar la robustez de la arquitectura en condiciones de uso
+        diario.
+\end{enumerate}
+
+\section{Alcance y limitaciones}
+
+El trabajo se limita a un único activo de prueba y a los modos de fallo que pueden
+inducirse de forma controlada y reversible sobre él. No se persigue la certificación
+metrológica de las medidas: los sensores empleados son de bajo coste y las magnitudes se
+utilizan como indicadores relativos de desviación, no como valores absolutos calibrados.
+
+Procede acotar el alcance del motor de análisis en los términos en que efectivamente se ha
+desarrollado. La propuesta de trabajo enuncia la clasificación automática de los estados de
+salud; lo abordado es la \textbf{detección de una clase}, es decir el ajuste de un modelo del
+estado nominal y la señalización de cuanto se desvíe de él, sin atribución de la desviación a un
+estado concreto. La decisión responde a que un clasificador requiere ejemplos etiquetados de
+cada estado, y los modos de fallo de un activo de esta naturaleza son escasos, variados y no
+conocidos de antemano. La justificación detallada figura en el capítulo~\ref{cap:resultados}.
+
+Tampoco se persigue el empleo de un entorno de ejecución de modelos reducidos para
+microcontroladores. Esos entornos operan sobre redes neuronales, y el tamaño de muestra
+alcanzable en una campaña de esta duración no permite ajustar una arquitectura de ese tipo sin
+sobreajuste. La inferencia en el nodo se programa por tanto de forma directa, lo que no supone
+una limitación del alcance sino una consecuencia de la familia de modelos aplicable.

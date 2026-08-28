@@ -1,0 +1,201 @@
+% D. Metodología desarrollada de forma sucesiva (Guía apdo. 3.D)
+% Extensión orientativa: 4-5 páginas. Narrar las fases EN ORDEN, incluidos los problemas
+% encontrados y cómo se resolvieron: es lo que evidencia el trabajo realizado.
+% Fuente de verdad del avance: docs/ROADMAP.md
+\chapter{Metodología}
+\label{cap:metodologia}
+
+El desarrollo se organizó en fases sucesivas, cada una condicionada por el resultado de la
+anterior. Este capítulo describe esa progresión, incluidas las incidencias encontradas y
+las soluciones adoptadas.
+
+\section{Fase 1: definición del escenario y de la arquitectura}
+
+Se seleccionó como activo de prueba el compresor de un sistema de refrigeración doméstico y
+se definieron las tres modalidades de sensado a integrar. Sobre esa base se estableció una
+arquitectura de dos niveles: un nodo de captura en el borde y un concentrador local que
+recibe la telemetría y construye el conjunto de datos.
+
+\section{Fase 2: integración del nodo de sensado}
+
+La integración se abordó de forma incremental, incorporando y validando un sensor cada vez
+antes de combinarlos en un único ciclo de adquisición. El orden seguido fue: acelerómetro y
+giroscopio sobre bus \textit{Inter-Integrated Circuit} (I\textsuperscript{2}C), sonda de
+temperatura sobre bus 1-Wire y micrófono digital sobre bus \textit{Inter-IC Sound} (I2S).
+
+\section{Fase 3: estabilización frente a la vibración}
+
+Durante las primeras pruebas con el compresor en funcionamiento se detectó un fallo
+recurrente: el bus I\textsuperscript{2}C quedaba bloqueado y el bucle principal del
+microcontrolador se detenía indefinidamente. El origen se localizó en microcortes del
+cableado del acelerómetro provocados por la propia vibración del activo, precisamente la
+magnitud que el sistema debe medir.
+
+La solución adoptada fue una rutina de detección y recuperación por software: en cada ciclo
+se comprueba el reconocimiento del dispositivo en su dirección de bus y, si no responde, se
+reinicia el bus y se reinicializa el sensor sin reiniciar el microcontrolador. Se descartó
+de forma deliberada la alternativa de reiniciar el nodo, dado que un reinicio interrumpe la
+continuidad temporal de la señal, que es la información que el análisis posterior explota.
+
+\section{Fase 4: conectividad y almacenamiento}
+
+Al preparar la primera campaña de captura prolongada se identificó una limitación en el
+esquema de adquisición que habría invalidado el análisis previsto. El bucle de medida
+operaba a una cadencia de \mbox{1 Hz}, suficiente para las magnitudes térmicas pero dos
+órdenes de magnitud por debajo de lo que exige la vibración del activo, cuya componente
+fundamental se sitúa en torno a los \mbox{48 Hz}. La consecuencia no era una pérdida de
+precisión, sino la imposibilidad de todo análisis frecuencial: la señal se replegaba sobre la
+banda observable.
+
+La corrección consistió en desacoplar las dos escalas temporales del problema mediante dos
+canales de adquisición con cadencias independientes, según se detalla en el
+capítulo~\ref{cap:diseno}. El formato completo de las tramas de ambos canales, los valores
+centinela que emplean y los procedimientos de aprovisionamiento y verificación del
+concentrador se recogen en el anexo~\ref{anexo:software}. El bucle principal se reformuló además para no depender de
+esperas activas prolongadas, y la conversión de la sonda de temperatura pasó a solicitarse de
+forma asíncrona, dado que sus aproximadamente \mbox{750 ms} de conversión detenían el resto
+de la adquisición.
+
+Procede señalar que la limitación se detectó antes de lanzar la campaña de captura y no
+después. De haberse iniciado la adquisición con el esquema anterior, las horas de medida
+registradas no habrían contenido información espectral aprovechable y la campaña habría
+debido repetirse por completo.
+
+La validación del esquema de ráfagas se realizó en dos etapas deliberadamente separadas.
+Las rutinas de extracción de características se implementaron sin dependencias del entorno
+de ejecución del microcontrolador, lo que permitió verificarlas en un computador frente a
+señales sintéticas de propiedades conocidas analíticamente. Solo después se comprobó su
+comportamiento en la placa. El motivo de este orden es práctico: depurar operaciones
+matemáticas a través del puerto serie del microcontrolador resulta desproporcionadamente
+lento frente a hacerlo en un entorno de compilación local.
+
+La verificación sobre la placa confirmó los dos parámetros críticos del esquema. La duración
+real de la captura se mantuvo en \mbox{1024 ms} sin desviación apreciable en todas las
+ráfagas observadas, lo que acredita que la cadencia de muestreo se sostiene y que el eje de
+frecuencias resultante es válido. El cálculo completo de las características de los tres
+ejes y de la ventana acústica consumió entre \mbox{29 ms} y \mbox{30 ms}, margen holgado
+frente al periodo de \mbox{30 s} entre ráfagas. Se comprobó igualmente que, con el activo en
+marcha, la frecuencia dominante coincidía en los tres ejes en torno a \mbox{49 Hz}, valor
+compatible con el régimen de un motor de inducción de dos polos alimentado a \mbox{50 Hz} una
+vez descontado el deslizamiento. Ese pico desaparecía con el compresor detenido, lo que
+permitió atribuirlo al giro del motor y no a un acoplamiento eléctrico de la red.
+
+\section{Fase 5: despliegue del concentrador}
+
+El concentrador se implantó sobre una Raspberry~Pi que aloja el intermediario de mensajería
+y el registrador. Durante la puesta a punto se constató que el equipo que alojaba el
+intermediario cambió de subred en cuatro ocasiones, circunstancia problemática porque la
+dirección del intermediario es una constante de compilación del firmware y cada cambio
+obligaba a reprogramar el nodo.
+
+La solución adoptada consistió en configurar la interfaz inalámbrica del concentrador como
+punto de acceso, de forma que el nodo se conecte directamente a él sin encaminador
+intermedio. El gestor de red asigna en ese modo una dirección fija, con lo que la constante
+del firmware deja de depender de infraestructura ajena. La decisión aporta además dos
+ventajas: el conjunto resulta portátil, al no requerir más que alimentación eléctrica, y la
+red queda aislada, lo que elimina el riesgo de que un tercero publique tramas en los temas de
+telemetría y contamine el conjunto de datos. Se asume como contrapartida que el concentrador
+pierde su acceso a Internet por la interfaz inalámbrica, dado que esta no puede operar
+simultáneamente como cliente y como punto de acceso; la gestión se mantiene por cable.
+
+El aprovisionamiento se automatizó separando las operaciones en fases, por una razón de
+seguridad operativa: la activación del punto de acceso interrumpe la red por la que llega la
+sesión de administración remota. Todas las comprobaciones se realizan antes de modificar la
+configuración del sistema, la activación del punto de acceso constituye la última operación y
+se lanza desacoplada de la sesión para que se complete aunque la conexión se pierda.
+
+El equipo empleado como concentrador contaba ya con un intermediario configurado para otros
+usos. Se adoptó como criterio la intervención mínima: el procedimiento examina la
+configuración existente y, cuando esta ya satisface los requisitos, no la modifica; cuando la
+configuración ajena restringe el servicio a la interfaz local, se limita a informar sin
+alterar ficheros de terceros. Ante cualquier fallo, restaura el estado anterior antes de
+abortar. El fundamento es que dejar un servicio inoperativo en un equipo compartido resulta
+más perjudicial que no haber intervenido.
+
+La cadena completa se verificó eslabón por eslabón siguiendo el recorrido del dato: punto de
+acceso activo, nodo asociado a la red, intermediario aceptando conexiones, tramas de ambos
+canales recibidas, registrador en ejecución y ficheros de datos incrementando su número de
+filas. Esta última comprobación se realiza contrastando el recuento de filas en dos instantes
+separados, y no verificando la mera existencia del fichero, porque un fichero presente que no
+crece constituye el modo de fallo más fácil de pasar por alto. Se comprobó asimismo que el
+conjunto se restablece por completo tras un corte de alimentación sin intervención manual.
+
+% TODO: incorporar el resultado de la campaña de captura del estado nominal (duración,
+% número de ráfagas válidas y descartadas). Requiere ejecutar la campaña: a fecha de
+% redacción no existe ninguna registrada en docs/EXPERIMENTOS.md.
+
+Las fases que siguen no se habían ejecutado en el momento de redactar este capítulo. Se
+describe el protocolo establecido para cada una, dado que su definición condiciona el diseño
+ya implementado; los resultados se recogerán en el capítulo~\ref{cap:resultados}.
+
+El preprocesado comprende dos filtrados de naturaleza distinta. El primero descarta los
+valores centinela descritos en el capítulo~\ref{cap:diseno}, cuya inclusión distorsionaría
+cualquier estadístico: un único valor de \mbox{$-127$ \textdegree C} arrastra la media de
+temperatura de una jornada completa.
+
+El segundo es consecuencia directa de las limitaciones del montaje documentadas en el
+anexo~\ref{anexo:hardware}. Dado que se asume una tasa de fallo de lectura apreciable en
+lugar de intervenir sobre el cableado, el conjunto de datos contendrá ráfagas de calidad
+desigual, y el protocolo debe discriminarlas en lugar de tratarlas por igual. Los contadores
+de salud que el nodo publica hacen posible ese filtrado sobre criterios objetivos: la
+duración real de la captura permite descartar las ráfagas cuya cadencia no se sostuvo, y el
+número de reintentos de cada ráfaga califica su calidad individual. Se establece por tanto
+como criterio metodológico que el filtrado del conjunto de datos se documente de forma
+explícita, indicando qué fracción de las ráfagas se descartó y con qué umbral, dado que esa
+fracción forma parte del resultado y no de su preparación.
+
+Sobre las ráfagas retenidas se calculan las características derivadas que requieren
+historia y que el nodo no puede obtener de una ventana aislada: el gradiente térmico, el
+diferencial entre la temperatura de la superficie del compresor y la del ambiente, la
+evolución de los armónicos respecto de la componente fundamental y la duración de los ciclos
+de marcha y parada, deducida del canal lento.
+
+El diferencial térmico merece una mención por su función en el diseño. Emplear la diferencia
+entre la temperatura del activo y la del ambiente, en lugar de la temperatura absoluta,
+elimina de la formulación la variación estacional: un compresor en estado nominal mantiene un
+salto térmico semejante sobre el ambiente con independencia de la temperatura exterior. La
+alternativa, un modelo que persiguiese esa deriva ajustándose de forma continua, resulta
+inviable porque no puede distinguir una deriva ambiental lenta de una degradación igualmente
+lenta. Se prefiere por ello eliminar la variable de confusión a compensarla.
+
+La validación exige disponer de referencia de verdad, que en este contexto solo puede
+obtenerse provocando los fallos de forma deliberada. Se establecieron cuatro modos, elegidos
+por ser reversibles y por afectar a modalidades de medida distintas: desequilibrio de masa,
+aflojamiento del anclaje, obstrucción de la ventilación y sobrecarga térmica. Los dos
+primeros se manifiestan en la vibración, el tercero en las magnitudes térmica y acústica y el
+cuarto en la evolución térmica y en el patrón de los ciclos de marcha.
+
+El protocolo de cada campaña impone tres condiciones. La primera es que la campaña de
+referencia en estado nominal precede a cualquier fallo inducido, por ser irreversible el
+orden inverso. La segunda es que el montaje del sensor no se modifica entre campañas: dado
+que la firma de vibración depende del punto y de la rigidez de la fijación, un remontaje
+invalida la referencia y obliga a repetirla. La tercera es que toda campaña queda anotada con
+su activo, condición, montaje, ficheros e incidencias, sin lo cual un fichero de datos carece
+de las condiciones experimentales que le dan sentido.
+
+La comparación se plantea dentro de un mismo activo, con estado nominal y estados de fallo
+registrados sobre la misma máquina y el mismo montaje. Esta restricción excluye contrastar el
+modelo ajustado sobre un activo frente a las medidas de otro distinto, procedimiento que no
+permitiría discernir si una anomalía señalada corresponde al fallo o simplemente a la
+diferencia entre máquinas.
+
+El umbral de decisión se calibra sobre la distribución de puntuaciones del conjunto nominal,
+lo que fija la tasa de falsos positivos admitida, y la evaluación se expresa mediante la
+matriz de confusión frente a cada modo de fallo inducido.
+
+La última fase traslada el sistema a un activo en uso diario, condición que introduce
+perturbaciones ausentes en el banco: aperturas de puerta, variación de la carga térmica y
+ciclos de desescarche. El objetivo no es mejorar la detección sino comprobar que el
+comportamiento normal del activo, en toda su variabilidad, no genera una tasa de aviso
+inaceptable.
+
+Las métricas de robustez previstas son el tiempo de servicio sin intervención, la fracción de
+ráfagas válidas sobre las esperadas, la evolución de los contadores de salud del nodo y la
+tasa de avisos en ausencia de fallo conocido. Se incorpora además la comprobación de que el
+veredicto de estado sigue siendo observable en el propio nodo con el concentrador apagado,
+dado que la autonomía del extremo constituye la tesis del trabajo y afirmarla sin verificarla
+carecería de fundamento.
+
+% TODO: incorporar los resultados de las fases 6, 7 y 8 cuando se ejecuten. A fecha de
+% redacción no existe ninguna campaña registrada en docs/EXPERIMENTOS.md, por lo que este
+% capítulo describe el protocolo establecido y no resultados obtenidos.

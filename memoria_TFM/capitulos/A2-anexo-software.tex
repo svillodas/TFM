@@ -1,0 +1,325 @@
+% I. Anexo técnico: software (Guía apdo. 3.I)
+% Fuentes de verdad: docs/DATA_SCHEMA.md, device/device.ino, server/mqtt_logger.py
+\chapter{Anexo técnico: software y formato de datos}
+\label{anexo:software}
+
+\section{Formato de la trama de telemetría}
+
+El nodo publica en el tema \texttt{fridge/sensors} un objeto JSON con nueve variables por
+ciclo de medida. El listado~\ref{listado:trama} muestra un ejemplo de trama.
+
+\begin{lstlisting}[caption=Ejemplo de trama de telemetria publicada por el nodo.,label=listado:trama]
+{"tempExt":4.31,"accX":0.12,"accY":-0.05,"accZ":9.79,
+ "gyroX":0.01,"gyroY":0.00,"gyroZ":-0.02,"motorTemp":38.6,"noise":142}
+\end{lstlisting}
+
+El cuadro de las nueve variables de este canal, con su unidad e intervalo, figura en el
+capítulo~\ref{cap:diseno}. El canal de ráfaga, publicado en el tema
+\texttt{fridge/vibration}, transporta en cambio características ya calculadas y no medidas
+instantáneas. El cuadro~\ref{table:rafaga} recoge su contenido completo.
+
+\begin{table}[ht!]
+\caption{Campos del canal de ráfaga. El sufijo \texttt{\_x}, \texttt{\_y} o \texttt{\_z}
+identifica el eje.}
+\label{table:rafaga}
+\centering
+\begin{tabular}{|p{2.6cm}|p{1.5cm}|p{8.3cm}|}
+\hline
+\textbf{Campo} & \textbf{Unidad} & \textbf{Contenido} \\
+\hline
+\texttt{vib\_fs} & Hz & Frecuencia de muestreo de la ráfaga (1000) \\
+\hline
+\texttt{vib\_n} & --- & Muestras por ráfaga (1024) \\
+\hline
+\texttt{ms\_capture} & ms & Duración real de la captura. Es el control de calidad de la
+ráfaga: una desviación respecto de \mbox{1024 ms} comprime el eje de frecuencias \\
+\hline
+\texttt{ms\_total} & ms & Captura más cálculo de características \\
+\hline
+\texttt{failed\_bursts} & --- & Ráfagas descartadas acumuladas \\
+\hline
+\texttt{bad\_frames} & --- & Tramas del canal lento descartadas acumuladas \\
+\hline
+\texttt{retries} & --- & Reintentos de lectura en la ráfaga en curso \\
+\hline
+\texttt{total\_retries} & --- & Reintentos acumulados desde el arranque \\
+\hline
+\texttt{rms\_*} & m/s$^2$ & Valor eficaz de la componente alterna \\
+\hline
+\texttt{peak\_*} & m/s$^2$ & Máximo absoluto tras eliminar la continua \\
+\hline
+\texttt{kurt\_*} & --- & Kurtosis. 3 para ruido gaussiano, 1,5 para senoide pura \\
+\hline
+\texttt{fdom\_*} & Hz & Frecuencia dominante, refinada por interpolación parabólica \\
+\hline
+\texttt{adom\_*} & m/s$^2$ & Amplitud estimada en la frecuencia dominante \\
+\hline
+\texttt{aud\_fs} & Hz & Frecuencia de muestreo del audio (16000) \\
+\hline
+\texttt{aud\_n} & --- & Muestras de audio analizadas \\
+\hline
+\texttt{aud\_rms} & --- & Valor eficaz de la señal acústica, en unidades relativas \\
+\hline
+\texttt{aud\_b0} a \texttt{aud\_b3} & --- & Fracción de energía espectral en las bandas
+0--250, 250--1000, 1000--4000 y 4000--8000 \mbox{Hz}. Las cuatro suman la unidad \\
+\hline
+\end{tabular}
+\end{table}
+
+Las cuatro bandas acústicas expresan fracciones y no niveles absolutos: describen cómo se
+reparte la energía del sonido, no cuánta hay. El nivel absoluto reside en \texttt{aud\_rms}.
+
+\section{Valores centinela y tratamiento de datos ausentes}
+
+El sistema distingue explícitamente entre una medida válida y la ausencia de medida. Un
+valor de \mbox{$-127$ \textdegree C} en la temperatura externa indica sonda desconectada, y
+un bloque de siete variables del acelerómetro con valor exactamente nulo indica que el bus
+I\textsuperscript{2}C no pudo recuperarse en ese ciclo. Ambos casos deben filtrarse antes
+de calcular cualquier estadístico, ya que su inclusión distorsiona los promedios del
+conjunto de datos.
+
+\section{Dependencias del entorno de desarrollo}
+
+El cuadro~\ref{table:dependencias} recoge las versiones empleadas, tomadas del registro de
+compilación del firmware y del fichero de dependencias del concentrador. Se documentan de
+forma explícita porque el comportamiento de una de ellas resultó determinante para el diseño
+de la adquisición, según se describe en el capítulo~\ref{cap:diseno}.
+
+\begin{table}[ht!]
+\caption{Versiones del entorno de desarrollo y de las dependencias.}
+\label{table:dependencias}
+\centering
+\begin{tabular}{|p{5.4cm}|p{2.4cm}|p{4.4cm}|}
+\hline
+\textbf{Componente} & \textbf{Versión} & \textbf{Función} \\
+\hline
+Núcleo Arduino para ESP32 & 3.3.1 & Entorno de ejecución del nodo \\
+\hline
+Wire & 3.3.0 & Bus I\textsuperscript{2}C \\
+\hline
+Adafruit MPU6050 & 2.2.9 & Configuración del acelerómetro \\
+\hline
+Adafruit BusIO & 1.17.4 & Abstracción de bus \\
+\hline
+Adafruit Unified Sensor & 1.1.15 & Interfaz común de sensores \\
+\hline
+OneWire & 2.3.8 & Bus 1-Wire \\
+\hline
+DallasTemperature & 4.0.6 & Sonda DS18B20 \\
+\hline
+WiFi / Networking & 3.3.0 & Conectividad del nodo \\
+\hline
+PubSubClient & 2.8 & Cliente MQTT del nodo \\
+\hline
+Python & 3.11 o superior & Entorno del concentrador \\
+\hline
+paho-mqtt & 2.1.0 & Cliente MQTT del registrador \\
+\hline
+python-dotenv & 1.0.1 & Configuración por variables de entorno \\
+\hline
+Mosquitto & 2.0 o superior & Intermediario de mensajería \\
+\hline
+\end{tabular}
+\end{table}
+
+La biblioteca Adafruit MPU6050 se emplea únicamente para la configuración inicial del
+sensor, y no para la lectura de medidas. El motivo es que su función de obtención de datos
+devuelve un indicador de éxito incondicional y opera sobre un almacén no inicializado, de
+modo que ante un fallo del bus entrega como medida el contenido residual de la pila. La
+lectura se realiza por ello mediante acceso directo a los registros del dispositivo, con la
+validación descrita en el capítulo~\ref{cap:diseno}. Se documenta esta circunstancia porque
+condiciona la reproducibilidad: una implementación que confiara en esa biblioteca para la
+adquisición reproduciría el mismo defecto.
+
+\section{Aprovisionamiento del concentrador}
+
+El capítulo~\ref{cap:metodologia} expone los criterios que rigen el despliegue; esta sección
+recoge el procedimiento reproducible. El aprovisionamiento está automatizado en un
+\textit{script} que admite ejecutar las operaciones de una vez o por fases separadas, según
+el listado~\ref{lst:aprovisionamiento}.
+
+\begin{lstlisting}[caption={Aprovisionamiento completo del concentrador.}, label={lst:aprovisionamiento}]
+# Desde el equipo de desarrollo: copiar el proyecto al concentrador.
+# Se excluyen el entorno virtual, la configuracion local y los datos
+# capturados, para no sobrescribir lo que ya reside en el concentrador.
+rsync -av --exclude .venv --exclude 'server/.env' --exclude 'server/data' \
+      <ruta-local>/ <usuario>@<direccion>:/home/<usuario>/TFM/
+
+# En el concentrador: aprovisionamiento completo
+cd ~/TFM
+sudo AP_PASS='<clave-de-la-red>' ./server/provision-pi.sh todo
+\end{lstlisting}
+
+El cuadro~\ref{table:fases-aprovisionamiento} detalla las operaciones y su orden, que no es
+arbitrario.
+
+\begin{table}[ht!]
+\caption{Fases del aprovisionamiento del concentrador.}
+\label{table:fases-aprovisionamiento}
+\centering
+\begin{tabular}{|p{2.1cm}|p{10.4cm}|}
+\hline
+\textbf{Fase} & \textbf{Operación} \\
+\hline
+\texttt{paquetes} & Instalación del intermediario de mensajería y del entorno de ejecución
+de Python. Requiere acceso a Internet \\
+\hline
+\texttt{broker} & Configuración del intermediario, con examen previo de la configuración
+existente \\
+\hline
+\texttt{logger} & Entorno virtual, configuración por variables de entorno y declaración del
+registrador como servicio del sistema. Incluye una comprobación de extremo a extremo con una
+trama sintética \\
+\hline
+\texttt{ap} & Conversión de la interfaz inalámbrica en punto de acceso. Última operación \\
+\hline
+\texttt{comprobar} & Verificación de la cadena completa. No requiere privilegios \\
+\hline
+\texttt{revertir} & Restitución de la interfaz a modo cliente y detención del registrador,
+conservando los datos capturados \\
+\hline
+\end{tabular}
+\end{table}
+
+Tres particularidades del procedimiento responden a restricciones del entorno. La primera es
+que las comprobaciones previas se completan antes de modificar el sistema, de modo que una
+condición no satisfecha aborta la ejecución sin dejar el equipo en un estado intermedio. La
+segunda es que la activación del punto de acceso interrumpe la red por la que llega la sesión
+de administración remota, por lo que constituye la última operación y se lanza desacoplada de
+la sesión mediante el gestor de servicios, con objeto de que se complete aunque la conexión se
+pierda; los datos de acceso se escriben en un fichero del concentrador antes de esa
+activación, para que puedan consultarse localmente después. La tercera es la existencia de la
+fase de reversión, exigible cuando el equipo presta además otros servicios: la
+restitución no elimina los ficheros de datos capturados.
+
+La instalación exige acceso a Internet, mientras que el punto de acceso lo suprime en la
+interfaz inalámbrica. Ese es el motivo del orden establecido, y no una preferencia
+organizativa: invertirlo dejaría el concentrador sin posibilidad de completar la instalación
+de dependencias.
+
+\section{Puesta en marcha y verificación del concentrador}
+
+El concentrador no requiere intervención para entrar en servicio. El intermediario de
+mensajería, el registrador y el punto de acceso inalámbrico están declarados como servicios
+del sistema con arranque automático, de modo que la alimentación eléctrica es la única
+condición necesaria. Esta propiedad se estableció como requisito porque una campaña de
+adquisición prolongada debe sobrevivir a un corte de suministro sin perder más datos que los
+del intervalo sin corriente, y el registrador escribe en modo de adición, con lo que
+prosigue el fichero de la jornada en lugar de sustituirlo.
+
+El registrador se declara además con reinicio automático ante terminación anómala. El
+criterio subyacente es que los datos en bruto son irrecuperables si se pierden, de modo que
+un fallo puntual del proceso no debe interrumpir la campaña.
+
+La verificación de la cadena completa se realiza con el procedimiento recogido en el
+listado~\ref{lst:verificacion}, que recorre el camino del dato en el mismo orden en que este
+fluye. Esa ordenación es deliberada: el primer eslabón que falla localiza el corte, de forma
+que no es necesario examinar los posteriores.
+
+\begin{lstlisting}[caption={Verificacion de la cadena de adquisicion en el concentrador.}, label={lst:verificacion}]
+# Verificacion completa: punto de acceso, nodo asociado, intermediario,
+# tramas de ambos canales, registrador y crecimiento de los ficheros
+./server/provision-pi.sh comprobar
+
+# Seguimiento durante la campana
+journalctl -u tfm-logger -f
+wc -l server/data/*.csv
+\end{lstlisting}
+
+La comprobación del registrador no se limita a constatar la existencia de los ficheros de
+datos, sino que contrasta su número de filas en dos instantes separados. La distinción es
+pertinente: un fichero presente que no crece constituye un modo de fallo silencioso, y se
+observó durante la puesta a punto que puede producirse con el servicio aparentemente activo y
+las tramas llegando correctamente al intermediario.
+
+El origen de aquel incidente ilustra un aspecto del comportamiento del sistema operativo que
+conviene documentar. Al eliminar los ficheros de datos con el registrador en ejecución, el
+descriptor abierto por el proceso continúa referenciando el fichero original, ya desvinculado
+del sistema de ficheros, por lo que la escritura prosigue sobre un destino inaccesible
+mientras el fichero visible permanece vacío. La reapertura solo se produce al cambiar la
+fecha. Se establece por ello como procedimiento que toda manipulación del directorio de datos
+se realice con el servicio detenido, según el listado~\ref{lst:limpieza}.
+
+\begin{lstlisting}[caption={Reinicio del directorio de datos antes de una campana.}, label={lst:limpieza}]
+D=server/data/descartes-$(date +%Y%m%d-%H%M)
+sudo systemctl stop tfm-logger        # detener ANTES de tocar los ficheros
+mkdir -p "$D" && mv server/data/*.csv "$D"/
+sudo systemctl start tfm-logger       # los recrea con su cabecera
+\end{lstlisting}
+
+Los ficheros se archivan en lugar de eliminarse, dado que las capturas de puesta a punto
+constituyen la evidencia de las incidencias descritas en el capítulo~\ref{cap:diseno}. Debe
+evitarse crear los ficheros de forma manual tras retirarlos: el registrador escribe la
+cabecera únicamente cuando el fichero no existe o está vacío, y un fichero preexistente
+produciría un conjunto de datos sin nombres de columna.
+
+\section{Procedimiento de despliegue del modelo en el nodo}
+
+El modelo ajustado llega al firmware a través de un fichero de cabecera generado por el entorno
+de análisis, según la secuencia siguiente:
+
+\begin{enumerate}
+\item El procedimiento de exportación ajusta el modelo sobre el conjunto de referencia y escribe
+      \texttt{device/modelo\_referencia.h}, que contiene los parámetros y, en su encabezado, la
+      campaña, la duración, el número de ráfagas y episodios, los umbrales del filtro de calidad
+      y la fecha de generación.
+\item Un segundo procedimiento exporta las ráfagas reales con la puntuación que produce la
+      biblioteca de referencia sobre cada una, para contrastar la implementación embarcada.
+\item Las rutinas del detector se compilan y verifican en un computador frente a esos valores.
+\item Solo entonces se compila el firmware y se programa la placa.
+\end{enumerate}
+
+La separación entre los parámetros y las rutinas es deliberada: reentrenar el modelo consiste en
+volver a ejecutar la exportación y recompilar, sin modificar código. El fichero generado no se
+edita a mano, y su encabezado permite rastrear cualquier firmware programado en una placa hasta
+los datos que lo produjeron.
+
+\section{Especificidad del modelo respecto del activo}
+
+Procede consignar una restricción de despliegue que el propio procedimiento de verificación puso
+de manifiesto. El modelo exportado incorpora las medianas del activo sobre el que se ajustó, su
+umbral de discriminación entre marcha y parada y su referencia de estado nominal. Programarlo en
+un nodo instalado sobre otro activo produce la declaración de medida no evaluable en la
+totalidad de las ráfagas: se comprobó que el activo con fallo presenta un valor eficaz en marcha
+de \mbox{0,16 m/s$^2$} frente al umbral de \mbox{0,199 m/s$^2$} derivado del activo de
+referencia, de modo que sus ráfagas se clasifican como capturadas con el compresor detenido.
+
+\textbf{El modelo es específico del activo}, y cada nodo requiere su propia campaña de
+referencia. De ello se sigue asimismo que el nodo necesita una fase de referencia antes de poder
+emitir su primer veredicto, dado que las características normalizadas por el propio activo
+exigen conocer su mediana.
+
+\section{Rutina de recuperación del bus}
+
+El listado~\ref{lst:recuperacion} recoge la rutina completa. Se invoca cuando una lectura ha
+fallado de forma efectiva, y no de forma preventiva en cada ciclo.
+
+\begin{lstlisting}[language=C++, caption={Rutina de recuperacion del bus I2C.}, label={lst:recuperacion}]
+bool recoverI2C() {
+  Wire.end();
+  delay(100);
+  Wire.begin(I2C_SDA, I2C_SCL);
+  Wire.setClock(I2C_FREQ_HZ);
+
+  if (mpu.begin()) {
+    mpu.setAccelerometerRange(MPU6050_RANGE_4_G);
+    mpu.setFilterBandwidth(MPU6050_BAND_260_HZ);
+    mpu.setSampleRateDivisor(0);
+    delay(50);            // los registros valen 0 hasta la 1a conversion
+    updateGyroScale();    // begin() reprograma el rango del giroscopo
+    return true;
+  }
+  return false;
+}
+\end{lstlisting}
+
+Tres aspectos del listado responden a incidencias detectadas en la placa. Los pines del bus
+se indican de forma explícita en la reapertura, en lugar de heredarse de la configuración de
+la variante de la placa, para que la recuperación no reasigne el bus a pines distintos de los
+cableados. La espera posterior a la reinicialización es necesaria porque la puesta en marcha
+del sensor conlleva un reinicio del dispositivo, tras el cual sus registros de medida
+permanecen a cero hasta que concluye la primera conversión; leerlos antes introduciría
+muestras nulas indistinguibles de una medida. Por último, la escala del giroscopio se vuelve
+a consultar al dispositivo, dado que la reinicialización reprograma su fondo de escala y
+suponerlo en lugar de leerlo alteraría de forma silenciosa las unidades de tres variables del
+conjunto de datos.

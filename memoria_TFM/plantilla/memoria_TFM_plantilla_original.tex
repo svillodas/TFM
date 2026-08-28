@@ -1,0 +1,213 @@
+\documentclass[%
+    paper=A4,               % Tamaño de papel A4
+    twoside,                % Páxinas pares e impares con deseño diferenciado
+    parskip=full,           % Renglón libre entre parágrafos
+    12pt,                   % Tamaño de fonte. Non inferior a 12 puntos
+    titlepage=on,           % Páxina independente para o título
+    captions=tableabove,    % Os títulos das táboas na parte superior
+]{book}                     % Baseado no tipo "book" 
+
+% **************************************************
+% * Idioma: galician, spanish, english
+% **************************************************
+\usepackage[galician]{babel}
+
+% **************************************************
+% * Universidade: uvigo, udc, usc
+% **************************************************
+\usepackage[uvigo]{tfm-muiot}
+
+% **************************************************
+% * Datos para a portada do TFG
+% **************************************************
+\title{Título do Traballo de Fin de Mestrado para o MUIoT}
+\author{Nome do autor/a}
+\advisor{Nome Titor1, Nome Titor2}
+\course{2024/2025}
+
+% **************************************************
+% * Cabeceiras (opcionais). Actívanse con "true" 
+% **************************************************
+\headers{true}
+
+% **************************************************
+% * Inicio do documento
+% **************************************************
+\begin{document}
+
+\maketitle
+\clearemptydoublepage
+
+% **************************************************
+% * Dedicatoria
+% **************************************************
+\dedication{Dedicatoria}
+\clearemptydoublepage
+
+% **************************************************
+% * Táboa de contidos
+% **************************************************
+\tableofcontents
+\clearemptydoublepage
+
+% **************************************************
+% * Contido
+% **************************************************
+
+\chapter{Introdución}
+O documento do TFM deberá estruturarse como un informe cunha extensión
+de entre 25 e 50 páxinas, incluíndo táboas, gráficos e a portada
+establecida. A continuación, poderanse engadir os anexos técnicos que
+se consideren necesarios, co fin de que o informe final sexa o máis
+autónomo e completo posible.
+
+As referencias bibliográficas deben redactarse empregando o estilo de
+citación IEEE ou o estilo Harvard. Cada entrada debe conter
+información suficiente para identificar claramente os autores, o
+título do documento, a publicación na que aparece e o ano de
+publicación~\cite{goossens1994latex}. No caso de documentos
+electrónicos, deberase incluír a URL de acceso e a data de consulta.
+
+\section{Estilo}
+En calquera documento científico ou técnico, a claridade debe
+prevalecer sobre calquera outra consideración estilística. Ademais, a
+memoria do TFM debe ser un documento completo por si mesmo, é dicir,
+debe conter información suficiente para que o lector poida comprendelo
+sen necesidade de recorrer ao contexto nin a fontes externas.
+
+Recoméndase empregar un estilo de redacción neutro e obxectivo. Débese
+evitar o uso da primeira persoa. Os parágrafos excesivamente longos ou
+mal estruturados dificultan gravemente a comunicación do
+contido. Cómpre empregar terminoloxía técnica e científica con rigor e
+precisión, evitando o uso de linguaxe informal.
+
+\section{Formato da páxina}
+A memoria do TFM deberá presentarse sempre en formato DIN A4, a dobre
+cara e con impresión a dobre cara. As marxes superior, inferior,
+dereita e esquerda non deberán ser inferiores a 25 mm.
+
+\section{Tipografía e espazado}
+Recoméndase o uso das fontes Times New Roman ou Baskerville en estilo
+recto (non cursiva), cun tamaño non inferior aos 12 puntos. Nos
+encabezados, notas ao pé, notas finais e bibliografía pódese empregar
+un tamaño de letra menor. Os parágrafos do texto deben ter un espazado
+sinxelo, deixando unha liña en branco entre eles. O texto debe estar
+xustificado en ambos marxes, de xeito que a lonxitude de cada liña
+sexa uniforme.
+
+\chapter{Estado da arte}
+Análise de necesidades e estudio do estado da arte relacionado co
+problema a resolver no TFM.
+
+O cadro \ref{table:exemplo} mostra un exemplo de táboa (existen moitos
+máis estilos e contornos).
+
+\begin{table}[ht!]
+\caption{Táboa de exemplo.}
+\label{table:exemplo}
+\centering
+\begin{tabular}{ |p{6cm}|p{4cm}|p{4cm}|  }
+\hline
+\multicolumn{3}{|c|}{Country List} \\
+\hline
+Country Name or Area Name & ISO ALPHA 2 Code & ISO ALPHA 3 \\
+\hline
+Afghanistan & AF & AFG \\
+Aland Islands & AX & ALA \\
+Albania & AL & ALB \\
+Algeria & DZ & DZA \\
+American Samoa & AS & ASM \\
+Andorra & AD & AND \\
+Angola & AO & AGO \\
+\hline
+\end{tabular}
+\end{table}
+
+\chapter{Obxectivos}
+Descripción detallada dos obxectivos do TFM.
+
+A figura \ref{fig:exemplo} é un exemplo de como incorporar unha
+figura.
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{logo_uvigo}
+    \caption{Figura de exemplo.}
+    \label{fig:exemplo}
+\end{figure}
+
+\chapter{Metodoloxía}
+Metodoloxía desenvolvida de forma sucesiva.
+
+\chapter{Deseño}
+Decisións técnicas tomadas, incluíndo o uso de estándares ou
+normativas ou xustificando a súa ausencia.
+
+O Listado \ref{listado:exemplo} mostra un exemplo de código Python.
+
+\begin{lstlisting}[language=Python, caption=Exemplo en Python., label=listado:exemplo]
+import numpy as np
+    
+def incmatrix(genl1,genl2):
+    m = len(genl1)
+    n = len(genl2)
+    M = None #to become the incidence matrix
+    VT = np.zeros((n*m,1), int)  #dummy variable
+    
+    #compute the bitwise xor matrix
+    M1 = bitxormatrix(genl1)
+    M2 = np.triu(bitxormatrix(genl2),1) 
+
+    for i in range(m-1):
+        for j in range(i+1, m):
+            [r,c] = np.where(M2 == M1[i,j])
+            for k in range(len(r)):
+                VT[(i)*n + r[k]] = 1;
+                VT[(i)*n + c[k]] = 1;
+                VT[(j)*n + r[k]] = 1;
+                VT[(j)*n + c[k]] = 1;
+                
+                if M is None:
+                    M = np.copy(VT)
+                else:
+                    M = np.concatenate((M, VT), 1)
+                
+                VT = np.zeros((n*m,1), int)
+    
+    return M
+\end{lstlisting}
+
+\chapter{Resultados}
+Resultados acadados, xustificando os motivos polos que non se poido
+lograr a consecución de todos os obxectivos (de ser o caso).
+
+\chapter{Conclusións}
+Discusión e conclusións. Valorando, de ser o caso, o impacto en
+aspectos de responsabilidade legal, ética e profesional relacionados
+co TFM (por exemplo, aspectos relacionados coa privacidade, a
+seguridade, etc.).
+
+\section{Liñas futuras}
+Listaxe de posibles melloras.
+
+% **************************************************
+% * Apéndices
+% **************************************************
+\part*{Apéndices}
+\appendix
+
+\chapter{Anexo técnico}
+Anexos técnicos que incorporen información adicional para calquera dos
+epígrafes anteriores ou incorporando aspectos novos que teñan
+relevancia para o traballo realizado.
+
+% **************************************************
+% * Bibliografía
+% **************************************************
+% * Débese completar no ficheiro "referencias.bib" 
+% * incluíndo alí as entradas en formato BibTeX.
+% **************************************************
+\bibliographystyle{IEEEtran} 
+\bibliography{referencias}
+
+\end{document}

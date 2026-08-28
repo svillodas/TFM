@@ -1,0 +1,52 @@
+% A. Introducción al problema (Guía apdo. 3.A)
+% Extensión orientativa: 3-4 páginas
+\chapter{Introducción}
+\label{cap:introduccion}
+
+La monitorización de activos críticos resulta fundamental para garantizar la operatividad
+y prevenir averías inesperadas en entornos que abarcan desde el sector servicios hasta el
+industrial. Los sistemas electromecánicos de refrigeración constituyen un caso
+representativo: operan de forma continua, su fallo implica la pérdida del producto
+conservado y su degradación rara vez es instantánea, sino que viene precedida por cambios
+progresivos en su comportamiento físico.
+
+% TODO: cuantificar el problema con fuentes citables (coste de la parada no planificada,
+% porcentaje de fallos en compresores, ahorro atribuido al mantenimiento predictivo).
+% Añadir las entradas correspondientes a referencias.bib en formato IEEE.
+
+\section{Motivación}
+
+El mantenimiento correctivo actúa una vez que el fallo ya se ha producido, mientras que el
+mantenimiento preventivo basado en calendario sustituye componentes que a menudo conservan
+vida útil. El mantenimiento predictivo se apoya en la medida continua de variables físicas
+para estimar el estado real del activo y anticipar la intervención únicamente cuando el
+comportamiento se desvía del nominal.
+
+La adopción de este paradigma se ve limitada, en la práctica, por el coste de la
+infraestructura de captura y por el volumen de datos que genera un muestreo de señales
+mecánicas y acústicas. Enviar de forma continua señales de vibración a la nube resulta
+costoso en ancho de banda y en almacenamiento, e introduce una dependencia de conectividad
+que un activo industrial no siempre puede asumir.
+
+\section{Planteamiento del problema}
+
+Este trabajo aborda el diseño e implementación de un sistema de monitorización modular que
+desplaza la lógica de diagnóstico hacia el extremo de la red (\textit{edge}). El nodo de
+medida captura variables físicas del activo --vibración, temperatura y firma acústica-- y
+el objetivo último es que la detección de anomalías se resuelva en el propio nodo, sin
+depender de un flujo masivo de datos hacia la nube.
+
+El activo seleccionado como escenario de prueba es el compresor de un sistema de
+refrigeración, por su disponibilidad, su funcionamiento cíclico bien definido y la
+posibilidad de inducir fallos controlados sin riesgo.
+
+\section{Estructura del documento}
+
+El capítulo~\ref{cap:estado-arte} analiza las necesidades del problema y el estado del arte
+en mantenimiento predictivo e inteligencia en el borde. El capítulo~\ref{cap:objetivos}
+detalla los objetivos perseguidos. El capítulo~\ref{cap:metodologia} describe la
+metodología seguida de forma sucesiva. El capítulo~\ref{cap:diseno} justifica las
+decisiones técnicas adoptadas, incluidos los estándares empleados. El
+capítulo~\ref{cap:resultados} presenta los resultados obtenidos y el
+capítulo~\ref{cap:conclusiones} recoge la discusión, las conclusiones y las líneas futuras.
+Los anexos técnicos completan la información de detalle del sistema construido.

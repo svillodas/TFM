@@ -1,0 +1,903 @@
+% F. Resultados obtenidos, justificando los no alcanzados (Guía apdo. 3.F)
+% Extensión orientativa: 5-7 páginas.
+% REGLA: aquí solo van resultados MEDIDOS. Toda cifra debe proceder de una campaña
+% registrada en docs/EXPERIMENTOS.md. Nunca estimaciones ni valores plausibles.
+\chapter{Resultados}
+\label{cap:resultados}
+
+\section{Validación del nodo de sensado}
+
+Los resultados de esta sección proceden de la campaña de caracterización EXP-002, de cuatro
+minutos de duración sobre el activo en estado nominal. Se trata de una campaña destinada a
+verificar la cadena de adquisición y no a producir el conjunto de entrenamiento, y así se
+consigna.
+
+El nodo integra los tres sensores en un mismo ciclo y publica en dos canales con cadencias
+independientes. La cadencia del canal de ráfaga, que es la crítica porque determina la validez
+del eje de frecuencias, se sostuvo en \mbox{1024 ms} en la totalidad de las ráfagas
+registradas, sin desviación medible respecto del valor nominal. El cálculo completo de las
+características de los tres ejes y de la ventana acústica consumió entre \mbox{29 ms} y
+\mbox{30 ms}, frente a un periodo de \mbox{30 s} entre ráfagas.
+
+El cuadro~\ref{table:validacion-nodo} recoge la repetibilidad de las características sobre el
+activo en régimen estable, que es la magnitud que determina si un cambio de estado resultará
+detectable.
+
+\begin{table}[ht!]
+\caption{Repetibilidad de las características en estado nominal (campaña EXP-002).}
+\label{table:validacion-nodo}
+\centering
+\begin{tabular}{|p{4.6cm}|p{2.6cm}|p{2.2cm}|p{2.4cm}|}
+\hline
+\textbf{Magnitud} & \textbf{Media} & \textbf{Desviación} & \textbf{Coef. variación} \\
+\hline
+Frecuencia fundamental & \mbox{49,77 Hz} & 0,08 & 0,15 \% \\
+\hline
+Amplitud en la fundamental & \mbox{0,0660 m/s$^2$} & 0,0049 & 7,4 \% \\
+\hline
+\end{tabular}
+\end{table}
+
+La frecuencia fundamental se identificó en seis de las siete ráfagas registradas, siempre como
+tercer pico espectral por detrás de los dos modos de la componente tonal descrita en el
+capítulo~\ref{cap:diseno}. Su valor, \mbox{49,77 Hz}, es coherente con el régimen de un
+motor de inducción de dos polos alimentado a \mbox{50 Hz} una vez descontado el
+deslizamiento.
+
+La estabilidad obtenida en frecuencia, con un coeficiente de variación del 0,15 \%,
+constituye por sí misma una capacidad de medida: permite seguir variaciones pequeñas del
+régimen de giro, que es uno de los indicadores de carga del compresor. La repetibilidad en
+amplitud, del 7,4 \%, sitúa el umbral de detección en un cambio del orden del 21 \% para un
+criterio de tres desviaciones típicas.
+
+El canal térmico registró un salto de \mbox{5,7 °C} entre la superficie del compresor y el
+ambiente, magnitud que discrimina sin ambigüedad el activo en marcha del activo detenido.
+
+\section{Resiliencia frente al fallo de bus}
+
+El cuadro~\ref{table:resiliencia} recoge el comportamiento de los mecanismos de integridad
+durante la campaña EXP-002. Los contadores de salud descritos en el
+capítulo~\ref{cap:diseno} permiten cuantificarlo sin instrumentación añadida.
+
+\begin{table}[ht!]
+\caption{Mecanismos de integridad del dato durante la campaña EXP-002, de cuatro minutos.}
+\label{table:resiliencia}
+\centering
+\begin{tabular}{|p{5.6cm}|p{2.4cm}|p{4.0cm}|}
+\hline
+\textbf{Contador} & \textbf{Incremento} & \textbf{Interpretación} \\
+\hline
+Reintentos de lectura & 71 & Mediana de 1 por ráfaga, máximo de 30 \\
+\hline
+Rechazos por continuidad & 17 & Muestras corruptas detectadas \\
+\hline
+Ráfagas descartadas & 2 & De 9 registradas en total \\
+\hline
+Tramas del canal lento descartadas & 1 & De 259 registradas \\
+\hline
+Ráfagas no publicadas por falta de enlace & 0 & Enlace estable \\
+\hline
+\end{tabular}
+\end{table}
+
+El resultado relevante no es la magnitud de los contadores sino la relación entre ellos. Con
+71 reintentos y 17 rechazos por continuidad, únicamente dos ráfagas se descartaron por
+completo: el mecanismo de reintento absorbió la práctica totalidad de los fallos aislados del
+bus sin sacrificar la ráfaga entera. Ello confirma el razonamiento de diseño expuesto en el
+capítulo~\ref{cap:diseno}, según el cual descartar la ráfaga completa ante cualquier fallo
+habría reducido la supervivencia a una fracción reducida del total.
+
+Procede señalar un resultado no previsto, de utilidad directa para la preparación del conjunto
+de datos. La ráfaga que registró 30 reintentos presentó también la kurtosis más elevada de la
+ventana, 7,35 frente a una mediana de 4,69. Los contadores de salud correlacionan por tanto
+con la calidad efectiva de la medida, lo que permite emplearlos como criterio objetivo de
+filtrado del conjunto de datos en lugar de recurrir a una inspección manual.
+
+Debe consignarse asimismo que las tramas descartadas no se contabilizan como valores nulos
+sino como ausencia de dato, y que el análisis debe filtrarlas antes de calcular cualquier
+estadístico, según el criterio establecido en el capítulo~\ref{cap:diseno}.
+
+\section{Detección de un fallo real}
+
+Durante la fase de captura se dispuso de un segundo activo del mismo tipo que presentaba un
+fallo real, no inducido, perceptible como un tono audible sostenido. La circunstancia permitió
+contrastar el sistema frente a un fallo con referencia de verdad independiente de la propia
+instrumentación, y frente a un activo de referencia en estado nominal medido con el mismo
+firmware en el mismo intervalo temporal. Los resultados proceden de las campañas EXP-003 y
+EXP-004.
+
+El cuadro~\ref{table:firma-fallo} recoge la firma detectada.
+
+\begin{table}[ht!]
+\caption{Firma del fallo real (campaña EXP-003, 7,14 h, 815 ráfagas, 676 utilizables).}
+\label{table:firma-fallo}
+\centering
+\begin{tabular}{|p{6.4cm}|p{6.0cm}|}
+\hline
+\textbf{Magnitud} & \textbf{Valor} \\
+\hline
+Frecuencia de giro & \mbox{49,745 Hz} (CV 0,12 \%) \\
+\hline
+Componentes tonales & \mbox{398 Hz}, \mbox{448 Hz} y \mbox{497 Hz} \\
+\hline
+Relación con la frecuencia de giro & \textbf{8}, \textbf{9} y \textbf{10} \\
+\hline
+Desviación respecto del entero & inferior al 0,05 \% \\
+\hline
+Presencia & 659 de 676 ráfagas con tres picos (97 \%) \\
+\hline
+Energía acústica en \mbox{250--1000 Hz} & 0,986 \\
+\hline
+\end{tabular}
+\end{table}
+
+El resultado determinante no son las frecuencias sino su \textbf{relación con el régimen de
+giro}. Las tres son múltiplos enteros de la frecuencia fundamental con una desviación inferior
+al 0,05 \%, y el cociente correspondiente al noveno armónico vale 9,0042 con un coeficiente de
+variación del 0,137 \% sobre las 429 ráfagas en que ese armónico ocupa el pico de frecuencia
+más alta.
+
+Una resonancia estructural no produce tres componentes simultáneas en múltiplos enteros
+exactos de una frecuencia que además varía. El argumento no se apoya en la estabilidad de una
+sola componente, que sería discutible, sino en la \textbf{coincidencia de tres} con la serie
+armónica del giro. La familia observada la genera por tanto el propio giro del motor.
+
+Procede consignar una precisión sobre el número de componentes. El firmware publica tres picos
+espectrales por eje, uno de los cuales corresponde a la fundamental, de modo que en cada
+ráfaga solo caben dos armónicos. La pareja concreta que se registra varía: el octavo y el
+noveno en 401 ráfagas, el noveno y el décimo en 235. El fenómeno es estable y lo que varía es
+cuál de los tres armónicos queda fuera del espacio disponible. Esta circunstancia sitúa el
+límite de la instrumentación empleada: con tres picos no se puede caracterizar una familia
+armónica de más de dos componentes.
+
+\section{Confirmación por modalidades independientes}
+
+La disponibilidad de un activo de referencia permite descartar que la componente sea un
+artefacto de la cadena de medida. El cuadro~\ref{table:contraste-modalidades} contrasta ambos
+activos.
+
+\begin{table}[ht!]
+\caption{Contraste entre el activo con fallo y el de referencia, con el mismo firmware.}
+\label{table:contraste-modalidades}
+\centering
+\begin{tabular}{|p{5.6cm}|p{3.2cm}|p{3.2cm}|}
+\hline
+\textbf{Magnitud} & \textbf{Con fallo} & \textbf{Referencia} \\
+\hline
+Energía acústica en \mbox{0--250 Hz} & 0,013 & 0,789 \\
+\hline
+Energía acústica en \mbox{250--1000 Hz} & \textbf{0,986} & 0,192 \\
+\hline
+Nivel acústico relativo & \textbf{1732} & 897 \\
+\hline
+Picos espectrales significativos & \textbf{3} & \textbf{1} \\
+\hline
+Ráfagas con componente en \mbox{380--460 Hz} & 627/676 (93 \%) & 0/45 (0 \%) \\
+\hline
+\end{tabular}
+\end{table}
+
+El reparto de energía acústica resulta \textit{invertido} entre ambos activos, y las
+componentes que detecta el acelerómetro caen precisamente en la banda donde se concentra el
+98,6 \% de la energía acústica del activo con fallo. Las dos modalidades coinciden sin compartir sensor ni
+cadena de acondicionamiento, lo que constituye la justificación experimental del planteamiento
+multimodal expuesto en el capítulo~\ref{cap:estado-arte}: una única modalidad habría aportado
+un indicio, mientras que la coincidencia de dos independientes lo respalda.
+
+\section{Consecuencias de diseño que el hallazgo pone de manifiesto}
+
+Procede consignar tres circunstancias que este resultado revela sobre el propio diseño del
+sistema, por su valor metodológico.
+
+La primera es que la componente \textbf{no aparece} en el valor eficaz, el valor de pico ni la
+kurtosis, dado que el filtro paso bajo de \mbox{150 Hz} descrito en el
+capítulo~\ref{cap:diseno} la elimina de los estadísticos temporales. Su detección depende por
+completo de los picos espectrales, que se calculan sobre la señal sin filtrar. La decisión de
+no filtrar el espectro, adoptada para poder caracterizar un artefacto que entonces se
+atribuía al acoplamiento, resultó ser la que hizo posible detectar el fallo.
+
+La segunda refuerza la anterior. Se valoró como alternativa acotar la búsqueda del pico
+espectral a la banda considerada fiable del montaje, del orden de \mbox{150 Hz}, y se
+descartó por no depender de acertar con un límite fijo. Esa alternativa habría situado la
+componente del fallo fuera de la banda examinada y el fenómeno no se habría registrado.
+
+La tercera afecta a la interpretación del artefacto. La componente se atribuyó inicialmente a
+una resonancia del acoplamiento del sensor, hipótesis coherente con las observaciones
+disponibles en ese momento: aparecía en distintas posiciones del sensor y su frecuencia se
+desplazaba ligeramente. El indicio que llevó a revisarla fue la información del operador sobre
+el tono audible, ajena a los datos. Se documenta porque ilustra un límite del análisis basado
+exclusivamente en los registros: la prueba de enganche al régimen de giro, que resuelve la
+cuestión de forma concluyente, no se planteó hasta que hubo un motivo externo para dudar de la
+interpretación establecida.
+
+\section{Limitaciones del contraste}
+
+El activo con fallo y el de referencia son máquinas distintas, de modo que el contraste no
+permite separar el efecto del fallo del de la variabilidad entre ejemplares. La magnitud de la
+diferencia observada, un reparto de energía acústica de 0,03 frente a 0,99, resulta difícil de
+atribuir a esa variabilidad, pero la afirmación rigurosa exige la comparación dentro de un
+mismo activo que proporcionan las campañas de fallo inducido previstas.
+
+Debe consignarse asimismo que el modo de fallo no está identificado. Se ha caracterizado su
+firma —una familia de armónicos del giro, presente en vibración y en acústica— sin que ello
+permita, con la evidencia disponible, atribuirla a un mecanismo concreto.
+
+\section{Caracterización del comportamiento nominal}
+
+La campaña de referencia comprende \mbox{19,04 h} continuas sobre el activo en uso doméstico
+normal, con 1868 ráfagas de las que 467 resultan utilizables tras descartar las capturadas con
+el compresor detenido y las que no superan el filtro de calidad. El
+cuadro~\ref{table:firma-nominal} recoge la firma operativa resultante.
+
+\begin{table}[ht!]
+\caption{Firma operativa del activo en estado nominal (campaña EXP-005, 467 ráfagas en 22 episodios).}
+\label{table:firma-nominal}
+\centering
+\begin{tabular}{|p{5.4cm}|r|r|}
+\hline
+\textbf{Magnitud} & \textbf{Mediana} & \textbf{CV} \\
+\hline
+Frecuencia de giro & \mbox{49,16 Hz} & 4,2 \% \\
+\hline
+Valor eficaz, banda \mbox{0--150 Hz} & \mbox{2,00 m/s$^2$} & 35,1 \% \\
+\hline
+Valor de pico & \mbox{2,97 m/s$^2$} & 33,3 \% \\
+\hline
+Kurtosis & 1,518 & 16,1 \% \\
+\hline
+Factor de cresta & 1,470 & 11,0 \% \\
+\hline
+Picos espectrales significativos & 1 & — \\
+\hline
+Energía acústica \mbox{0--250 Hz} & 0,866 & 14,0 \% \\
+\hline
+\end{tabular}
+\end{table}
+
+Interesa el contraste entre los coeficientes de variación. Las magnitudes con unidades —valor
+eficaz, valor de pico y amplitud dominante— presentan dispersiones en torno al 35 \%, mientras
+que las adimensionales se sitúan entre el 4 \% y el 16 \%. La diferencia no es casual: las
+primeras dependen del punto del ciclo térmico en que se capture la ráfaga y de la carga del
+compresor, mientras que las segundas describen la \textit{forma} de la señal. Es una
+justificación experimental adicional de la elección de características expuesta más adelante.
+
+El comportamiento cíclico se aprecia con nitidez en el tramo nocturno, entre las 00:00 y las
+10:00, cuando cesa el uso del aparato: nueve arranques de \mbox{30 min} de duración mediana
+separados por \mbox{83,8 min}, lo que sitúa el ciclo de trabajo en torno al 36 \%. El tramo de
+tarde y noche presenta en cambio arranques irregulares de 4 a \mbox{9 min}, atribuibles a las
+aperturas de la puerta. Esa heterogeneidad no es un defecto de la campaña sino la variabilidad
+que el modelo debe tolerar, y es precisamente lo que la validación cruzada por episodios pone a
+prueba.
+
+El canal lento aporta 65 636 tramas sobre el mismo intervalo. La temperatura ambiente osciló
+entre \mbox{22,4 °C} y \mbox{34,4 °C} y la del motor entre \mbox{27,5 °C} y \mbox{54,6 °C}, con
+un diferencial medio de \mbox{11,69 °C}. Debe recordarse que esa temperatura la proporciona el
+sensor integrado del acelerómetro y no una sonda sobre la carcasa del motor, de modo que
+constituye un indicador de proximidad y no una medida del devanado; su utilidad práctica reside
+en distinguir de forma inequívoca el compresor en marcha del detenido.
+
+\section{Detección de anomalías}
+
+Se dispone de un resultado preliminar, obtenido con el conjunto de referencia todavía en
+curso de captura. Se presenta con las reservas que su tamaño de muestra impone, porque la
+conclusión metodológica que de él se extrae no depende de esas reservas.
+
+Un primer ajuste sobre las características con unidades físicas —valor eficaz, valor de pico
+y kurtosis— identificó como anómalas el 99,8 \% de las ráfagas del activo con fallo. La cifra
+\textbf{no mide capacidad diagnóstica}. El nivel de vibración de los dos activos difiere en un
+factor 5,5, de modo que cualquier característica dimensional separa las dos máquinas antes de
+separar el estado de una de ellas; el detector alcanzaba ese resultado sin haber empleado
+ninguna de las características que contienen la firma del fallo. Se consigna porque ilustra un
+modo de error al que este tipo de contraste está expuesto: una métrica excelente obtenida
+sobre el atributo equivocado.
+
+La formulación adoptada emplea en su lugar \textbf{características adimensionales}, invariantes
+a la escala de la máquina: la kurtosis, el factor de cresta, la relación de cada pico
+espectral secundario con la fundamental, su amplitud relativa y el reparto de energía acústica
+por bandas. El cuadro~\ref{table:separacion-caracteristicas} recoge la separación que cada una
+alcanza, expresada en desviaciones típicas.
+
+\begin{table}[ht!]
+\caption{Separación entre el activo de referencia y el activo con fallo por característica adimensional, sobre 467 y 656 ráfagas.}
+\label{table:separacion-caracteristicas}
+\centering
+\begin{tabular}{|p{5.4cm}|r|r|r|}
+\hline
+\textbf{Característica} & \textbf{Nominal} & \textbf{Fallo} & \textbf{Separación} \\
+\hline
+Número de picos significativos & 1,000 & 3,000 & \textbf{6,90 sd} \\
+\hline
+Energía acústica \mbox{250--1000 Hz} & 0,122 & 0,986 & 4,07 sd \\
+\hline
+Energía acústica \mbox{0--250 Hz} & 0,866 & 0,013 & 3,88 sd \\
+\hline
+Relación armónica del pico superior & 1,997 & 9,005 & 3,17 sd \\
+\hline
+Relación armónica del pico intermedio & 2,999 & 8,004 & 2,21 sd \\
+\hline
+Amplitud relativa del pico superior & 0,015 & 0,664 & 1,96 sd \\
+\hline
+Factor de cresta & 1,470 & 1,975 & 0,94 sd \\
+\hline
+Kurtosis & 1,518 & 1,697 & 0,57 sd \\
+\hline
+\end{tabular}
+\end{table}
+
+La selección del modelo se resolvió comparando siete candidatos en el mismo punto de operación
+—umbral en el cuantil 0,05 de las puntuaciones de entrenamiento— con arreglo a cinco criterios
+aplicados en orden: comportamiento sobre condiciones de operación no vistas, tasa de falsos
+positivos, tasa de detección, número de hiperparámetros y viabilidad de embarcar la inferencia
+en el microcontrolador.
+
+Debe señalarse en primer lugar que \textbf{la tasa de detección no discrimina}: los siete
+candidatos la sitúan en el 100 \%. Con un factor 12,5 de diferencia de nivel de vibración entre
+los dos activos, detectar este fallo es sencillo y esa cifra no mide capacidad diagnóstica.
+Presentarla como logro sería el mismo error que el detector dimensional descrito más arriba.
+
+\section{Validación cruzada por episodios}
+
+La validación se realizó dejando fuera un \textbf{episodio de marcha completo}, ajustando el
+modelo sobre los restantes y midiendo los falsos positivos sobre una condición de operación que
+el modelo no había visto. Es la única forma de estimar si el detector generaliza entre arranques
+del compresor y no solamente entre ráfagas correlacionadas del mismo arranque, y exigió la
+campaña de referencia prolongada: con un único episodio no era posible.
+
+El cuadro~\ref{table:validacion-episodios} recoge el resultado sobre los 22 episodios
+disponibles.
+
+\begin{table}[ht!]
+\caption{Validación cruzada por episodios sobre el conjunto de referencia (22 episodios, 467 ráfagas).}
+\label{table:validacion-episodios}
+\centering
+\begin{tabular}{|p{4.6cm}|r|r|r|}
+\hline
+\textbf{Modelo} & \textbf{Falsos pos.} & \textbf{Peor episodio} & \textbf{Detección} \\
+\hline
+\textbf{Regla sobre n.\textsuperscript{o} de picos} & \textbf{0,5 \%} & \textbf{8,3 \%} & 100 \% \\
+\hline
+Bosque de aislamiento & 3,3 \% & 33,8 \% & 100 \% \\
+\hline
+Regla sobre relación armónica & 4,6 \% & 18,8 \% & 96,6 \% \\
+\hline
+Envolvente robusta & 5,9 \% & 33,3 \% & 100 \% \\
+\hline
+Factor local de atipicidad & 6,2 \% & 31,1 \% & 100 \% \\
+\hline
+Máquina de vectores soporte & 6,7 \% & 25,0 \% & 100 \% \\
+\hline
+\end{tabular}
+\end{table}
+
+La columna determinante es la del peor episodio, y no la media. Una media baja con un peor caso
+elevado significa que el detector falla de forma \textit{concentrada}: en operación se traduce
+en una tanda de alarmas falsas consecutivas sobre un mismo arranque y no en un falso positivo
+aislado cada cierto tiempo, que es una diferencia práctica considerable para quien atiende el
+sistema. La regla adoptada resulta de tres a cuatro veces mejor que cualquier alternativa en esa
+columna.
+
+El modelo adoptado es por tanto una \textbf{regla sobre el número de picos espectrales
+significativos}, entendiendo por significativo el que alcanza el 20 \% de la amplitud del mayor.
+Vale 1 en 465 de las 467 ráfagas del activo de referencia y 3 en 656 de las 656 del activo con
+fallo. El resultado se mantiene para cualquier umbral de significación entre el 15 \% y el
+30 \%, y se ejecuta en el nodo con una comparación.
+
+Procede consignar que la máquina de vectores soporte pasó de un 46 \% de falsos positivos con
+el conjunto reducido inicial a un 6,3 \% con el conjunto ampliado. El diagnóstico previo era
+correcto en su naturaleza: sus hiperparámetros no resultaban ajustables con 45 observaciones, y
+la limitación estaba en el tamaño de muestra y no en el modelo.
+
+\section{El filtro de calidad forma parte del detector}
+
+El resultado de mayor consecuencia práctica de la campaña de referencia no afecta al modelo sino
+a la validez de la medida, y no era observable con las campañas breves anteriores.
+
+\textbf{Los reintentos del bus de comunicación con el acelerómetro reproducen la firma del
+fallo sobre un activo sano.} El cuadro~\ref{table:reintentos-artefacto} lo recoge sobre el
+activo de referencia, cuyo estado es nominal.
+
+\begin{table}[ht!]
+\caption{Efecto de los reintentos del bus sobre las características, en el activo nominal.}
+\label{table:reintentos-artefacto}
+\centering
+\begin{tabular}{|r|r|r|r|}
+\hline
+\textbf{Reintentos} & \textbf{Ráfagas} & \textbf{Con más de un pico} & \textbf{Fundamental} \\
+\hline
+0 & 261 & 0,4 \% & \mbox{49,15 Hz} \\
+\hline
+1--3 & 206 & 0,5 \% & \mbox{49,17 Hz} \\
+\hline
+4--5 & 53 & 8 \% & \mbox{49,25 Hz} \\
+\hline
+6--10 & 48 & 31 \% & \mbox{49,16 Hz} \\
+\hline
+11--20 & 46 & \textbf{93 \%} & \textbf{\mbox{20,03 Hz}} \\
+\hline
+más de 20 & 69 & \textbf{94 \%} & \textbf{\mbox{16,03 Hz}} \\
+\hline
+\end{tabular}
+\end{table}
+
+El mecanismo es que una muestra corrupta inyecta ruido de banda ancha en la ráfaga, con lo que
+varios coeficientes del espectro superan el umbral de significación y la estimación de la
+frecuencia fundamental deja de corresponder al régimen de giro. De ello se sigue que el filtro
+de calidad no es un preproceso sino \textbf{parte del detector}: el nodo debe negarse a emitir
+veredicto sobre una ráfaga cuyo número de reintentos exceda el límite establecido, en lugar de
+juzgarla. El límite se calibró en tres reintentos a partir del cuadro anterior, valor que
+conserva 467 ráfagas con un 0,4 \% de artefactos —la misma proporción que exigir cero
+reintentos— con un 79 \% más de observaciones.
+
+\section{Comprobación de que la firma del fallo no es ese artefacto}
+
+La coincidencia entre el artefacto y la firma obliga a descartar que el hallazgo de EXP-003 sea
+una manifestación del mismo defecto. La comprobación consiste en restringir ambos conjuntos a
+las ráfagas capturadas \textbf{sin ningún reintento}, y su resultado figura en el
+cuadro~\ref{table:cero-reintentos}.
+
+\begin{table}[ht!]
+\caption{Ambos activos restringidos a ráfagas sin ningún reintento del bus.}
+\label{table:cero-reintentos}
+\centering
+\begin{tabular}{|p{4.4cm}|r|p{3.4cm}|r|}
+\hline
+\textbf{Conjunto} & \textbf{Ráfagas} & \textbf{Picos: 1 / 2 / 3} & \textbf{Fundamental} \\
+\hline
+Activo de referencia & 261 & 260 / 0 / 1 & \mbox{49,15 Hz} \\
+\hline
+Activo con fallo & 443 & 0 / 13 / 430 & \mbox{49,76 Hz} \\
+\hline
+\end{tabular}
+\end{table}
+
+La separación se mantiene íntegra. Los cocientes armónicos del activo con fallo sobre ese
+subconjunto valen \textbf{8,0016 con un coeficiente de variación del 0,029 \%} y 9,0035 con un
+0,106 \%, cifras más precisas que las obtenidas sobre el conjunto completo. A ello se añade un
+argumento de sentido contrario que resulta concluyente: la firma del activo con fallo es
+\textit{idéntica} con reintentos y sin ellos —8,003 frente a 7,998— mientras que las
+características del activo de referencia se derrumban en presencia de reintentos. Un artefacto
+del bus no puede producir un valor que el propio bus no altera.
+
+\section{Cobertura frente a modos de fallo no observados}
+
+La evidencia disponible corresponde a \textbf{un solo modo de fallo}. Dado que el sistema se
+concibe como detector de anomalías y no como clasificador —se ajusta únicamente sobre el estado
+nominal y señala lo que se desvía— cabría suponer que detectaría también otros modos, pero esa
+suposición no está demostrada y procede acotarla.
+
+Para localizar los puntos ciegos se realizó un análisis de sensibilidad: se perturbó el conjunto
+nominal en las direcciones que la literatura asocia a modos de fallo característicos y se
+observó qué candidatos reaccionaban. \textbf{Los datos así generados son sintéticos y no
+constituyen evidencia experimental}; el análisis localiza puntos ciegos del detector, no
+establece su rendimiento. El cuadro~\ref{table:cobertura-modos} recoge el resultado.
+
+\begin{table}[ht!]
+\caption{Análisis de sensibilidad frente a direcciones de fallo no observadas. Datos sintéticos.}
+\label{table:cobertura-modos}
+\centering
+\begin{tabular}{|p{4.0cm}|r|r|r|r|}
+\hline
+\textbf{Dirección} & \textbf{Regla} & \textbf{Envolvente} & \textbf{Bosque} & \textbf{Vect. soporte} \\
+\hline
+Holgura mecánica & 100 \% & 100 \% & 100 \% & 100 \% \\
+\hline
+Rodamiento incipiente & \textbf{0 \%} & 100 \% & 100 \% & 100 \% \\
+\hline
+Roce o fricción & \textbf{0 \%} & 100 \% & 100 \% & 100 \% \\
+\hline
+Desequilibrio de masa & \textbf{0 \%} & 99 \% & 10 \% & 77 \% \\
+\hline
+\end{tabular}
+\end{table}
+
+El resultado obliga a matizar la elección de modelo expuesta más arriba. \textbf{La regla sobre
+el número de picos resulta ciega a tres de las cuatro direcciones examinadas}: detecta lo que
+añade componentes espectrales y no lo que altera la amplitud o la impulsividad de la señal. Su
+ventaja en tasa de falsos positivos se obtuvo midiendo contra el único modo de fallo disponible,
+de modo que constituye una forma de sobreajuste a ese modo.
+
+De ello se sigue una precisión sobre las características adimensionales. Su empleo, justificado
+más arriba por la necesidad de eliminar el sesgo entre máquinas, tiene un coste que hasta aquí
+no se había señalado: son \textbf{ciegas por construcción} a un fallo que solamente modifique el
+nivel de vibración, puesto que toda magnitud se expresa como cociente respecto de la
+fundamental. Un desequilibrio de masa eleva la amplitud a la frecuencia de giro sin añadir
+componentes, y ninguna característica adimensional lo registra.
+
+La corrección adoptada consiste en normalizar las magnitudes con unidades por la mediana del
+\textit{propio} activo en funcionamiento, en lugar de suprimirlas. La característica resultante
+es adimensional en su forma y específica en su valor, con lo que conserva la independencia de
+máquina —la mediana vale 1 en ambos activos por construcción— y recupera la sensibilidad a la
+amplitud: la envolvente robusta pasa a detectar el 99 \% de las ráfagas perturbadas en esa
+dirección. Debe consignarse la contrapartida operativa: el nodo necesita conocer la mediana de
+su propio activo, de modo que ha de aprenderla durante una fase de referencia y no puede emitir
+veredicto sobre su primera ráfaga.
+
+\section{El compromiso resultante entre falsos positivos y cobertura}
+
+Confrontar el cuadro anterior con la validación por episodios pone de manifiesto un compromiso
+que los datos disponibles no permiten resolver, y que el cuadro~\ref{table:compromiso} resume.
+
+\begin{table}[ht!]
+\caption{Compromiso entre especificidad medida y cobertura de modos de fallo.}
+\label{table:compromiso}
+\centering
+\begin{tabular}{|p{5.0cm}|r|r|}
+\hline
+\textbf{Modelo} & \textbf{Peor episodio} & \textbf{Direcciones cubiertas} \\
+\hline
+Regla sobre n.\textsuperscript{o} de picos & \textbf{8,3 \%} & 1 de 4 \\
+\hline
+Envolvente robusta & 25,0 \% & \textbf{4 de 4} \\
+\hline
+Envolvente de Mahalanobis & 33,3 \% & 4 de 4 \\
+\hline
+Bosque de aislamiento & 46,8 \% & 3 de 4 \\
+\hline
+\end{tabular}
+\end{table}
+
+La regla es tres veces mejor en especificidad y cubre la cuarta parte de las direcciones. No hay
+en estos datos ningún candidato que gane en ambas columnas, y la elección entre ellas no es
+técnica sino de política de operación: depende de si el coste de una alarma falsa supera al de
+un fallo no detectado, que es una decisión del explotador del activo y no del diseñador del
+sistema.
+
+\section{Revisión de la elección de modelo}
+
+La elección expuesta hasta aquí se revisó, y procede consignar el motivo porque afecta a una
+conclusión y no a un detalle.
+
+La primera conclusión fue que la regla sobre el número de picos superaba a los modelos de
+aprendizaje automático. \textbf{Esa conclusión es engañosa.} La comparación no era equitativa:
+a la regla se le proporcionaba una característica seleccionada con cuidado, mientras que a los
+modelos se les proporcionaban las quince, entre ellas varias sin capacidad de separación y con
+dispersión elevada en el conjunto nominal, circunstancia que penaliza a todo modelo basado en
+distancias o en densidades.
+
+Repetida la comparación proporcionando a cada modelo \textbf{únicamente esa característica},
+los seis candidatos convergen al mismo 8,3 \% de falsos positivos en el peor episodio. Con una
+sola dimensión existe una sola frontera que localizar, de modo que todos localizan la misma. El
+mérito no corresponde al algoritmo sino a la característica.
+
+De ello se sigue la objeción determinante. Esa característica se seleccionó \textbf{conociendo
+cuál era el fallo}, de modo que su ventaja no se transfiere a un fallo distinto, y el análisis
+de sensibilidad expuesto más arriba lo confirma: la regla resulta ciega a cuatro de las cinco
+direcciones examinadas. Un detector de anomalías tiene por objeto precisamente los fallos que
+no se conocen de antemano, y optimizar su elección contra el único fallo disponible constituye
+sobreajuste al mismo.
+
+Procede además matizar la lectura del 25 \% de falsos positivos de la envolvente robusta en el
+peor episodio, cifra que se presentó de forma que induce a error. Ese porcentaje corresponde a
+\textbf{tres ráfagas de doce} en uno de los episodios cortos e irregulares del tramo de tarde.
+Ponderada por número de ráfagas —que es la magnitud que se observaría en operación— la tasa es
+del \textbf{5,6 \%}, y once de los veintidós episodios no producen ningún falso positivo.
+
+\textbf{El detector principal es por tanto la envolvente robusta} sobre el conjunto completo de
+características, y la regla sobre el número de picos se conserva como confirmación de alta
+confianza para fallos de naturaleza armónica. Las dos son ejecutables en el microcontrolador
+—una forma cuadrática con matriz precalculada de 900 bytes en el primer caso, una comparación
+en el segundo—, de modo que se embarcan ambas con significados distintos: la envolvente
+señala que el estado de la máquina se ha alejado del de referencia; la regla, que la desviación
+corresponde a una familia armónica. Ambas requieren histéresis, es decir la exigencia de varias
+ráfagas anómalas consecutivas antes de notificar: el 8,3 \% de falsos positivos del peor
+episodio corresponde a ráfagas aisladas, y exigir tres consecutivas lo reduce en dos órdenes de
+magnitud bajo el supuesto de independencia.
+
+Debe señalarse por último que existe una dirección de fallo que \textbf{ningún} modelo sobre el
+canal de vibración puede cubrir: la obstrucción del sistema de ventilación no altera la firma
+vibratoria. Su detección corresponde al canal lento, a través del diferencial térmico y de la
+prolongación del ciclo de trabajo, lo que constituye una justificación adicional del
+planteamiento multimodal.
+
+\section{Protocolo de selección libre de sesgo de espionaje}
+
+El procedimiento descrito hasta aquí adolece de un defecto que procede consignar de forma
+explícita, porque afecta a la validez de las cifras y no a su presentación. \textbf{La
+característica sobre la que se construyó la regla se seleccionó ordenando las candidatas por su
+capacidad de separación medida sobre el conjunto con fallo}, es decir empleando el conjunto de
+evaluación para adoptar una decisión de diseño. Se trata de sesgo de espionaje de datos, y
+cuanto de él se derive resulta optimista.
+
+Se estableció por ello un protocolo con separación estricta. Su fundamento es la naturaleza del
+detector: al ser de una clase, en explotación solo dispone de datos del activo sano, de donde se
+sigue qué información es legítimamente utilizable.
+
+Resulta admisible cualquier decisión adoptada sobre el conjunto nominal, dado que en explotación
+también se dispondría de él; el conocimiento previo del dominio, puesto que las magnitudes que
+constituyen indicadores de estado en análisis de vibración están establecidas en la literatura
+y no se deducen de estos datos; y las perturbaciones sintéticas del conjunto nominal, que no
+emplean el fallo real. Resulta inadmisible seleccionar u ordenar características por su
+comportamiento sobre el conjunto con fallo, ajustar cualquier umbral atendiendo a la tasa de
+detección, y repetir la evaluación final una vez observada.
+
+La partición del conjunto nominal se realiza \textbf{por episodios y de forma cronológica}: los
+dieciséis episodios más antiguos constituyen el conjunto de desarrollo y los ocho más recientes
+el de prueba. La elección de un criterio cronológico frente a uno aleatorio responde a que
+reproduce la situación real —se ajusta con lo capturado hasta la fecha y se despliega sobre lo
+que venga después— mientras que una partición aleatoria reparte episodios contiguos entre ambos
+lados y filtra información del futuro.
+
+El cuadro~\ref{table:protocolo} recoge el resultado.
+
+\begin{table}[ht!]
+\caption{Resultado del protocolo con separación estricta entre desarrollo y prueba.}
+\label{table:protocolo}
+\centering
+\begin{tabular}{|p{7.0cm}|r|}
+\hline
+\textbf{Magnitud} & \textbf{Valor} \\
+\hline
+Modelo seleccionado sin emplear el conjunto con fallo & LOF \\
+\hline
+Direcciones de fallo cubiertas & 5 de 5 \\
+\hline
+Falsos positivos en el conjunto de desarrollo & 6,3 \% \\
+\hline
+\textbf{Falsos positivos en los episodios de prueba} & \textbf{7,8 \%} \\
+\hline
+\textbf{Detección sobre el activo con fallo} & \textbf{100 \%} \\
+\hline
+\end{tabular}
+\end{table}
+
+Debe destacarse que \textbf{el protocolo selecciona un modelo distinto} del que se había elegido
+mediante el procedimiento anterior. Esa discrepancia constituye la evidencia de que aquella
+elección estaba contaminada: de haber sido correcta, ambos procedimientos habrían coincidido.
+
+\section{Un criterio de selección infundado}
+
+Procede consignar un segundo defecto del procedimiento inicial, de naturaleza distinta. Entre
+los criterios de selección se incluyó la viabilidad de embarcar cada modelo, y varios candidatos
+se descartaron por ese motivo \textbf{sin haberlo medido}. El cuadro~\ref{table:coste-nodo}
+recoge la medición.
+
+\begin{table}[ht!]
+\caption{Coste real de embarcar cada modelo en el microcontrolador.}
+\label{table:coste-nodo}
+\centering
+\begin{tabular}{|p{5.0cm}|r|r|}
+\hline
+\textbf{Modelo} & \textbf{Memoria} & \textbf{Operaciones por ráfaga} \\
+\hline
+Regla sobre n.\textsuperscript{o} de picos & \mbox{8 B} & 3 \\
+\hline
+Envolvente robusta & \mbox{960 B} & 240 \\
+\hline
+Máquina de vectores soporte & \mbox{2,3 KB} & 1110 \\
+\hline
+LOF & \mbox{32 KB} & 15\,150 \\
+\hline
+Bosque de aislamiento & \mbox{274 KB} & 4800 \\
+\hline
+\end{tabular}
+\end{table}
+
+La plataforma dispone de \mbox{512 KB} de memoria estática y \mbox{8 MB} de memoria
+pseudoestática, y \mbox{15\,150} operaciones en coma flotante a \mbox{240 MHz} corresponden al
+orden de \mbox{0,1 ms} frente a una ráfaga cada \mbox{30 s}. \textbf{Los cinco modelos son
+embarcables con amplio margen}, de modo que la restricción empleada como criterio de descarte no
+existía y orientaba la selección hacia los modelos más simples sin fundamento.
+
+\section{Ausencia de entorno de inferencia}
+
+De lo anterior se sigue una consecuencia sobre la implementación en el nodo que conviene
+enunciar, dado que contradice la expectativa habitual en este tipo de trabajos. Los entornos de
+ejecución de modelos reducidos para microcontroladores, según se expuso en el
+capítulo~\ref{cap:estado-arte}, operan sobre \textbf{redes neuronales}. Ninguno de los
+candidatos considerados pertenece a esa familia: el método seleccionado se basa en vecindad, la
+envolvente es una forma cuadrática y el bosque de aislamiento un conjunto de árboles de
+decisión. No se trata por tanto de que un entorno de inferencia resulte excesivo para el modelo
+adoptado, sino de que \textbf{no puede ejecutarlo}.
+
+Debe añadirse que una red neuronal no constituía una alternativa viable en este caso: con 505
+observaciones nominales procedentes de veinticuatro episodios, cualquier arquitectura con
+capacidad apreciable se sobreajustaría. La familia de modelos quedó determinada por el tamaño de
+muestra disponible y no por la plataforma de ejecución.
+
+La inferencia se programa en consecuencia directamente en el nodo, lo que supone del orden de
+quince líneas para la envolvente y sesenta para el método seleccionado. Los parámetros ajustados
+se generan desde el entorno de análisis en forma de fichero de cabecera, con anotación de la
+campaña y la fecha de las que proceden, de modo que reentrenar el modelo consista en volver a
+ejecutar el procedimiento y recompilar el firmware.
+
+\section{Implementación de la inferencia en el nodo}
+
+La ejecución del modelo en el microcontrolador se implementó y se verificó frente a la
+referencia del entorno de análisis, si bien a fecha de esta redacción no se ha compilado sobre
+la plataforma. Procede exponer el procedimiento de verificación antes de los resultados, porque
+es lo que da valor a estos.
+
+Las rutinas del detector se escribieron \textbf{sin dependencias del entorno de ejecución del
+microcontrolador}, siguiendo el criterio ya aplicado a la extracción de características: ello
+permite compilarlas en un computador y contrastarlas frente a la implementación de referencia
+antes de emplear un ciclo de programación de la placa. Los parámetros ajustados se generan en un
+fichero de cabecera independiente de las rutinas, de modo que reentrenar el modelo no obligue a
+modificar código.
+
+La verificación se realizó sobre las \textbf{1161 ráfagas reales} de las dos campañas,
+comparando la puntuación y el veredicto del código embarcado con los de la biblioteca de
+referencia. El resultado figura en el cuadro~\ref{table:verificacion-nodo}.
+
+\begin{table}[ht!]
+\caption{Verificación del código embarcado frente a la implementación de referencia.}
+\label{table:verificacion-nodo}
+\centering
+\begin{tabular}{|p{5.6cm}|r|r|}
+\hline
+\textbf{Magnitud} & \textbf{Modelo principal} & \textbf{Envolvente} \\
+\hline
+Error relativo en la puntuación & \mbox{2,1$\cdot$10$^{-7}$} & \mbox{3,6$\cdot$10$^{-4}$} \\
+\hline
+Margen del caso más próximo al umbral & --- & 9,2 veces el error \\
+\hline
+\textbf{Veredictos discrepantes} & \textbf{0 de 1161} & \textbf{0 de 1161} \\
+\hline
+\end{tabular}
+\end{table}
+
+Se verificó asimismo la derivación de las características a partir de la medida en bruto, que es
+donde una discrepancia resultaría silenciosa: el código no produciría ningún error, solo un
+veredicto carente de sentido. Las magnitudes independientes de toda normalización coinciden con
+un error de \mbox{1,4$\cdot$10$^{-7}$} sobre los 1161 casos, y el recuento de picos coincide
+exactamente.
+
+\section{Coste de la inferencia en el nodo}
+
+El cuadro~\ref{table:coste-inferencia} recoge el coste medido de cada alternativa. Debe
+recordarse que en el procedimiento inicial varios modelos se descartaron por su supuesta
+inviabilidad sin haberla medido.
+
+\begin{table}[ht!]
+\caption{Coste de embarcar cada modelo, medido sobre los parámetros ajustados.}
+\label{table:coste-inferencia}
+\centering
+\begin{tabular}{|p{5.0cm}|r|r|}
+\hline
+\textbf{Modelo} & \textbf{Memoria} & \textbf{Operaciones} \\
+\hline
+Regla sobre n.\textsuperscript{o} de picos & \mbox{8 B} & 3 \\
+\hline
+Envolvente robusta & \mbox{840 B} & 210 \\
+\hline
+Máquina de vectores soporte & \mbox{2,3 KB} & 1110 \\
+\hline
+Modelo seleccionado & \mbox{31,6 KB} & 15\,150 \\
+\hline
+Bosque de aislamiento & \mbox{274 KB} & 4800 \\
+\hline
+\end{tabular}
+\end{table}
+
+Con \mbox{512 KB} de memoria estática y \mbox{8 MB} de memoria pseudoestática, y una frecuencia
+de reloj de \mbox{240 MHz}, las \mbox{15\,150} operaciones del modelo seleccionado corresponden
+al orden de \mbox{0,1 ms} frente a una ráfaga cada \mbox{30 s}. El coste no constituye una
+restricción.
+
+\section{Publicación del veredicto y reducción del tráfico}
+
+El veredicto se publica en un tema propio y no como campos añadidos al mensaje de ráfaga, y la
+razón es de integridad del conjunto de datos: el registrador escribe la cabecera del fichero
+únicamente al crearlo, de modo que añadir campos desplazaría las columnas de las filas
+posteriores y dividiría la serie histórica en dos conjuntos no comparables. Se verificó que el
+mensaje de ráfaga conserva sus 45 campos en el mismo orden.
+
+El mensaje de veredicto ocupa \mbox{124 B} en el peor caso, frente a los del orden de
+\mbox{1050 B} del mensaje de características. Un consumidor que únicamente requiera el estado
+del activo recibe por tanto \textbf{un orden de magnitud menos de tráfico}, lo que constituye la
+materialización del objetivo enunciado en el capítulo~\ref{cap:objetivos}.
+
+El veredicto contempla \textbf{tres} estados y no dos. El tercero declara que la medida no es
+apta para decidir, y se emite con más reintentos del bus que el límite establecido o con el
+compresor detenido. No constituye un estado de salud intermedio: su función es que el nodo se
+niegue a juzgar antes que juzgar sobre una medida que, según se expuso más arriba, reproduce
+artificialmente la firma del fallo.
+
+\section{Efecto de la histéresis sobre la carga de alarmas}
+
+Un detector que notifica ante una única ráfaga anómala resulta inservible en operación. El
+cuadro~\ref{table:histeresis} recoge el número de avisos que se emitirían sobre la secuencia
+completa de ráfagas según el número de ráfagas anómalas consecutivas exigidas.
+
+\begin{table}[ht!]
+\caption{Avisos emitidos sobre las 1161 ráfagas según la histéresis exigida.}
+\label{table:histeresis}
+\centering
+\begin{tabular}{|r|r|r|}
+\hline
+\textbf{Ráfagas exigidas} & \textbf{Avisos falsos} & \textbf{Avisos sobre el fallo} \\
+\hline
+1 & 22 & 1 \\
+\hline
+2 & 4 & 1 \\
+\hline
+\textbf{3} & \textbf{0} & \textbf{1} \\
+\hline
+4 & 0 & 1 \\
+\hline
+\end{tabular}
+\end{table}
+
+Exigiendo tres ráfagas consecutivas se emiten \textbf{cero avisos falsos} sobre las 505 ráfagas
+del activo de referencia, y el fallo se notifica. El 5,1 \% de ráfagas marcadas como anómalas no
+produce ningún aviso porque se trata de observaciones aisladas.
+
+De ello se sigue una precisión metodológica: la magnitud que estima la carga de alarmas en
+operación es el número de \textit{avisos emitidos} y no la fracción de ráfagas marcadas. Ambas
+difieren en dos órdenes de magnitud.
+
+\section{Alcance de la evidencia obtenida}
+
+Procede acotar el tamaño de muestra efectivo, que no coincide con el número de ráfagas. Las
+ráfagas se publican cada \mbox{30 s} y se agrupan en episodios de marcha, de modo que las de un
+mismo episodio describen la misma condición de operación y están fuertemente correlacionadas. El
+conjunto de referencia procede de \textbf{22 episodios} sobre \mbox{19,04 h}, lo que hace
+posible la validación cruzada expuesta más arriba. El del activo con fallo procede en cambio de
+\textbf{dos} episodios aprovechables, uno de \mbox{30 min} y otro de \mbox{367 min}: sus 656
+ráfagas no constituyen 656 observaciones independientes, y ese desequilibrio no se corrige
+alargando la captura, dado que ese activo permaneció en marcha el 95 \% del tiempo frente al
+37 \% del activo de referencia. Obtener episodios adicionales exigiría provocar una parada.
+
+Cuatro limitaciones acotan lo que la evidencia permite afirmar.
+
+La primera, y la de mayor peso, es que \textbf{los dos activos son máquinas distintas}. El
+empleo de características adimensionales acota ese sesgo pero no lo elimina, y solo la inducción
+de un fallo sobre el propio activo de referencia permitiría separar el efecto del fallo del de
+la variabilidad entre ejemplares.
+
+La segunda es que \textbf{la validación por episodios se aplica al lado nominal y no al del
+fallo}, por el desequilibrio de episodios ya expuesto.
+
+La tercera es que \textbf{el modo de fallo no está identificado}. Se ha caracterizado una firma,
+no un mecanismo.
+
+La cuarta afecta al rendimiento de la captura: del conjunto de referencia solo resulta
+utilizable el 25 \% de las ráfagas. La causa principal es el ciclo de trabajo —el compresor está
+en marcha el 37 \% del tiempo y una ráfaga con el compresor detenido no contiene vibración que
+analizar— y la secundaria son los reintentos del bus, que descartan un 32 \% adicional de las
+ráfagas en marcha. Una hora de captura rinde por tanto unas 25 ráfagas utilizables, cifra sobre
+la que debe dimensionarse toda campaña y no sobre la cadencia de publicación.
+
+Merece consignarse, con carácter de hipótesis y no de resultado, que el 95 \% de tiempo en
+marcha del activo con fallo frente al 37 \% del de referencia constituye por sí mismo una
+anomalía compatible con un compresor incapaz de alcanzar su consigna. No se afirma como
+hallazgo: las dos observaciones proceden de intervalos de duración distinta y no se controlaron
+la temperatura ambiente ni la carga térmica.
+
+\section{Objetivos no alcanzados}
+
+Procede enunciar de forma explícita los objetivos que no se han alcanzado, con su
+justificación.
+
+\textbf{La clasificación automática de los estados de salud no se ha implementado como tal.} La
+propuesta de trabajo la enuncia entre las tareas del motor de análisis, y lo obtenido es un
+detector de \textit{una clase} que distingue el estado nominal de cualquier desviación respecto
+de él, sin atribuirla a un estado concreto. La razón es de disponibilidad de datos y no de
+tiempo: un clasificador exige ejemplos etiquetados de cada estado que deba distinguir, y se
+dispone de un único modo de fallo real, sobre un activo que además no es el de referencia. Con
+esa evidencia, un clasificador multiclase no sería ajustable ni evaluable.
+
+Debe añadirse que la detección de una clase es el planteamiento que la literatura prescribe
+precisamente para esta situación, según se expuso en el capítulo~\ref{cap:estado-arte}: los
+fallos son escasos, variados y no se conocen de antemano. La distinción entre estado nominal y
+estado anómalo sí queda resuelta, de modo que el objetivo se alcanza en su formulación binaria y
+no en la multiclase.
+
+\textbf{No se ha inducido ningún fallo controlado sobre el activo de referencia.} La validación
+experimental se apoya en un fallo real de un segundo activo, lo que aporta una verdad de
+referencia externa a la instrumentación pero impide separar el efecto del fallo del de la
+variabilidad entre ejemplares. Es la limitación de mayor peso del trabajo y la primera línea de
+continuación.
+
+\textbf{La inferencia no está embarcada en el nodo a la fecha de esta redacción.} El modelo se
+ha seleccionado y evaluado, y se ha verificado que su coste de ejecución en el microcontrolador
+es del orden de \mbox{32 KB} y \mbox{0,1 ms} por ráfaga, pero el diagnóstico se realiza aún en
+el equipo de análisis. Queda por tanto demostrada la viabilidad y no el funcionamiento.
+
+\textbf{No se ha determinado la resonancia del acoplamiento del sensor}, cuya estimación inicial
+resultó ser en realidad la firma de un fallo. El corte del filtro paso bajo en \mbox{150 Hz}
+conserva por ello el carácter de cota conservadora sin verificación experimental.
+
+Finalmente, \textbf{la caracterización de la firma armónica del fallo es incompleta} por una
+limitación de la instrumentación que el propio análisis puso de manifiesto: con tres picos
+espectrales por eje, uno de los cuales corresponde a la fundamental, solo caben dos armónicos
+por ráfaga, mientras que la familia observada consta de tres.
