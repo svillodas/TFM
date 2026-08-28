@@ -584,29 +584,41 @@ evolución del estado térmico.
 \caption{Evolución térmica y respuesta del detector alrededor de la apertura.}
 \label{table:puerta-termico}
 \centering
-\begin{tabular}{|p{4.6cm}|r|r|r|}
+\begin{tabular}{|p{4.4cm}|r|r|r|r|}
 \hline
-\textbf{Ventana} & \textbf{Diferencial} & \textbf{Temp. motor} & \textbf{Ráfagas marcadas} \\
+\textbf{Fase} & \textbf{min} & \textbf{Difer.} & \textbf{Motor} & \textbf{Marcadas} \\
 \hline
-Marcha previa (11:32--12:09) & \mbox{15,26 °C} & \mbox{41,0 °C} & 4 de 18 \\
+1. Marcha previa & 37 & \mbox{15,26 °C} & \mbox{41,0 °C} & 13 de 73 \\
 \hline
-Apertura (12:09--12:11) & \mbox{19,48 °C} & \mbox{46,7 °C} & 3 de 3 \\
+2. Puerta abierta & 2 & \mbox{19,48 °C} & \mbox{46,7 °C} & 3 de 4 \\
 \hline
-De +0 a +30 min & \mbox{20,64 °C} & \mbox{48,8 °C} & 10 de 45 \\
+3. Subida térmica & 30 & \mbox{20,64 °C} & \mbox{48,8 °C} & 10 de 45 \\
 \hline
-De +30 a +47 min & \mbox{23,81 °C} & \mbox{50,3 °C} & \textbf{23 de 23} \\
+4. Anomalía sostenida & 61 & \mbox{24,69 °C} & \mbox{51,8 °C} & \textbf{108 de 111} \\
+\hline
+5. Compresor detenido & 40 & \mbox{13,45 °C} & \mbox{44,5 °C} & --- \\
+\hline
+6. \textbf{Nueva marcha} & 5 & \mbox{14,88 °C} & \mbox{41,0 °C} & \textbf{1 de 10} \\
 \hline
 \end{tabular}
 \end{table}
 
-El diferencial térmico subió de \mbox{15,26 °C} a \mbox{23,81 °C} y la temperatura del motor de
-\mbox{41,0 °C} a \mbox{50,3 °C}, de forma monótona y creciente durante los cuarenta y siete
-minutos posteriores: el efecto es real y es la consecuencia física esperable de la perturbación.
+El diferencial térmico subió de \mbox{15,26 °C} a \mbox{25,09 °C} y la temperatura del motor de
+\mbox{41,0 °C} a \mbox{52,4 °C}, de forma monótona y creciente: el efecto es real y es la
+consecuencia física esperable de la perturbación. Su manifestación más elocuente es la duración
+de la marcha, que alcanzó \textbf{130 min} frente a una mediana nominal de \mbox{31 min}.
 
 Y el detector lo señaló con una progresión que la tabla hace evidente. En la primera media hora
-marcó 10 de 45 ráfagas; en la siguiente, con el diferencial ya \mbox{8,5 °C} por encima de la
-referencia, marcó \textbf{las 23 de 23}, y la racha consecutiva alcanzó 25 al término de la
-captura. No es una reacción esporádica sino una \textbf{detección sostenida}.
+marcó 10 de 45 ráfagas; en la hora siguiente, con el diferencial ya \mbox{9,4 °C} por encima de
+la referencia, marcó \textbf{108 de 111}, y la racha de anomalías consecutivas alcanzó 61. No es
+una reacción esporádica sino una \textbf{detección sostenida}.
+
+\textbf{Y el ciclo se cierra.} Transcurridos cuarenta minutos con el compresor detenido —durante
+los cuales el nodo emite el veredicto de medida no evaluable, dado que sin marcha no hay
+vibración que analizar— el activo arranca de nuevo con la puerta ya cerrada y el detector
+\textbf{regresa al estado nominal}: nueve de diez ráfagas, racha en cero, ningún aviso, y el
+diferencial térmico en \mbox{14,88 °C} frente a los \mbox{15,26 °C} de la referencia. Queda por
+tanto observado el ciclo completo de perturbación, detección sostenida y recuperación.
 
 De ello se sigue la lectura del episodio, que contempla \textbf{dos fenómenos distintos con
 significado opuesto}.
@@ -623,12 +635,59 @@ térmico de un compresor no cambia en noventa segundos. Y sí constituye la dete
 condición anómala real del propio activo de referencia, si bien de una \textbf{sobrecarga
 operativa} y no de un fallo mecánico.
 
-Procede consignar dos reservas. La captura concluye a las \mbox{12:58} con el detector aún en
-estado de anomalía y el diferencial todavía creciendo, de modo que no se ha observado el retorno
-al estado nominal, que es la mitad del ciclo que una campaña completa debería recoger. Y el
-activo ya presentaba un diferencial elevado antes de la apertura por llevar treinta y siete
-minutos de marcha continua, circunstancia que impide separar limpiamente el efecto de la
-perturbación del de la marcha prolongada previa.
+Procede consignar una reserva que subsiste: el activo ya presentaba un diferencial elevado antes
+de la apertura por llevar treinta y siete minutos de marcha continua, circunstancia que impide
+separar limpiamente el efecto de la perturbación del de la marcha prolongada previa.
+
+\section{Un defecto de la política de avisos y su evaluación sin modificar el firmware}
+
+El episodio produjo \textbf{cuatro avisos para un solo suceso}. La causa es que la histéresis
+reinicia su cuenta ante una única ráfaga nominal, y durante la anomalía sostenida se intercalaron
+tres, con lo que el sistema volvió a notificar en cada ocasión. En operación son cuatro
+notificaciones de lo mismo.
+
+Procede señalar aquí una propiedad del diseño que resulta ventajosa. La histéresis es una
+\textbf{política de notificación y no una medida}: no altera el veredicto ni las puntuaciones,
+solo el aviso y la cuenta de racha. Y al ser una función pura de la secuencia de veredictos,
+cualquier política alternativa se evalúa \textbf{sobre los datos ya capturados}, sin modificar el
+firmware ni repetir ninguna campaña. El cuadro~\ref{table:politica} recoge esa evaluación.
+
+\begin{table}[ht!]
+\caption{Evaluación de un tiempo mínimo entre avisos sobre los veredictos capturados.}
+\label{table:politica}
+\centering
+\begin{tabular}{|r|r|r|l|}
+\hline
+\textbf{Silencio} & \textbf{Avisos} & \textbf{Del episodio} & \textbf{1.\textsuperscript{a} detección} \\
+\hline
+0 min (actual) & 18 & 4 & 12:10:40 \\
+\hline
+30 min & 12 & 3 & 12:10:40 \\
+\hline
+60 min & 12 & 2 & 12:10:40 \\
+\hline
+\textbf{120 min} & \textbf{7} & \textbf{1} & 12:10:40 \\
+\hline
+\end{tabular}
+\end{table}
+
+Debe consignarse que se descartó una primera propuesta. Exigir varias ráfagas \textit{nominales}
+consecutivas para rearmar no reduce los avisos —14, 16 y 19 según el valor, frente a los 18 de la
+política actual— porque al no romper la racha con una nominal aislada, la racha de anomalías se
+acumula con mayor rapidez y el aviso se dispara antes. La propuesta era incorrecta y la medición
+lo puso de manifiesto.
+
+Lo que sí resulta eficaz es el tiempo mínimo entre avisos, que constituye deduplicación y no
+insensibilización: la primera detección de cada episodio no se pierde con ningún valor ensayado.
+La contrapartida ha de declararse, dado que un fallo aparecido dentro de la ventana de silencio
+quedaría sin notificar hasta que esta expirase; y con un ciclo de trabajo de unos \mbox{85 min},
+un silencio de \mbox{120 min} abarca más de un ciclo completo, de modo que el valor no es
+trasladable a otro activo sin repetir la medida sobre el suyo. Es por tanto una decisión de
+política de operación y no una elección técnica.
+
+No se modificó el firmware. Alterar la política a mitad de una serie haría que el campo de aviso
+significase algo distinto antes y después del cambio, introduciendo una discontinuidad en un
+registro que hasta ahora es homogéneo.
 
 \section{El coste del canal acústico}
 

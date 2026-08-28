@@ -520,148 +520,125 @@ de avisos por fase, y desplazamiento medido de cada característica.
 
 ---
 
-### EXP-008 — Apertura de puerta: falso positivo del detector ante un suceso operativo normal
+### EXP-008 — Apertura de puerta: ciclo completo de perturbación, detección y recuperación
 
-- **Fecha/hora:** 2026-08-28 12:09 – 12:11 (Europe/Madrid), sobre una captura continua que
-  llega hasta las 12:41.
-- **Activo:** compresor de referencia (nodo A), **en estado nominal durante toda la campaña**.
-- **Condición:** apertura de la puerta del aparato entre las 12:09 y las 12:11.
+- **Fecha/hora:** 2026-08-28, apertura entre 12:09 y 12:11. Captura continua hasta las 14:26.
+- **Activo:** compresor de referencia (nodo A), **sano durante toda la campaña**.
+- **Condición:** puerta abierta 2 min. La perturbación es del entorno, no una degradación.
 - **Ficheros:** `server/data/nodo-a-nevera-buena/fw-46col/2026-08-28-{status,vibration}.csv`
   y `2026-08-28.csv`.
-- **Etiqueta:** **nominal.** El activo no presentaba ningún fallo. Lo que se induce es una
-  perturbación del entorno, no una degradación de la máquina.
+- **Etiqueta:** nominal en cuanto al estado mecánico; **sobrecarga operativa** inducida.
 
-> **Esta campaña no estaba prerregistrada.** EXP-006 declara sus criterios de antemano para una
-> obstrucción de ventilación, que es una perturbación distinta. Los criterios de EXP-008 no se
-> declararon antes de ejecutarla, y eso limita lo que puede afirmarse a partir de ella.
+> **No estaba prerregistrada.** EXP-006 declara criterios de antemano para una obstrucción de
+> ventilación, que es otra perturbación. Los de EXP-008 no se declararon antes.
 
-#### Respuesta del detector
+> **Aviso sobre las marcas de tiempo.** El nodo no tiene reloj de tiempo real y las marcas las
+> pone el concentrador, cuyo reloj no está sincronizado con una referencia externa. Los
+> intervalos y las duraciones son válidos —salen de un solo reloj— pero la alineación con la
+> hora civil no está verificada.
 
-| Instante | `health` | LOF | `streak` | `notify` |
-| :--- | :--- | ---: | ---: | ---: |
-| 12:08:40 | nominal | −1,1184 | 0 | 0 |
-| 12:09:10 | nominal | −1,1700 | 0 | 0 |
-| **12:09:40** | **anomaly** | **−2,1565** | 1 | 0 |
-| **12:10:10** | **anomaly** | **−2,1004** | 2 | 0 |
-| **12:10:40** | **anomaly** | **−1,8620** | **3** | **1** |
-| 12:11:10 | nominal | −1,2784 | 0 | 0 |
-| 12:11:40 | nominal | −1,0483 | 0 | 0 |
+#### El ciclo completo
 
-Umbral del nodo: −1,4395.
+| Fase | min | dif °C | motor °C | nominal | anomaly | no eval | avisos |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 · marcha previa | 37 | 15,26 | 41,0 | 60 | 13 | 1 | 0 |
+| 2 · **puerta abierta** | 2 | 19,48 | 46,7 | 1 | 3 | 0 | **1** |
+| 3 · subida térmica | 30 | 20,64 | 48,8 | 35 | 10 | 0 | 0 |
+| 4 · **anomalía sostenida** | 61 | **24,69** | **51,8** | 3 | **108** | 0 | **3** |
+| 5 · compresor parado | 40 | 13,45 | 44,5 | 0 | 2 | 78 | 0 |
+| 6 · **nueva marcha** | 5 | 14,88 | 41,0 | **9** | 1 | 0 | **0** |
 
-#### Qué característica se desplazó
+**Efecto físico:** 130 min de marcha continua (11:32–13:42) frente a una mediana nominal de
+**31 min**. Cuatro veces lo normal, con el diferencial 9,4 °C por encima.
 
-Es la pregunta que decide la interpretación, y la respuesta no es la que la magnitud del
-desplazamiento de la puntuación sugiere.
+**Recuperación observada:** a las 14:22 arranca con la puerta cerrada y vuelve a `nominal` —
+9 de 10 ráfagas, racha en 0, cero avisos, diferencial en 14,88 °C frente a los 15,26 °C de
+referencia.
 
-| Característica | Desviación en las tres ráfagas anómalas |
+#### Dos fenómenos con significado opuesto
+
+**El aviso de las 12:10:40 es un FALSO POSITIVO.** Una prueba de ablación lo establece: se anula
+cada grupo de características y se recalcula.
+
+| Configuración | Ráfagas detectadas |
 | :--- | ---: |
-| `aud_b1` (250–1000 Hz) | **+2,70 sd** |
-| `aud_b0` (0–250 Hz) | **−2,64 sd** |
-| `adom_x_rel` | +1,30 sd |
-| `rms_x_rel` | +1,25 sd |
-| `dif_rel` (diferencial térmico) | +1,23 sd |
-| `kurt_x`, `crest`, `r2`, `r3`, `q2`, `q3`, `n_picos` | sin desplazamiento apreciable |
+| Sin anular nada | 3 de 3 |
+| Anulando lo **térmico** | 3 de 3 |
+| Anulando lo **acústico** | **0 de 3** |
+| Anulando el nivel | 3 de 3 |
+| Anulando la forma de onda | 3 de 3 |
 
-**Lo que el nodo detectó fue un cambio del entorno acústico.** La energía sonora se desplazó de
-la banda de 0–250 Hz a la de 250–1000 Hz: el micrófono registró la habitación con la puerta
-abierta. La **firma vibratoria no se alteró**, y es la firma vibratoria la que describe el
-estado mecánico del activo.
+Solo el canal acústico es necesario. Lo que el nodo detectó fue el sonido de la habitación con
+la puerta abierta: `aud_b1` +2,70 sd, `aud_b0` −2,64 sd, y la firma vibratoria sin desplazar.
+Abrir la puerta es el suceso más frecuente en la vida de un aparato doméstico.
 
-#### Qué establece esta campaña
+**La anomalía sostenida a partir de +30 min SÍ es una detección legítima.** 108 de 111 ráfagas
+marcadas durante una hora, racha de 61 consecutivas, con el diferencial subiendo de forma
+monótona hasta 25,09 °C. El retraso de 30 min no es un defecto: es la constante de tiempo del
+fenómeno, porque el estado térmico de un compresor no cambia en 90 s.
 
-**El mecanismo de histéresis funciona según su diseño.** Se acumularon exactamente tres
-ráfagas anómalas consecutivas y el aviso se emitió en la tercera, no antes. Verificado sobre
-los datos del propio nodo.
+#### Qué establece y qué no
 
-**El detector es sensible a perturbaciones del entorno acústico**, no solo del activo.
+**Sí:** el detector señala una condición anómala real **del propio activo de referencia** y deja
+de señalarla cuando cesa. El ciclo entero está observado.
 
-**Y el coste de esa sensibilidad, cuantificado.** Anulando las tres bandas acústicas y
-recalculando sobre las 1553 ráfagas de la campaña:
+**No:** no es un fallo mecánico. El compresor no se ha degradado, ha trabajado el cuádruple
+porque se le metió calor. Es una **sobrecarga operativa**. La limitación de mayor peso del
+trabajo —que el activo averiado y el de referencia son máquinas distintas— sigue intacta en lo
+que respecta a los *fallos*.
+
+#### El coste del canal acústico, cuantificado
+
+Anulando las tres bandas y recalculando sobre la captura completa:
 
 | Configuración | Ráfagas marcadas |
 | :--- | ---: |
-| Con bandas acústicas | 218 de 1553 = **14,0 %** |
-| Sin bandas acústicas | 89 de 1553 = **5,7 %** |
-| El evento de la puerta, sin bandas acústicas | **0 de 3** |
+| Con bandas acústicas | **14,0 %** |
+| Sin bandas acústicas | **5,7 %** |
+| El evento de la puerta, sin acústica | 0 de 3 |
 
-El canal acústico aporta por tanto **8,3 puntos** de tasa de ráfagas marcadas y es el único
-responsable de la detección de la apertura.
-
-Debe matizarse el mecanismo: solo el 10 % de las ráfagas anómalas presenta un valor extremo de
-`aud_b1` —frente al 5 % que cabría por construcción—, de modo que la contribución **no** procede
-mayoritariamente de sucesos acústicos intensos como el de la puerta, sino de una dispersión
+Son **8,3 puntos**. Y el mecanismo no es el que cabría suponer: solo el 10 % de las ráfagas
+anómalas presenta un valor extremo de `aud_b1` —frente al 5 % que correspondería por
+construcción— de modo que la contribución no procede de sucesos intensos sino de una dispersión
 distribuida que la campaña de referencia no capturó.
 
-#### Qué NO establece
+El canal tiene por tanto las dos caras medidas: aportó la confirmación independiente del fallo
+real de EXP-003 (0,986 frente a 0,034), procedente de un sensor que no comparte cadena con el
+acelerómetro, y cuesta 8,3 puntos frente a perturbaciones del entorno.
 
-**No es la detección de un fallo.** El activo estaba sano y una persona abrió una puerta. En un
-aparato en uso doméstico, ese es el suceso más frecuente de su vida operativa: en explotación
-este episodio sería un **falso positivo**, no una alarma útil.
+#### Un defecto de la política de avisos, y su corrección sin reflashear
 
-**No establece la validación intra-máquina.** Abrir una puerta no degrada el compresor. La
-limitación de mayor peso del trabajo —los dos activos con fallo y de referencia son máquinas
-distintas— permanece intacta y solo la resuelve un fallo inducido sobre el propio activo de
-referencia.
+El episodio produjo **4 avisos para un solo suceso**: cuando una ráfaga nominal se cuela en
+medio de una anomalía sostenida —ocurrió 3 veces— la racha se reinicia y el sistema vuelve a
+notificar.
 
-**No establece una alteración del ciclo de trabajo.** El compresor arrancó a las **11:32**,
-treinta y siete minutos antes de la apertura, de modo que la marcha continua no es atribuible a
-la perturbación. Y la captura termina a las 12:41: **treinta minutos** de observación posterior
-no permiten establecer un cambio en un ciclo cuyo periodo es de unos 85 min. Los 69 min de
-marcha observados son el episodio más largo de la campaña, si bien el máximo previo era de
-67 min.
+La histéresis es una **política de notificación**, no una medida: no altera `health`, `lof`,
+`env` ni `n_peaks`, solo `notify` y `streak`. Y es una función pura de la secuencia de
+veredictos, de modo que **cualquier alternativa se evalúa sobre los datos ya capturados, sin
+reflashear el nodo ni repetir campañas** ([`politica_avisos.py`](../server/analisis/politica_avisos.py)).
 
-#### El efecto térmico sí fue real, y se señaló con retraso
+| Tiempo mínimo entre avisos | Avisos totales | Del episodio | Primera detección |
+| ---: | ---: | ---: | :--- |
+| 0 min (actual) | 18 | 4 | 12:10:40 |
+| 30 min | 12 | 3 | 12:10:40 |
+| 60 min | 12 | 2 | 12:10:40 |
+| 120 min | **7** | **1** | 12:10:40 |
 
-| Ventana | Diferencial | Temp. motor | Ráfagas marcadas |
-| :--- | ---: | ---: | ---: |
-| Marcha previa (11:32–12:09) | 15,26 °C | 41,0 °C | 4 de 18 |
-| Apertura (12:09–12:11) | 19,48 °C | 46,7 °C | 3 de 3 |
-| De +10 a +30 min | **20,75 °C** | **48,8 °C** | **11 de 27** |
+**Se descartó una primera propuesta**, y conviene consignarlo: exigir varias ráfagas *nominales*
+consecutivas para rearmar no reduce los avisos (14, 16 y 19 según el valor, frente a 18 del
+actual). El motivo es que al no romper la racha con una nominal aislada, la racha de anomalías se
+acumula más rápido y el aviso se dispara antes.
 
-El diferencial subió 5,5 °C de forma monótona y sostenida, y la fracción de ráfagas marcadas
-pasó del 22 % previo al **41 %**. Se emitió un **segundo aviso a las 12:41:40**, el último
-instante registrado.
+Lo que sí funciona es el tiempo mínimo entre avisos, que es deduplicación y no
+insensibilización: la primera detección de cada episodio nunca se pierde.
 
-**Lectura completa: dos avisos por causas distintas.** El primero, a los 90 s, es el transitorio
-acústico y es un falso positivo. El segundo, 31 min después, coincide con el estado térmico
-alterado y sí corresponde a una consecuencia física.
+**Contrapartida declarada:** un fallo que apareciera dentro de la ventana de silencio quedaría
+sin notificar hasta que expirase. Con un ciclo de trabajo de unos 85 min, un silencio de 120 min
+abarca más de un ciclo completo, de modo que el valor no es trasladable a otro activo sin
+repetir la medida sobre el suyo. Es una decisión de política de operación y no una elección
+técnica.
 
-*Reservas:* la captura termina en ese segundo aviso, así que no se sabe si habría persistido; y
-el activo ya llevaba 37 min de marcha continua con el diferencial elevado antes de abrir, lo que
-impide separar limpiamente el efecto de la apertura del de la marcha prolongada.
-
-#### Corrección sobre la distribución horaria de los avisos
-
-> **Aviso previo.** El nodo no tiene reloj de tiempo real y las marcas las pone el concentrador,
-> cuyo reloj no está sincronizado con una referencia externa. Los intervalos y las duraciones son
-> válidos —salen de un solo reloj— pero **la alineación con la hora civil no está verificada**.
-> Todo lo que dependa de la hora del día lleva ese margen.
-
-Los **avisos** sí muestran sobrerrepresentación en el tramo que las marcas sitúan de noche: 8 de
-16 entre las 00:00 y las 08:00, franja que contiene el 36 % de las ráfagas evaluables. Un análisis previo lo negó por mirar la
-magnitud equivocada —la fracción de ráfagas *marcadas*, que sí es uniforme (13,7 % frente a
-14,3 %)—. **Son magnitudes distintas: el aviso exige tres ráfagas consecutivas.**
-
-El mecanismo probable no es la deriva térmica sino la geometría del ciclo: de noche las marchas
-son largas y regulares (mediana de 64 ráfagas por tramo continuo frente a 47 de día), de modo
-que hay más ocasiones de acumular tres anómalas seguidas. Con 16 avisos la sobrerrepresentación
-no es concluyente.
-
-#### Consecuencia para el diseño
-
-El canal acústico presenta un **compromiso con dos caras medidas**:
-
-- Aportó la confirmación independiente del fallo real de EXP-003, con un reparto de energía de
-  0,986 frente a 0,034 del activo nominal. Es la evidencia que convierte un indicio en un
-  hallazgo, porque procede de un sensor que no comparte cadena con el acelerómetro.
-- Cuesta 8,3 puntos de tasa de ráfagas marcadas frente a perturbaciones del entorno.
-
-La decisión entre ambas caras **no es técnica**: depende de si el activo opera en un entorno
-acústicamente estable. Queda declarada como tal y no resuelta, dado que los datos disponibles no
-permiten estimar la frecuencia de sucesos acústicos en operación real.
-
-Una alternativa que los datos sugieren y que no se ha ensayado: exigir que la desviación se
-manifieste **también** en el canal de vibración antes de notificar, con lo que el canal acústico
-conservaría su papel confirmatorio sin poder disparar por sí solo.
+**No se ha modificado el firmware.** Cambiar la política a mitad de una serie haría que la
+columna `notify` significase algo distinto antes y después, introduciendo una discontinuidad en
+un registro que hasta ahora es homogéneo.
 
