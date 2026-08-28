@@ -44,7 +44,11 @@ DESTINO="$REPO_DIR/server/data/$SERIE"
 log "Copiando de $USER_PI@$HOST:~/$REMOTO"
 rm -rf "$ENTRADA"; mkdir -p "$ENTRADA"
 # scp y no rsync: sin opcion de borrado, no puede vaciar nada.
-scp "$USER_PI@$HOST:$REMOTO/*.csv" "$ENTRADA/" || die "no se copio nada.
+SCP_CMD=(scp)
+if [[ -n "${SSHPASS:-}" ]] && command -v sshpass >/dev/null 2>&1; then
+    SCP_CMD=(sshpass -e scp)
+fi
+"${SCP_CMD[@]}" "$USER_PI@$HOST:$REMOTO/*.csv" "$ENTRADA/" || die "no se copio nada.
        Comprueba la direccion, el usuario y que existan CSV en ~/$REMOTO
        (si DATA_DIR apunta a un subdirectorio, indicalo con REMOTO=...)"
 ls -la "$ENTRADA"

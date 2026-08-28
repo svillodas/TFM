@@ -31,8 +31,11 @@ fi
 
 # Avisos que conviene no dejar pasar
 if [ -f memoria_TFM.log ]; then
-    grep -c 'LaTeX Warning: Citation' memoria_TFM.log 2>/dev/null | grep -qv '^0$' \
-        && echo "AVISO: hay citas sin resolver (revisa referencias.bib)."
+    citas_sin_resolver=$(grep -c 'LaTeX Warning: Citation' memoria_TFM.log 2>/dev/null || true)
+    if [ "${citas_sin_resolver:-0}" -gt 0 ]; then
+        echo "AVISO: hay citas sin resolver (revisa referencias.bib)."
+    fi
 fi
-pendientes=$(grep -rc '% TODO' capitulos/*.tex 2>/dev/null | awk -F: '{s+=$2} END {print s+0}')
+pendientes=$(grep -rc '% TODO' capitulos/*.tex 2>/dev/null | awk -F: '{s+=$2} END {print s+0}' || true)
 echo "Marcas % TODO pendientes en los capítulos: ${pendientes}"
+
