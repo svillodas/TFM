@@ -3,9 +3,9 @@
 ## Estado de validación
 | Sensor | Bus | Pines | Estado |
 | :--- | :--- | :--- | :--- |
-| MPU-6050 | I2C | 21 (SDA) / 22 (SCL) | ✅ Validado, con auto-recuperación de bus |
-| DS18B20 | 1-Wire | 14 (DATA) | ✅ Validado, pull-up ~5 kΩ a 3V3 |
-| INMP441 | I2S | 12 (WS) / 13 (SD) / 17 (SCK) | ✅ Validado, L/R a GND (canal izquierdo) |
+| MPU-6050 | I2C | 21 (SDA) / 22 (SCL) | Validado, con auto-recuperación de bus |
+| DS18B20 | 1-Wire | 14 (DATA) | Validado, pull-up ~5 kΩ a 3V3 |
+| INMP441 | I2S | 12 (WS) / 13 (SD) / 17 (SCK) | Validado, L/R a GND (canal izquierdo) |
 
 ## Incidencias resueltas
 - **Bus I2C colgado por vibración.** El movimiento del compresor provocaba microcortes en

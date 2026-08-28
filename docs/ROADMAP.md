@@ -3,46 +3,47 @@
 Alineado con las tareas de la solicitud de TFM (6 ECTS ≈ 150 h). El reparto de horas es
 orientativo; lo que importa es el orden de dependencias.
 
-Leyenda: ✅ hecho · 🔄 en curso · ⬜ pendiente
+Las tareas hechas van marcadas con `[x]` y las pendientes con `[ ]`.
+El estado de cada fase figura en su título.
 
 ---
 
-## Fase 0 — Definición del escenario de prueba ✅ (~10 h)
+## Fase 0 — Definición del escenario de prueba (completada, ~10 h)
 *Tarea TFM: "Definición del escenario de prueba"*
-- ✅ Activo representativo elegido: compresor de sistema de refrigeración doméstico.
-- ✅ Variables físicas de interés: vibración, temperatura, firma acústica.
-- ⬜ Caracterización documentada de la firma operativa nominal (depende de Fase 3).
+- [x] Activo representativo elegido: compresor de sistema de refrigeración doméstico.
+- [x] Variables físicas de interés: vibración, temperatura, firma acústica.
+- [ ] Caracterización documentada de la firma operativa nominal (depende de Fase 3).
 
-## Fase 1 — Diseño de la arquitectura ✅ (~15 h)
+## Fase 1 — Diseño de la arquitectura (completada, ~15 h)
 *Tarea TFM: "Diseño de la arquitectura del sistema"*
-- ✅ Modelo Edge–Fog definido: ESP32 → MQTT → Raspberry Pi.
-- ✅ Modelo de intercambio de datos: JSON de 9 variables sobre `fridge/sensors`.
-- ✅ Documentado en [ARCHITECTURE.md](ARCHITECTURE.md) y [DATA_SCHEMA.md](DATA_SCHEMA.md).
+- [x] Modelo Edge–Fog definido: ESP32 → MQTT → Raspberry Pi.
+- [x] Modelo de intercambio de datos: JSON de 9 variables sobre `fridge/sensors`.
+- [x] Documentado en [ARCHITECTURE.md](ARCHITECTURE.md) y [DATA_SCHEMA.md](DATA_SCHEMA.md).
 
-## Fase 2 — Selección e integración de hardware ✅ (~30 h)
+## Fase 2 — Selección e integración de hardware (completada, ~30 h)
 *Tarea TFM: "Selección de componentes de hardware y software"*
-- ✅ ESP32 + MPU-6050 (I2C) + DS18B20 (1-Wire) + INMP441 (I2S) integrados.
-- ✅ Lectura simultánea de los tres sensores en el mismo ciclo.
-- ✅ Auto-recuperación del bus I2C ante desconexión por vibración.
-- ✅ Payload JSON consolidado de 9 variables.
-- ✅ Wi-Fi WPA/WPA2 con diagnóstico de errores y timeout.
-- ✅ Cliente MQTT con reconexión no bloqueante.
+- [x] ESP32 + MPU-6050 (I2C) + DS18B20 (1-Wire) + INMP441 (I2S) integrados.
+- [x] Lectura simultánea de los tres sensores en el mismo ciclo.
+- [x] Auto-recuperación del bus I2C ante desconexión por vibración.
+- [x] Payload JSON consolidado de 9 variables.
+- [x] Wi-Fi WPA/WPA2 con diagnóstico de errores y timeout.
+- [x] Cliente MQTT con reconexión no bloqueante.
 
-## Fase 3 — Conectividad y captura de datos 🔄 (~25 h)
+## Fase 3 — Conectividad y captura de datos (en curso, ~25 h)
 Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo está en la Fase 4.
-- ✅ **Hub desplegado en la Raspberry Pi** (2026-08-25). La Pi genera su propia red Wi-Fi
+- [x] **Hub desplegado en la Raspberry Pi** (2026-08-25). La Pi genera su propia red Wi-Fi
       (punto de acceso) y el nodo se conecta directamente a ella, sin router intermedio: la
       IP del broker queda fija en `10.42.0.1` y deja de depender del DHCP ajeno, que durante
       la puesta a punto cambió de subred cuatro veces. Mosquitto y el logger arrancan solos
       tras un corte de corriente. Aprovisionamiento en `server/provision-pi.sh`, verificación
       con `provision-pi.sh comprobar`. Ver [informe](informes/2026-08-25-despliegue-hub.md).
-- ✅ Validado extremo a extremo ESP32 → broker (2026-08-24). El nodo publica en ambos
+- [x] Validado extremo a extremo ESP32 → broker (2026-08-24). El nodo publica en ambos
       topics; verificado por suscripción directa.
-- ✅ Logger `server/mqtt_logger.py` probado extremo a extremo con tramas sintéticas:
+- [x] Logger `server/mqtt_logger.py` probado extremo a extremo con tramas sintéticas:
       escribe los dos CSV con sus cabeceras y descarta JSON malformado sin caerse
       (2026-08-24). Pendiente de estrenar con datos reales.
-- ✅ Nodo redirigido al broker local (2026-08-25). Se abandona el broker público.
-- ✅ **Componente tonal de alta frecuencia acotada por software** (2026-08-26). Al reubicar
+- [x] Nodo redirigido al broker local (2026-08-25). Se abandona el broker público.
+- [x] **Componente tonal de alta frecuencia acotada por software** (2026-08-26). Al reubicar
       el sensor desde la cúpula del compresor a un punto con mejor transmisión, el nivel de
       vibración subió entre 9 y 20 veces según el eje, y apareció una componente entre 398 Hz
       y 448 Hz que se lleva el 95 % de la energía. Se atribuyó entonces a una resonancia del
@@ -58,21 +59,21 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       2. **Tres picos espectrales por eje** en lugar del dominante. Se prefirió a acotar la
          banda a un límite fijo porque las componentes se extendían entre 398 Hz y 497 Hz.
          Ese límite habría dejado el fallo fuera de la banda examinada. 27/27 pruebas en el PC.
-- ✅ Umbral de continuidad recalibrado a 6 m/s² (2026-08-26). El valor inicial de 3 m/s²
+- [x] Umbral de continuidad recalibrado a 6 m/s² (2026-08-26). El valor inicial de 3 m/s²
       quedó invalidado por los datos: la familia armónica produce una pendiente **legítima**
       de 2,6 m/s²/ms, el 87 % de ese umbral, con lo que habría rechazado muestras buenas.
-- ✅ **Validado en placa** (2026-08-26, [EXP-002](EXPERIMENTOS.md)). `kurt_z` pasa de estar
+- [x] **Validado en placa** (2026-08-26, [EXP-002](EXPERIMENTOS.md)). `kurt_z` pasa de estar
       fija en 1,75 a variar entre 2,48 y 7,35, y la fundamental del compresor se identifica en
       **6 de 7 ráfagas** a 49,77 Hz (CV 0,15 %) como tercer pico. Amplitud 0,0660 m/s² con
       CV del 7,4 %, lo que sitúa el umbral de detección en un cambio del 21 %. Ver
       [informe](informes/2026-08-26-punto-medida-resonancia.md).
-- ✅ **Punto de medida seleccionado: el tubo de descarga** (2026-08-26). Se descartó la cúpula
+- [x] **Punto de medida seleccionado: el tubo de descarga** (2026-08-26). Se descartó la cúpula
       del compresor: un compresor hermético lleva el motor suspendido sobre muelles internos,
       de modo que la cúpula es el lado amortiguado de esa suspensión. El traslado elevó el
       nivel entre 9 y 20 veces. El 95 % de ese incremento está en la banda de la familia
       armónica y no en la que describen los estadísticos filtrados, cuya ganancia es de ~1,6
       veces. Se creyó una pérdida y era lo contrario: es la banda donde estaba el fallo.
-- ✅ **Comprobación de continuidad entre muestras consecutivas** (2026-08-25). Era el
+- [x] **Comprobación de continuidad entre muestras consecutivas** (2026-08-25). Era el
       bloqueo determinante. La corrupción de una muestra por ráfaga persistía: se midió
       `kurt_x` = 1001 con `peak_x` = 10,6154, que coincide con la predicción analítica para
       un único impulso aislado (1001,6). La comprobación de plausibilidad por módulo del
@@ -84,7 +85,7 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       al payload de ráfaga para diagnóstico de causa raíz (EMI, conector suelto o lectura no
       atómica). **Pendiente de verificar en placa** (no hay `arduino-cli` en el equipo de
       desarrollo).
-- ✅ **Contador de ráfagas calculadas pero no publicadas** (2026-08-25). Se observaron huecos
+- [x] **Contador de ráfagas calculadas pero no publicadas** (2026-08-25). Se observaron huecos
       de 102 s y 73 s con `failed_bursts` a cero: la publicación va condicionada al estado de
       la conexión y, si no está establecida, la ráfaga se calculaba y se perdía sin dejar
       rastro. Añadido `unpublishedBursts`/`unpublished_bursts` en `device/device.ino`, mismo
@@ -92,7 +93,7 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       `else` de la publicación a `TOPIC_BURST`, visible en la siguiente ráfaga que sí se
       publique (la ráfaga perdida en sí nunca llega al broker). **Pendiente de verificar en
       placa** (no hay `arduino-cli` en el equipo de desarrollo).
-- ✅ **Fallo real detectado y caracterizado** (2026-08-26,
+- [x] **Fallo real detectado y caracterizado** (2026-08-26,
       [EXP-003](EXPERIMENTOS.md) / [EXP-004](EXPERIMENTOS.md)). El segundo compresor tiene un
       fallo no inducido con **verdad de referencia independiente de la instrumentación**: un
       tono audible que el operador percibe. Las componentes que se atribuían al montaje son
@@ -109,12 +110,12 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       anterior, adoptadas bajo la interpretación equivocada, son las que hicieron posible
       registrarlo: acotar la búsqueda espectral a la banda fiable, alternativa que se valoró,
       lo habría dejado fuera.
-- ⬜ **Medir la resonancia real del acoplamiento.** El corte del filtro en 150 Hz se derivó
+- [ ] **Medir la resonancia real del acoplamiento.** El corte del filtro en 150 Hz se derivó
       de la regla de un tercio aplicada a los 448 Hz. Refutada esa atribución, el valor es
       una cota conservadora **sin respaldo experimental**. No es bloqueante para la Fase 4.
-- ⬜ **Verificar la alimentación del nodo.** `total_retries` volvió de 29 a 0, y ese contador
+- [ ] **Verificar la alimentación del nodo.** `total_retries` volvió de 29 a 0, y ese contador
       solo puede crecer: hubo un reinicio no explicado del microcontrolador.
-- ⬜ Corregir `noise` del canal lento: promedia sobre 4 ms cuando el periodo de la señal es
+- [ ] Corregir `noise` del canal lento: promedia sobre 4 ms cuando el periodo de la señal es
       de 22,8 ms, lo que la hace inservible. Afecta solo a esa variable.
       **Corrección de un diagnóstico anterior:** se dio por sentado que el reparto de energía
       acústica estaba saturado y que el canal duplicaba al acelerómetro, y se planteó
@@ -122,7 +123,7 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       de `aud_b0` en el activo nominal (0,947) y de `aud_b1` en el activo con fallo (0,987)
       **son la medida**, no un defecto de escalado, y su inversión entre los dos activos es
       la confirmación independiente del fallo. El canal se deja como está.
-- ✅ **Campaña de referencia completada** (2026-08-27, [EXP-005](EXPERIMENTOS.md)): 19,04 h
+- [x] **Campaña de referencia completada** (2026-08-27, [EXP-005](EXPERIMENTOS.md)): 19,04 h
       continuas, 1868 ráfagas, 467 útiles en **22 episodios de marcha**. Ciclo nocturno regular
       de 30 min cada 84 min. Es lo que hizo posible la validación cruzada por episodios.
 - ~~Campaña baseline: 12 h continuas~~ *(planificación original, superada por EXP-005)*
@@ -138,22 +139,22 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       un desescarche, que son fenómenos de tiempo de reloj. Por debajo de 8 h la cobertura de
       ciclos se estrecha y probablemente no se capture ningún desescarche, con lo que cada
       desescarche de las campañas de fallo aparecería como falso positivo.
-- ⬜ **Montaje mecánico definitivo del sensor** (acoplamiento rígido al chasis; un sensor
+- [ ] **Montaje mecánico definitivo del sensor** (acoplamiento rígido al chasis; un sensor
       mal fijado mide su propio soporte, no el motor). **Prioritario:** con el compresor en
       marcha se midieron valores eficaces de 0,07-0,98 m/s², magnitud baja para el activo y
       compatible con una fijación insuficientemente rígida. Ningún modelo puede discriminar
       una señal que el sensor no llega a registrar.
-- ✅ Migración del muestreo a `millis()` no bloqueante (2026-08-19).
-- ✅ Muestreo por ráfagas a 1 kHz con extracción de características en el nodo
+- [x] Migración del muestreo a `millis()` no bloqueante (2026-08-19).
+- [x] Muestreo por ráfagas a 1 kHz con extracción de características en el nodo
       (2026-08-19). 1024 muestras/ráfaga, resolución 0,98 Hz. Banda útil hasta 260 Hz, no
       500: la limita el filtro interno del sensor, no Nyquist. Publicado
       en el topic `fridge/vibration`. Ver
       [informe](informes/2026-08-19-muestreo-rafagas.md).
-- ✅ **Firmware verificado en la placa** (2026-08-24). `ms_capture` = 1024 ms en todas las
+- [x] **Firmware verificado en la placa** (2026-08-24). `ms_capture` = 1024 ms en todas las
       ráfagas observadas, cálculo de características en 30 ms, y frecuencia dominante de
       49,1 Hz coincidente en los tres ejes con el compresor en marcha — el régimen esperado
       de un motor de dos polos a 50 Hz con deslizamiento.
-- ✅ **Adquisición robusta frente a fallos del bus I2C** (2026-08-24). Se localizaron dos
+- [x] **Adquisición robusta frente a fallos del bus I2C** (2026-08-24). Se localizaron dos
       defectos que corrompían el dato en silencio, ambos por bibliotecas que no propagan
       los errores del bus: `Wire.read()` devolviendo −1 truncado a `0xFF`, y
       `mpu.getEvent()` de Adafruit devolviendo `true` sobre un buffer sin inicializar. Una
@@ -161,17 +162,17 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       validación de la transacción en cuatro puntos, reintento único por muestra,
       comprobación de plausibilidad física y lectura directa de los registros del sensor.
       Ver [informe](informes/2026-08-24-robustez-i2c.md).
-- ✅ Contadores de salud del nodo: `bad_frames`, `retries` y `total_retries`, que hacen
+- [x] Contadores de salud del nodo: `bad_frames`, `retries` y `total_retries`, que hacen
       medible la calidad de cada medida en lugar de suponerla.
-- ⬜ **Soldar el conexionado del sensor** con alivio de tensión. **Sube de prioridad**: los
+- [ ] **Soldar el conexionado del sensor** con alivio de tensión. **Sube de prioridad**: los
       reintentos del bus descartan el 32 % de las ráfagas en marcha del nodo A y, peor, las que
       pasan con 4-10 reintentos fabrican picos espectrales espurios que imitan un fallo. No es
       solo pérdida de datos: es contaminación de la característica que decide.
-- ⬜ Validar en placa la lectura del rango del giróscopo (`updateGyroScale()`).
+- [ ] Validar en placa la lectura del rango del giróscopo (`updateGyroScale()`).
 
-## Fase 4 — Motor de análisis inteligente 🔄 (~35 h) ← **FASE ACTUAL**
+## Fase 4 — Motor de análisis inteligente (en curso, ~35 h) ← **FASE ACTUAL**
 *Tarea TFM: "Desarrollo del motor de análisis inteligente"*
-- ✅ **Baseline preliminar en pie** (2026-08-26, `server/analisis/baseline_anomalias.py`).
+- [x] **Baseline preliminar en pie** (2026-08-26, `server/analisis/baseline_anomalias.py`).
       Isolation Forest ajustado solo sobre el activo nominal: **676/676** ráfagas del activo
       con fallo detectadas, 2,2 % de falsos positivos, umbral en el percentil 1 del nominal.
       Dos hallazgos condicionan todo lo que venga después:
@@ -192,7 +193,7 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       media y 8,3 % en el peor episodio**, frente al 25-34 % en el peor episodio de los seis
       candidatos restantes. Ese es el número que cuenta para el despliegue: un peor caso alto
       significa tandas de alarmas falsas seguidas, no una aislada cada tanto.
-- ✅ **Explicada la asimetría de descarte** (2026-08-26). No es un problema de calidad: el
+- [x] **Explicada la asimetría de descarte** (2026-08-26). No es un problema de calidad: el
       filtro de contadores lo supera el 80 % de las ráfagas del nodo A y el 87 % del nodo B,
       cifras equivalentes. Lo que difiere es el **ciclo de trabajo**: el nodo A se capturó con
       el compresor en marcha en el 27 % de las ráfagas y el nodo B en el 99 %. De ahí el
@@ -200,47 +201,47 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       de referencia debe dimensionarse sobre esa cifra, no sobre la cadencia de publicación.
       Nota lateral, sin confirmar: un 99 % de tiempo en marcha frente al 63 % medido sobre
       20,6 h del nodo A es en sí mismo compatible con un compresor que no alcanza consigna.
-- ⬜ Limpieza del dataset: filtrado de valores centinela (ver DATA_SCHEMA.md).
-- ✅ **Criterio de filtrado por calidad establecido**: solo contadores **por ráfaga**
+- [ ] Limpieza del dataset: filtrado de valores centinela (ver DATA_SCHEMA.md).
+- [x] **Criterio de filtrado por calidad establecido**: solo contadores **por ráfaga**
       (`retries` ≤ 5, `cont_rejects` ≤ 2, `kurt_x` en [1, 20]). `bad_frames` y los contadores
       con prefijo `total_` son **acumulados desde el arranque**: exigirles cero descarta el
       100 % de las ráfagas. Documentado en el script y en la memoria.
-- ✅ **Selección de eje por repetibilidad medida**: `kurt_x` está en rango físico en el 100 %
+- [x] **Selección de eje por repetibilidad medida**: `kurt_x` está en rango físico en el 100 %
       de las ráfagas de ambos nodos, mientras `kurt_z` lo está en el 59 % del nodo A y el
       44 % del nodo B. El eje X es el único utilizable sin más trabajo de montaje.
-- ✅ Extracción de características en el nodo: RMS, pico, kurtosis, frecuencia y amplitud
+- [x] Extracción de características en el nodo: RMS, pico, kurtosis, frecuencia y amplitud
       dominantes por eje, energía acústica por bandas (`device/signal_processing.h`, verificado en PC).
-- ⬜ Características derivadas en el hub: gradientes térmicos, evolución de armónicos,
+- [ ] Características derivadas en el hub: gradientes térmicos, evolución de armónicos,
       duración de los ciclos de marcha y parada.
-- ✅ **Selección del modelo entre 7 candidatos** (`server/analisis/comparar_modelos.py`), en
+- [x] **Selección del modelo entre 7 candidatos** (`server/analisis/comparar_modelos.py`), en
       el mismo punto de operación y con 5 criterios declarados. Dos hallazgos: la **tasa de
       detección no discrimina** (los 7 dan el 100 %), y dos candidatos caen por calibración —
       One-Class SVM da un 46 % de falsos positivos donde el umbral pide un 5 %, porque con 45
       observaciones y 11 dimensiones sus hiperparámetros no son ajustables.
-- ✅ **Corregida una definición de característica defectuosa** (2026-08-26). Los cocientes se
+- [x] **Corregida una definición de característica defectuosa** (2026-08-26). Los cocientes se
       calculaban sobre los picos tal como los publica el firmware, que los ordena **por
       amplitud**: en 60 de 676 ráfagas el armónico del fallo le quita la posición de dominante
       a la fundamental y el mismo fenómeno daba cocientes de 9,0 y de 0,111. Corregido
       ordenando por **frecuencia** y descartando antes los picos por debajo del 20 % de la
       amplitud mayor. El hallazgo se refuerza: son **8×, 9× y 10×** simultáneos, no una sola
       componente. Ver la corrección al final de [EXPERIMENTOS.md](EXPERIMENTOS.md).
-- ⬜ **Ampliar los picos espectrales del firmware.** Con tres picos, uno de ellos la
+- [ ] **Ampliar los picos espectrales del firmware.** Con tres picos, uno de ellos la
       fundamental, solo caben dos armónicos por ráfaga: la familia 8×/9×/10× no se puede
       caracterizar completa. No reflashear con una campaña en curso.
-- ✅ **Localizados los puntos ciegos del detector** (2026-08-27,
+- [x] **Localizados los puntos ciegos del detector** (2026-08-27,
       `server/analisis/cobertura_modos.py`, datos **sintéticos**, no evidencia). Solo hay un
       modo de fallo observado, y elegir el modelo por sus falsos positivos contra ese único
       fallo es sobreajuste. La regla sobre `n_picos` resulta **ciega a 3 de 4** direcciones de
       fallo típicas: detecta lo que añade componentes espectrales, no lo que altera la amplitud
       o la impulsividad.
-- ✅ **Corregida la ceguera a la amplitud de las características adimensionales** (2026-08-27).
+- [x] **Corregida la ceguera a la amplitud de las características adimensionales** (2026-08-27).
       Son ciegas por construcción a un fallo que solo cambie el nivel, porque todo es cociente
       respecto a la fundamental. Añadidas `rms_x_rel` y `adom_x_rel`, normalizadas por la
       mediana del **propio** activo: adimensionales en la forma, específicas en el valor. La
       envolvente pasa a detectar el 99 % del desequilibrio de masa simulado.
       *Contrapartida:* el nodo debe aprender la mediana de su activo en una fase de referencia
       antes de poder juzgar.
-- ✅ **Elección de modelo REVISADA** (2026-08-27). La conclusión anterior —«la regla supera a
+- [x] **Elección de modelo REVISADA** (2026-08-27). La conclusión anterior —«la regla supera a
       los modelos de ML»— era **engañosa**. Dando a cada modelo únicamente `n_picos`, los seis
       convergen al **mismo 8,3 %**: con una dimensión hay una sola frontera. La comparación
       original era injusta (una característica bien elegida frente a las 15, varias sin poder de
@@ -251,34 +252,34 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       **Detector principal: envolvente robusta** (5 de 5 direcciones, forma cuadrática de
       900 bytes). **Confirmación: `n_picos > 1`.** Auditoría completa en
       `server/analisis/cuadernos/auditoria-fase4.ipynb`.
-- ✅ **Protocolo sin sesgo de espionaje** (2026-08-27, `server/analisis/protocolo.py`). Todo el
+- [x] **Protocolo sin sesgo de espionaje** (2026-08-27, `server/analisis/protocolo.py`). Todo el
       análisis anterior usaba el conjunto con fallo para decidir: `n_picos` se eligió ordenando
       las candidatas por separación *frente al fallo*. El protocolo limpio separa desarrollo y
       prueba **cronológicamente por episodios**, toma todas las decisiones solo con el activo
       sano, y mira la evaluación una vez. **Elige un modelo distinto (LOF), con 7,8 % de falsos
       positivos sobre episodios nunca vistos y 100 % de detección.**
-- ✅ **Refutado el criterio de embarcabilidad que yo mismo había impuesto** (2026-08-27). Había
+- [x] **Refutado el criterio de embarcabilidad que yo mismo había impuesto** (2026-08-27). Había
       etiquetado modelos como «no embarcables» por suposición. Medido: el mayor ocupa 274 KB y el
       más costoso exige 15 150 operaciones (~0,1 ms a 240 MHz) frente a una ráfaga cada 30 s. La
       placa tiene 8 MB de PSRAM. **Los cinco caben**, y ese criterio sesgó la elección hacia lo
       simple sin base.
-- ⬜ **Embarcar el detector** en el ESP32, con histéresis y guardián de reintentos.
-- ⬜ Clasificación de estados de salud del sistema.
-- ✅ **Validación cruzada por episodios implementada** (`comparar_modelos.py`). Era la que
+- [ ] **Embarcar el detector** en el ESP32, con histéresis y guardián de reintentos.
+- [ ] Clasificación de estados de salud del sistema.
+- [x] **Validación cruzada por episodios implementada** (`comparar_modelos.py`). Era la que
       faltaba: con un solo episodio nominal, cualquier partición dejaba en entrenamiento y en
       prueba ráfagas de la misma condición, separadas 30 s y correlacionadas.
-- ⬜ Métricas de evaluación y matriz de confusión. **El conjunto de evaluación ya existe**
+- [ ] Métricas de evaluación y matriz de confusión. **El conjunto de evaluación ya existe**
       sin necesidad de inducir ningún fallo: EXP-003 aporta 676 ráfagas de un fallo real con
       etiqueta fiable, y EXP-004 el control nominal. Limitación a declarar: son máquinas
       distintas, de modo que el contraste no separa el efecto del fallo del de la
       variabilidad entre ejemplares.
-- ✅ **Segmentación marcha/parada resuelta y corregida** (2026-08-27). El umbral de 0,05 m/s²
+- [x] **Segmentación marcha/parada resuelta y corregida** (2026-08-27). El umbral de 0,05 m/s²
       fijado con EXP-004 **era incorrecto**: caía dentro del grupo de parado, cuyo extremo llega
       a 0,06, y producía episodios espurios de una sola ráfaga. Además el valle es propio de
       cada máquina (0,198 en el nodo A, 0,060 en el nodo B), de modo que ningún umbral absoluto
       sirve para las dos. Se deriva ahora de los datos separando los dos modos del logaritmo del
       valor eficaz, sin hiperparámetros.
-- ✅ **Descubierto que los reintentos del bus I2C fabrican la firma del fallo** (2026-08-27).
+- [x] **Descubierto que los reintentos del bus I2C fabrican la firma del fallo** (2026-08-27).
       En el activo NOMINAL, con más de 10 reintentos la mediana de picos significativos pasa de
       1 a 3 y la fundamental estimada cae de 49 Hz a 20 Hz: una muestra corrupta inyecta ruido
       de banda ancha. **El filtro de calidad es parte del detector, no un preproceso**, y el
@@ -289,68 +290,68 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       cocientes de **8,0016 (CV 0,029 %)** y 9,0035 (CV 0,106 %). Y la firma del nodo B es
       idéntica con reintentos y sin ellos, mientras la del nodo A se derrumba.
 
-## Fase 5 — Validación experimental 🔄 (~20 h)
+## Fase 5 — Validación experimental (en curso, ~20 h)
 *Tarea TFM: "Validación experimental"*
-- ✅ **Un caso de fallo real ya validado** (EXP-003). Es mejor evidencia que un fallo
+- [x] **Un caso de fallo real ya validado** (EXP-003). Es mejor evidencia que un fallo
       inducido: la etiqueta no la fija quien monta el experimento, sino que la aporta un tono
       audible ajeno a la instrumentación. Cubre la parte de la validación que consiste en
       demostrar que el sistema detecta algo que ocurre de verdad.
-- ⬜ **Provocar paradas en el activo con fallo.** Solo tiene 2 episodios de marcha porque
+- [ ] **Provocar paradas en el activo con fallo.** Solo tiene 2 episodios de marcha porque
       permanece en marcha el 99 % del tiempo, de modo que alargar la captura da más horas del
       mismo episodio y no más episodios. Desconectarlo y reconectarlo unas cuantas veces pasa
       de 2 episodios a 5 o 6 en un par de horas, y es lo que permite afirmar que la firma es
       estable entre arranques.
-- ⬜ Inducción controlada de fallos **sobre el mismo activo**, que es lo que EXP-003 no
+- [ ] Inducción controlada de fallos **sobre el mismo activo**, que es lo que EXP-003 no
       puede dar: desequilibrio de masa, obstrucción de ventilación, aflojamiento de anclaje.
       Sin comparación dentro de una misma máquina no se separa el efecto del fallo del de la
       variabilidad entre ejemplares.
-- ⬜ Calibración de umbrales y verificación de la precisión del diagnóstico por tipo de fallo.
-- ⬜ Registro de cada campaña en [EXPERIMENTOS.md](EXPERIMENTOS.md).
+- [ ] Calibración de umbrales y verificación de la precisión del diagnóstico por tipo de fallo.
+- [ ] Registro de cada campaña en [EXPERIMENTOS.md](EXPERIMENTOS.md).
 
-## Fase 6 — Inferencia en el Edge 🔄 (~15 h)
-- ✅ **Detector embarcado escrito y verificado en el PC** (2026-08-27). `device/detector.h`, sin
+## Fase 6 — Inferencia en el Edge (en curso, ~15 h)
+- [x] **Detector embarcado escrito y verificado en el PC** (2026-08-27). `device/detector.h`, sin
       dependencias de Arduino, igual que `signal_processing.h`. Verificado contra scikit-learn
       sobre las **1161 ráfagas reales**: 0 veredictos discrepantes, error de 2,1e-07 en LOF.
-- ✅ **Exportación del modelo a cabecera C++** (`server/analisis/exportar_modelo.py` →
+- [x] **Exportación del modelo a cabecera C++** (`server/analisis/exportar_modelo.py` →
       `device/modelo_referencia.h`, generada). Lleva anotada la campaña y la fecha de
       procedencia, de modo que un firmware en la placa siempre se puede rastrear a los datos
       que lo produjeron.
-- ✅ **Integrado en `device.ino`** con topic propio `fridge/status`, histéresis de 3 ráfagas y
+- [x] **Integrado en `device.ino`** con topic propio `fridge/status`, histéresis de 3 ráfagas y
       guardián de reintentos. Payload de ráfaga **sin cambios** (45 campos verificados): la
       serie histórica sigue siendo comparable.
-- ✅ **El registrador guarda el tercer canal** (`YYYY-MM-DD-status.csv`). Era un fallo
+- [x] **El registrador guarda el tercer canal** (`YYYY-MM-DD-status.csv`). Era un fallo
       silencioso: el nodo habría publicado y el dato se habría perdido sin que nada protestase.
       `provision-pi.sh comprobar` verifica ahora que el registrador conoce los tres topics.
-- ✅ **Histéresis calibrada sobre datos reales**: exigiendo 3 ráfagas consecutivas se emiten
+- [x] **Histéresis calibrada sobre datos reales**: exigiendo 3 ráfagas consecutivas se emiten
       **0 avisos falsos** en las 505 ráfagas nominales (con 1 ráfaga serían 22), y el fallo se
       notifica.
-- ⬜ **Compilar y flashear en el nodo A** (falta `arduino-cli` y la placa). El modelo lleva las
+- [ ] **Compilar y flashear en el nodo A** (falta `arduino-cli` y la placa). El modelo lleva las
       medianas del nodo A: **flashearlo en el nodo B daría `not_evaluable` en el 100 %** de las
       ráfagas, porque su nivel en marcha queda por debajo del umbral del nodo A. El modelo es
       específico del activo.
-- ⬜ Verificar en placa que el ESP32 coincide con Python, cruzando el CSV de ráfaga con el de
+- [ ] Verificar en placa que el ESP32 coincide con Python, cruzando el CSV de ráfaga con el de
       estado por marca de tiempo, y medir `us_inference` y la ocupación real.
-- ⬜ Portar el modelo al ESP32 **a mano en C++, sin TensorFlow Lite Micro**. Ese entorno
+- [ ] Portar el modelo al ESP32 **a mano en C++, sin TensorFlow Lite Micro**. Ese entorno
       ejecuta **redes neuronales** y ninguno de los siete candidatos lo es: LOF es una búsqueda
       de vecinos, la envolvente una forma cuadrática, el bosque un conjunto de árboles. No es
       que TFLite Micro sea excesivo: **no puede ejecutarlos**. Y una red neuronal no era opción
       con 505 observaciones. Son ~15 líneas de C++ para la envolvente, ~60 para LOF.
-- ⬜ `server/analisis/exportar_modelo.py` → `device/modelo_referencia.h`, generado y no editado
+- [ ] `server/analisis/exportar_modelo.py` → `device/modelo_referencia.h`, generado y no editado
       a mano, con la campaña y la fecha de procedencia en un comentario.
-- ⬜ **Guardián de reintentos**: el nodo debe negarse a emitir veredicto con más de 3
+- [ ] **Guardián de reintentos**: el nodo debe negarse a emitir veredicto con más de 3
       reintentos, no juzgar la ráfaga. Sin él marca como fallo todo bus inestable.
-- ⬜ **Histéresis**: N ráfagas anómalas consecutivas antes de notificar.
-- ⬜ **Fase de referencia en el nodo**: las características normalizadas por el propio activo
+- [ ] **Histéresis**: N ráfagas anómalas consecutivas antes de notificar.
+- [ ] **Fase de referencia en el nodo**: las características normalizadas por el propio activo
       exigen que aprenda su propia mediana antes de poder juzgar.
-- ⬜ Publicar el veredicto de salud en un topic propio (`fridge/status`), reduciendo el
+- [ ] Publicar el veredicto de salud en un topic propio (`fridge/status`), reduciendo el
       tráfico de telemetría cruda.
-- ⬜ Medir latencia de inferencia y consumo en el nodo.
+- [ ] Medir latencia de inferencia y consumo en el nodo.
 
-## Fase 7 — Prueba en entorno real y memoria ⬜ (~20 h)
+## Fase 7 — Prueba en entorno real y memoria (pendiente, ~20 h)
 *Tarea TFM: "Pruebas en entorno real"*
-- ⬜ Despliegue de la PoC sobre un activo operativo en uso diario.
-- ⬜ Evaluación de robustez de la arquitectura (uptime, pérdida de mensajes, falsos positivos).
-- ⬜ Redacción de la memoria y preparación de la defensa.
+- [ ] Despliegue de la PoC sobre un activo operativo en uso diario.
+- [ ] Evaluación de robustez de la arquitectura (uptime, pérdida de mensajes, falsos positivos).
+- [ ] Redacción de la memoria y preparación de la defensa.
 
 ---
 

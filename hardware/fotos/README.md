@@ -53,9 +53,9 @@ fotografía del banco está en el artefacto publicado el 2026-08-25.
 
 | Posición | Fecha | `rms_z` sin filtrar | Fundamental de 49 Hz | Veredicto |
 | :--- | :--- | ---: | :--- | :--- |
-| Cúpula del compresor | 2026-08-25 | 0,047 | 4 de 52 ráfagas | ❌ Descartada. El fabricante aísla la cúpula del motor con muelles internos, de modo que se medía por el lado tranquilo de la suspensión |
+| Cúpula del compresor | 2026-08-25 | 0,047 | 4 de 52 ráfagas | Descartada. El fabricante aísla la cúpula del motor con muelles internos, de modo que se medía por el lado tranquilo de la suspensión |
 | Anclaje al chasis (posición 1) | 2026-08-26 | — | — | Evaluada, no adoptada |
-| **Tubo de descarga (posición 2)** | 2026-08-26 | 0,35 – 0,69 | **6 de 7 ráfagas** (tercer pico) | ✅ **Adoptada.** El nivel subió entre 9 y 20 veces según el eje. Unido rígidamente al cuerpo de la bomba, transporta la pulsación sin atravesar la suspensión interna del compresor |
+| **Tubo de descarga (posición 2)** | 2026-08-26 | 0,35 – 0,69 | **6 de 7 ráfagas** (tercer pico) | **Adoptada.** El nivel subió entre 9 y 20 veces según el eje. Unido rígidamente al cuerpo de la bomba, transporta la pulsación sin atravesar la suspensión interna del compresor |
 
 De la posición adoptada, dos observaciones que condicionan el análisis:
 

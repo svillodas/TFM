@@ -22,7 +22,7 @@ sirve como evidencia.
 
 ### EXP-003 — Fallo real: familia armónica del giro (8×, 9× y 10×)
 
-> **⚠ Cifras revisadas.** Las de este bloque se calcularon con una definición de característica defectuosa y con 719 ráfagas. Ver **Corrección de EXP-003** al final del documento: son 815 ráfagas, y la firma no es una componente en 447,76 Hz sino los armónicos **8×, 9× y 10×** del giro (398, 448 y 497 Hz).
+> **AVISO — cifras revisadas.** Las de este bloque se calcularon con una definición de característica defectuosa y con 719 ráfagas. Ver **Corrección de EXP-003** al final del documento: son 815 ráfagas, y la firma no es una componente en 447,76 Hz sino los armónicos **8×, 9× y 10×** del giro (398, 448 y 497 Hz).
 
 - **Fecha/hora:** 2026-08-26 11:44 – 18:01 (Europe/Madrid), 6,27 h continuas.
 - **Activo:** segundo compresor del banco. **Presenta un fallo real, no inducido**, audible
@@ -128,7 +128,7 @@ del activo con fallo. Las dos modalidades coinciden sin compartir sensor ni cade
 
 ### EXP-002 — Caracterización de la cadena de adquisición y del punto de medida
 
-> **⚠ Atribución revisada.** Este bloque atribuye las componentes de 398-448 Hz a una resonancia del acoplamiento adhesivo. **Es falso**: son armónicos del giro del activo. Ver **Corrección de EXP-003** al final. Las mediciones de nivel y el efecto de las correcciones de firmware siguen siendo válidos.
+> **AVISO — atribución revisada.** Este bloque atribuye las componentes de 398-448 Hz a una resonancia del acoplamiento adhesivo. **Es falso**: son armónicos del giro del activo. Ver **Corrección de EXP-003** al final. Las mediciones de nivel y el efecto de las correcciones de firmware siguen siendo válidos.
 
 - **Fecha/hora:** 2026-08-26 11:44 – 11:48 (Europe/Madrid)
 - **Duración:** 4 min. Campaña **de caracterización, no de entrenamiento**: su objeto es

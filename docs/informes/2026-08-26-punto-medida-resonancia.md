@@ -1,6 +1,6 @@
 # Informe de avance — TFM Sistema IoT Edge para mantenimiento predictivo
 
-> ## ⚠ REVISADO — este informe contiene una atribución incorrecta
+> ## REVISADO — este informe contiene una atribución incorrecta
 >
 > Todo el cuerpo de este informe atribuye las componentes de 398-448 Hz a **una resonancia del
 > acoplamiento adhesivo del sensor**. **Esa atribución es falsa.** El análisis posterior

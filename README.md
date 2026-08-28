@@ -1,4 +1,4 @@
-# 🧊 Sistema IoT Edge de Mantenimiento Predictivo para Compresores
+# Sistema IoT Edge de Mantenimiento Predictivo para Compresores
 
 Nodo *edge* basado en ESP32 que captura la **firma física** (vibración, temperatura y
 acústica) de un motor compresor de refrigeración. Los datos viajan por Wi-Fi mediante MQTT
@@ -12,7 +12,7 @@ El planteamiento clave es que el diagnóstico ocurre **en el borde de la red**: 
 final es que el nodo decida por sí mismo si el activo se desvía de su comportamiento
 nominal, sin enviar un flujo masivo de datos a la nube.
 
-## 🧱 Arquitectura
+## Arquitectura
 
 ```
 ┌──────────────────────────┐         ┌──────────────────────────────┐
@@ -27,7 +27,7 @@ nominal, sin enviar un flujo masivo de datos a la nube.
 
 Detalle y decisiones de diseño: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## 🛠️ Hardware Utilizado
+## Hardware Utilizado
 
 - **DFRobot FireBeetle 2 ESP32-S3:** placa de desarrollo principal (nodo de cómputo y
   radio). 16 MB de flash y PSRAM OPI. Ojo: su pinout **no** coincide con el del ESP32
@@ -40,7 +40,7 @@ Detalle y decisiones de diseño: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 - **INMP441 (I2S):** micrófono digital omnidireccional; extrae la firma acústica del motor
   sin interferencia electromagnética.
 
-## 🔌 Esquema de Conexiones (Pinout)
+## Esquema de Conexiones (Pinout)
 
 Placa de referencia: **FireBeetle 2 ESP32-S3**. La columna «Serigrafía» es la etiqueta
 impresa en la placa; la columna «GPIO» es el número que aparece en el firmware.
@@ -57,16 +57,16 @@ impresa en la placa; la columna «GPIO» es el número que aparece en el firmwar
 | **INMP441** | SCK | GPIO 17 | SCK | Reloj (I2S) |
 | **INMP441** | L/R | — | GND | A tierra para canal izquierdo |
 
-> ⚠️ Este pinout es específico del ESP32-S3. El GPIO21/GPIO22 habitual del ESP32 clásico
+> **Atención:** este pinout es específico del ESP32-S3. El GPIO21/GPIO22 habitual del ESP32 clásico
 > **no sirve aquí**: el GPIO22 no existe en el S3 y el GPIO21 es el LED integrado (D13).
 > Los pines I2C se declaran de forma explícita en [device/device.ino](device/device.ino)
 > (`I2C_SDA`, `I2C_SCL`) para no depender del fichero de variante.
 
-> ⚠️ Pines de *strapping* del ESP32-S3: GPIO0, GPIO3, GPIO45 y GPIO46. Ninguno se usa en
+> **Atención:** pines de *strapping* del ESP32-S3: GPIO0, GPIO3, GPIO45 y GPIO46. Ninguno se usa en
 > este montaje. Los GPIO 33–37 están reservados por la PSRAM octal de esta placa y no
 > deben cablearse.
 
-## 📦 Dependencias de Software
+## Dependencias de Software
 
 **Firmware (Arduino IDE / arduino-cli)** — instalar desde el Gestor de Librerías:
 - `Adafruit MPU6050` (+ `Adafruit Unified Sensor`, `Adafruit BusIO`)
@@ -76,7 +76,7 @@ impresa en la placa; la columna «GPIO» es el número que aparece en el firmwar
 
 **Hub (Raspberry Pi / Python 3.11+)**: ver [server/requirements.txt](server/requirements.txt).
 
-## 🚀 Puesta en marcha
+## Puesta en marcha
 
 ### 1. Nodo ESP32
 ```bash
@@ -110,7 +110,7 @@ python server/mqtt_logger.py
 ```
 Genera un CSV por día en `server/data/YYYY-MM-DD.csv`.
 
-## 📊 Formato de datos
+## Formato de datos
 
 El nodo publica en **dos canales** con cadencias distintas.
 
@@ -152,7 +152,7 @@ g++ -std=c++11 -O2 -o /tmp/test_signal device/test/test_signal_processing.cpp &&
 degenerados, energía por bandas, recuperación de tres picos espectrales, efecto del filtro
 paso bajo y una demostración del aliasing que motivó el diseño.
 
-## 🗺️ Estado y planificación
+## Estado y planificación
 
 Fase actual: **Fase 4, motor de análisis**. La cadena de adquisición está cerrada y el
 pipeline de detección está cerrado y validado por episodios.
@@ -166,7 +166,7 @@ Plan completo de fases y horas: [docs/ROADMAP.md](docs/ROADMAP.md).
 Registro de campañas de medida: [docs/EXPERIMENTOS.md](docs/EXPERIMENTOS.md).
 Informes de avance: [docs/informes/](docs/informes/).
 
-## 📄 Memoria del TFM
+## Memoria del TFM
 
 El documento entregable vive en [memoria_TFM/](memoria_TFM/), sobre la plantilla oficial
 del MUIoT. El contenido está dividido por capítulos siguiendo la estructura obligatoria de
@@ -187,14 +187,14 @@ Las reglas de formato, estilo y estructura están destiladas en
 No se modifican `tfm-muiot.sty`, `IEEEtran.bst`, `logo_*.pdf` ni `portada_TFM.pdf`: son
 plantilla oficial y hay copia intacta en `memoria_TFM/plantilla/`.
 
-## 📐 Convenciones del proyecto
+## Convenciones del proyecto
 
 Las directrices de código, las trampas conocidas del análisis y los criterios de
 trazabilidad experimental están en [docs/GUIA-DESARROLLO.md](docs/GUIA-DESARROLLO.md).
 Conviene leerlo antes de tocar el firmware o el pipeline: varias decisiones que parecen
 arbitrarias responden a defectos medidos y documentados.
 
-## 📁 Estructura del repositorio
+## Estructura del repositorio
 
 ```
 device/                Firmware ESP32 (C++/Arduino)
