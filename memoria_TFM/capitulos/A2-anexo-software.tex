@@ -3,6 +3,32 @@
 \chapter{Anexo técnico: software y formato de datos}
 \label{anexo:software}
 
+\section{Disponibilidad del código y de los datos}
+\label{sec:disponibilidad}
+
+El firmware del nodo, el software del concentrador, el código del análisis, los conjuntos de
+datos sobre los que se sustenta el capítulo~\ref{cap:resultados} y la documentación técnica de
+ingeniería están publicados en un repositorio de acceso libre~\cite{repotfm}. Los listados que
+figuran en este anexo y en el anexo~\ref{anexo:verificacion} se reproducen de forma selectiva
+con fines expositivos: la fuente completa reside en dicho repositorio.
+
+El código se distribuye bajo licencia MIT y la memoria, la documentación y los conjuntos de
+datos bajo licencia Creative Commons \mbox{CC BY 4.0}, de modo que su reutilización solo exige
+citar la autoría. Quedan excluidas de ambas la plantilla oficial del máster y los documentos de
+normativa que el repositorio incorpora, que conservan la titularidad de sus propietarios.
+
+El desarrollo prosigue con posterioridad a la entrega, por lo que la versión exacta sobre la que
+se obtuvieron los resultados expuestos se identifica mediante la etiqueta
+\texttt{v1.0-entrega} del repositorio.
+
+Procede dejar constancia expresa de la relación entre este documento y ese repositorio, dado que
+no es la habitual. El repositorio \textbf{es obra del autor de esta memoria} y su historial de
+revisiones, firmado y fechado, es anterior a la entrega; el texto de la memoria se redactó en él
+y desde él se compila. De ello se sigue que un cotejo automático de originalidad puede señalar
+coincidencia entre ambos: no se trata de una fuente externa reutilizada, sino del mismo trabajo
+en su repositorio de origen. Se hace explícito aquí para que la coincidencia resulte
+interpretable sin necesidad de indagación adicional.
+
 \section{Formato de la trama de telemetría}
 
 El nodo publica en el tema \texttt{fridge/sensors} un objeto JSON con nueve variables por
@@ -288,6 +314,111 @@ referencia, de modo que sus ráfagas se clasifican como capturadas con el compre
 referencia. De ello se sigue asimismo que el nodo necesita una fase de referencia antes de poder
 emitir su primer veredicto, dado que las características normalizadas por el propio activo
 exigen conocer su mediana.
+
+\section{Política de descarte y reintento}
+
+Sobre esa base se plantea la política de descarte. La ráfaga son 1024 lecturas
+consecutivas y se descarta completa si una falla, dado que una señal con un hueco produce un
+espectro sin sentido. Ese criterio, sin embargo, resulta extraordinariamente exigente con la
+fiabilidad del bus: con una probabilidad de fallo por lectura de tan solo 0,1 \%, la
+fracción de ráfagas que sobreviviría sería $0{,}999^{1024}$, es decir un 36 \%.
+
+Se introdujo por ello un reintento único por muestra. A \mbox{200 kHz} una lectura consume
+unos \mbox{420 $\mu$s} de los \mbox{1000 $\mu$s} disponibles, de modo que el reintento cabe
+en el mismo intervalo temporal sin alterar la cadencia. La probabilidad de fallo efectiva
+pasa a ser el cuadrado de la original, con lo que la supervivencia de las ráfagas se
+aproxima a la unidad. Solo dos fallos consecutivos, que no responden a un microcorte sino a
+un bus caído, provocan el descarte de la ráfaga y disparan la rutina de recuperación.
+
+La contrapartida asumida es que la muestra reintentada queda desplazada unos
+\mbox{420 $\mu$s} respecto de su instante nominal. Se trata de una perturbación de una
+muestra entre 1024, claramente preferible a la pérdida de \mbox{1,02 s} de señal, y queda
+declarada en el propio mensaje para poder filtrarla en el análisis. El coste temporal
+resulta además observable: en una ráfaga con 35 reintentos la duración de la captura pasó de
+los \mbox{1024 ms} nominales a \mbox{1036 ms}, del orden de \mbox{0,34 ms} por reintento.
+
+\section{Efecto analítico de una muestra corrupta sobre la kurtosis}
+
+Para una señal compuesta por ruido de desviación típica $\sigma$ y un único impulso de amplitud $d$
+sobre $n$ muestras, la kurtosis tiende a
+
+\begin{equation}
+\label{eq:kurtosis-impulso}
+\beta_2 \simeq \frac{d^4/n}{\left(d^2/n + \sigma^2\right)^2}
+\end{equation}
+
+La expresión~\ref{eq:kurtosis-impulso} arroja para los valores medidos en placa 1001,6 frente a los
+1001,068 observados. La coincidencia establece que el artefacto descrito en el
+capítulo~\ref{cap:diseno} corresponde exactamente a una muestra corrupta por ráfaga, y no a una
+degradación distribuida de la señal.
+
+\section{Lectura validada de registros del acelerómetro}
+
+El listado~\ref{lst:readregisters} recoge la función que concentra el acceso al sensor. El
+direccionamiento se cierra con una condición de parada y no con un rearranque encadenado, variante
+que la implementación del bus del microcontrolador no gestiona de forma fiable.
+
+\begin{lstlisting}[language=C++, caption={Lectura validada de registros del acelerómetro.}, label={lst:readregisters}]
+inline bool readRegisters(uint8_t reg, uint8_t* dest, uint8_t n) {
+  Wire.beginTransmission(MPU_ADDR);
+  Wire.write(reg);
+  if (Wire.endTransmission(true) != 0) return false;
+  if (Wire.requestFrom(MPU_ADDR, n) != n)  return false;
+  if (Wire.available() < n)                return false;
+
+  for (uint8_t i = 0; i < n; i++) {
+    int b = Wire.read();
+    if (b < 0) return false;      // -1: no habia dato que leer
+    dest[i] = (uint8_t)b;
+  }
+  return true;
+}
+\end{lstlisting}
+
+\section{Contadores de salud publicados por el nodo}
+
+El cuadro~\ref{table:contadores} recoge los cuatro contadores con los que el nodo hace observable
+la calidad de cada medida, según se expone en el capítulo~\ref{cap:diseno}.
+
+\begin{table}[ht!]
+\caption{Contadores de salud publicados por el nodo.}
+\label{table:contadores}
+\centering
+\begin{tabular}{|p{3.1cm}|p{9.4cm}|}
+\hline
+\textbf{Contador} & \textbf{Significado y utilidad en el análisis} \\
+\hline
+\texttt{failed\_bursts} & Ráfagas descartadas por fallo del bus. Un salto indica un
+intervalo sin información espectral, no una medida errónea \\
+\hline
+\texttt{bad\_frames} & Tramas del canal lento descartadas por no superar la verificación de
+plausibilidad \\
+\hline
+\texttt{retries} & Reintentos en la ráfaga en curso. Califica la calidad de esa medida
+concreta y permite filtrarla \\
+\hline
+\texttt{total\_retries} & Reintentos acumulados desde el arranque. Su derivada mide el
+estado del cableado a lo largo del tiempo \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Verificación de plausibilidad física y su límite}
+
+El módulo del vector de aceleración debe contener la gravedad, y un compresor doméstico no produce
+aceleraciones de decenas de \mbox{m/s$^2$}: toda lectura cuyo módulo quede fuera del intervalo
+entre \mbox{2 m/s$^2$} y \mbox{25 m/s$^2$} se considera inválida. El intervalo es deliberadamente
+amplio para no descartar vibración legítima.
+
+Procede documentar su límite demostrado: al operar sobre el módulo, \textbf{no detecta la caída de
+un solo eje}. Se midió en placa una kurtosis de 1001 con un pico de \mbox{10,6 m/s$^2$}
+—coincidente con la predicción analítica para un impulso aislado entre 1024 muestras— mientras el
+módulo permanecía dentro de la banda admisible, porque los otros dos ejes conservaban su valor. La
+rutina de recuperación se invoca de forma reactiva, cuando una lectura ha fallado realmente, en
+lugar de sondear el bus de forma preventiva en cada ciclo; tras la reinicialización se introduce
+una espera, porque los registros del acelerómetro permanecen a cero hasta que concluye la primera
+conversión y leerlos antes introduciría precisamente el tipo de muestra falsa que el diseño
+pretende evitar.
 
 \section{Rutina de recuperación del bus}
 

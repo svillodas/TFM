@@ -53,7 +53,7 @@ bruto; el concentrador entrena el modelo y lo devuelve al nodo, que ejecuta la i
 \label{fig:arquitectura}
 \end{figure}
 
-\section{Selección de sensores}
+\section{Adquisición: sensores, plataforma y frecuencias de muestreo}
 
 El cuadro~\ref{table:sensores} recoge los sensores seleccionados y la magnitud que aporta
 cada uno al diagnóstico.
@@ -80,16 +80,13 @@ en presencia de un motor. \\
 \end{tabular}
 \end{table}
 
-\section{Justificación de la plataforma de procesado}
-
-Se seleccionó el ESP32 por integrar en un mismo encapsulado los tres buses requeridos
-(I\textsuperscript{2}C, 1-Wire por software e I2S nativo), conectividad inalámbrica y
-capacidad de cómputo suficiente para ejecutar inferencia embarcada~\cite{esp32datasheet}, todo ello con un consumo
-y un coste compatibles con el despliegue en activos de valor moderado.
-
-Conviene expresar esa elección en términos de requisitos medibles, derivados del propio
-sistema, en lugar de una preferencia general por la plataforma. El
-cuadro~\ref{table:requisitos} recoge esos requisitos y su origen.
+La plataforma de procesado quedó condicionada por los buses que exigen esos sensores. Se
+seleccionó el ESP32 por integrar en un mismo encapsulado los tres requeridos
+(I\textsuperscript{2}C, 1-Wire por software e I2S nativo), conectividad inalámbrica y capacidad
+de cómputo suficiente para ejecutar inferencia embarcada~\cite{esp32datasheet}, con un consumo y
+un coste compatibles con el despliegue en activos de valor moderado. El
+cuadro~\ref{table:requisitos} expresa esa elección en términos de requisitos medibles derivados
+del propio sistema, en lugar de una preferencia general por la plataforma.
 
 \begin{table}[ht!]
 \caption{Requisitos de la plataforma de procesado, derivados del sistema implementado.}
@@ -118,25 +115,22 @@ el diagnóstico debe poder ejecutarse sin el concentrador \\
 \end{tabular}
 \end{table}
 
-Los dos primeros requisitos son los que efectivamente discriminan. La ausencia de entrada
-I2S nativa obliga a incorporar un conversor analógico-digital externo, lo que reintroduce
-precisamente la vulnerabilidad a la interferencia electromagnética que motivó la elección de
-un micrófono digital en un entorno con un motor de inducción. La ausencia de unidad de coma
-flotante en hardware, por su parte, no impide el cálculo pero obliga a reformular la
-transformada en aritmética de punto fijo, con el consiguiente análisis de escalado y pérdida
-de precisión, trabajo que quedaría fuera del alcance disponible.
+Los dos primeros son los que efectivamente discriminan. La ausencia de entrada I2S nativa obliga
+a incorporar un conversor analógico-digital externo, lo que reintroduce precisamente la
+vulnerabilidad a la interferencia electromagnética que motivó la elección de un micrófono digital
+en un entorno con un motor de inducción; la ausencia de unidad de coma flotante en hardware no
+impide el cálculo pero obliga a reformular la transformada en aritmética de punto fijo, con el
+consiguiente análisis de escalado y pérdida de precisión.
 
-La reserva estática de \mbox{22,9 KiB} merece un comentario, porque no es el consumo total
-del firmware sino solo el de los almacenes de señal. La decisión de dimensionarlos en tiempo
-de compilación, en lugar de asignarlos dinámicamente, responde a que el nodo debe operar de
-forma continuada durante días: la asignación dinámica repetida fragmenta el montón de memoria
-y termina provocando fallos de asignación que se manifiestan tras horas de funcionamiento,
-cuando resultan más difíciles de diagnosticar.
+La reserva estática de \mbox{22,9 KiB} no es el consumo total del firmware sino solo el de los
+almacenes de señal. Dimensionarlos en tiempo de compilación, en lugar de asignarlos de forma
+dinámica, responde a que el nodo debe operar de forma continuada durante días: la asignación
+dinámica repetida fragmenta el montón de memoria y termina provocando fallos que se manifiestan
+tras horas de funcionamiento, cuando resultan más difíciles de diagnosticar.
 
-\section{Frecuencias de muestreo}
-
-La elección de la frecuencia de muestreo condiciona por completo el análisis posterior y
-constituye la decisión técnica más restrictiva del sistema. El teorema del muestreo establece
+Resuelta la plataforma, queda por fijar la cadencia de captura, que condiciona por completo el
+análisis posterior y constituye la decisión técnica más restrictiva del sistema. El teorema del
+muestreo establece
 que para observar una componente de frecuencia $f$ es necesario muestrear por encima de
 $2f$. Un compresor hermético accionado por un motor de inducción de dos polos alimentado a
 \mbox{50 Hz} gira en torno a las \mbox{2900 RPM}, es decir, unas 48 vueltas por segundo, de
@@ -236,8 +230,8 @@ propiedades conocidas analíticamente antes de su despliegue en la placa.
 
 \section{Protocolo y modelo de intercambio de datos}
 
-La comunicación entre el nodo y el concentrador emplea \textit{Message Queuing Telemetry
-Transport} (MQTT), estándar ISO/IEC~20922~\cite{isoiec20922}, sobre TCP/IP y red inalámbrica
+La comunicación entre el nodo y el concentrador emplea MQTT, estándar
+ISO/IEC~20922~\cite{isoiec20922}, sobre TCP/IP y red inalámbrica
 IEEE~802.11~\cite{ieee80211} en la banda de \mbox{2,4 GHz}. Se eligió MQTT por su sobrecarga reducida frente a alternativas
 basadas en HTTP y por su modelo de publicación-suscripción, que desacopla el nodo de los
 consumidores de datos.
@@ -278,181 +272,59 @@ presión sonora en dB \\
 \end{tabular}
 \end{table}
 
-Dos criterios rigen la representación de la ausencia de dato, y su elección tiene
-consecuencias directas sobre el tratamiento posterior. El valor $-127$ en la temperatura
-externa y un bloque de ceros en las siete variables del acelerómetro y del giroscopio
-señalan que la lectura no se produjo. La distinción importa porque un cero es una medida
-válida en casi cualquier variable, pero no en el eje que soporta la gravedad: un valor de
-exactamente \mbox{0,00 m/s$^2$} en ese eje es físicamente imposible con el sensor operativo,
-lo que permite emplearlo como centinela sin ambigüedad. El registrador escribe los campos
-ausentes como celdas vacías y nunca como ceros, por el mismo motivo.
-
-\section{Diseño del firmware y estrategia de resiliencia}
-
-El bucle principal no emplea esperas activas prolongadas: las dos cadencias se gobiernan
-comparando el reloj de milisegundos del microcontrolador con el instante de la última
-publicación de cada canal. La conversión de la sonda de temperatura se solicita en un ciclo y
-se recoge en el siguiente, dado que sus aproximadamente \mbox{750 ms} de conversión
-detendrían el resto de la adquisición.
-
-La captura de la ráfaga constituye la única excepción deliberada a ese principio, y bloquea
-el bucle durante aproximadamente \mbox{1,02 s}. La razón es que el análisis frecuencial
-exige muestras equiespaciadas: cualquier trabajo intercalado introduciría fluctuaciones en
-el instante de muestreo que se traducirían en ruido espectral. La duración queda acotada y
-muy por debajo del temporizador de mantenimiento de la conexión MQTT.
+La ausencia de dato se señala con el valor $-127$ en la temperatura externa y con un bloque de
+ceros en las siete variables inerciales. La distinción importa porque un cero es medida válida en
+casi cualquier variable, pero no en el eje que soporta la gravedad, donde \mbox{0,00 m/s$^2$}
+resulta físicamente imposible con el sensor operativo y sirve por tanto de centinela sin
+ambigüedad; el registrador escribe los campos ausentes como celdas vacías y nunca como ceros, por
+el mismo motivo. El desglose completo de las tramas figura en el anexo~\ref{anexo:software}.
 
 \section{Integridad del dato frente al fallo del bus}
 
-La vibración del activo provoca microcortes en el cableado del acelerómetro, que es
-precisamente la magnitud que el sistema debe medir. Esta circunstancia condiciona el diseño
-de la adquisición más que ninguna otra, y la experiencia obtenida durante la puesta a punto
-llevó a reformularla por completo.
+El bucle principal no emplea esperas activas prolongadas: las dos cadencias se gobiernan
+comparando el reloj de milisegundos del microcontrolador con el instante de la última publicación
+de cada canal, y la conversión de la sonda de temperatura —unos \mbox{750 ms}— se solicita en un
+ciclo y se recoge en el siguiente. La captura de la ráfaga es la única excepción deliberada y
+bloquea el bucle unos \mbox{1,02 s}, porque el análisis frecuencial exige muestras equiespaciadas
+y cualquier trabajo intercalado introduciría ruido espectral.
 
-El planteamiento inicial confiaba en que la biblioteca de acceso al bus señalase el fracaso
-de una transacción devolviendo un número de bytes inferior al solicitado. Se comprobó que no
-lo hace: el controlador registra el error internamente mientras la función devuelve la
-cuenta pedida. El código leía entonces de un almacén vacío, donde la operación de lectura
-devuelve el valor $-1$, y al asignarlo a una variable sin signo de ocho bits se convertía en
-el valor \texttt{0xFF}. Los tres ejes resultaban así el valor $-1$, y esa muestra se
-publicaba como medida válida.
+La vibración del activo provoca microcortes en el cableado del acelerómetro, que es precisamente
+la magnitud que el sistema debe medir. Esta circunstancia condiciona el diseño de la adquisición
+más que ninguna otra. El planteamiento inicial confiaba en que la biblioteca de acceso al bus
+señalase el fracaso de una transacción devolviendo menos bytes de los solicitados, y se comprobó
+que no lo hace: el controlador registra el error internamente mientras la función devuelve la
+cuenta pedida. El código leía entonces de un almacén vacío, cuya lectura devuelve $-1$, valor que
+al asignarse a una variable sin signo de ocho bits se convierte en \texttt{0xFF}, de modo que los
+tres ejes resultaban $-1$ y esa muestra se publicaba como medida válida.
 
-El efecto sobre las características extraídas resulta desproporcionado respecto a la
-magnitud del fallo. Una única muestra anómala entre las 1024 de una ráfaga elevó la kurtosis
-del eje vertical desde 2,9 hasta 847. La correspondencia es verificable de forma analítica:
-para una señal compuesta por ruido de desviación típica $\sigma$ y un único impulso de
-amplitud $d$ sobre $n$ muestras, la kurtosis tiende a
+El efecto es desproporcionado respecto a la magnitud del fallo: una única muestra anómala entre
+las 1024 de una ráfaga elevó la kurtosis del eje vertical desde 2,9 hasta 847, en coincidencia
+exacta con la predicción analítica para un impulso aislado. Y la gravedad no reside en la pérdida
+de una medida sino en que \textit{el artefacto imita el fenómeno que el sistema debe detectar}: la
+kurtosis se seleccionó precisamente por su sensibilidad a los impulsos aislados, indicador
+temprano clásico del deterioro de un rodamiento, de modo que un impulso de origen eléctrico y un
+impacto mecánico incipiente resultan indistinguibles para ese estadístico. El efecto sobre la
+estimación espectral es equivalente, dado que un impulso aislado presenta espectro plano, domina
+la transformada y desplaza la frecuencia dominante a un valor arbitrario. La corrupción de una
+sola muestra inutiliza por tanto las dos características principales del sistema, y un modelo
+entrenado sobre datos así contaminados consideraría normal un intervalo de valores tan amplio que
+perdería toda capacidad de discriminación.
 
-\begin{equation}
-\label{eq:kurtosis-impulso}
-\beta_2 \simeq \frac{d^4/n}{\left(d^2/n + \sigma^2\right)^2}
-\end{equation}
-
-La expresión~\ref{eq:kurtosis-impulso} arroja para los valores medidos 1001,6 frente a los
-1001,068 observados. La coincidencia confirma que el artefacto corresponde exactamente a una
-muestra por ráfaga.
-
-La gravedad del problema no reside en la pérdida de una medida, sino en que \textit{el artefacto imita el fenómeno que el sistema debe detectar}. La kurtosis se seleccionó precisamente por
-su sensibilidad a los impulsos aislados, que son el indicador temprano clásico del deterioro
-de un rodamiento. Un impulso de origen eléctrico y un impacto mecánico incipiente resultan
-indistinguibles para ese estadístico. Un modelo entrenado sobre datos así contaminados
-aprendería a considerar normal un intervalo de valores tan amplio que perdería toda
-capacidad de discriminación.
-
-Un segundo efecto, de alcance equivalente, afecta a la estimación espectral: un impulso
-aislado presenta espectro plano, de modo que domina la transformada y desplaza la frecuencia
-dominante a un valor arbitrario. La corrupción de una sola muestra inutiliza por tanto las
-dos características principales del sistema.
-
-\section{Validación de la transacción y reintento acotado}
-
-La solución adoptada concentra en una única función todo el acceso al sensor y verifica la
-transacción en cuatro puntos: el resultado del direccionamiento, la cuenta devuelta por la
-solicitud, el número de bytes efectivamente disponibles y el signo de cada byte leído. El
-listado~\ref{lst:readregisters} recoge su implementación.
-
-\begin{lstlisting}[language=C++, caption={Lectura validada de registros del acelerómetro.}, label={lst:readregisters}]
-inline bool readRegisters(uint8_t reg, uint8_t* dest, uint8_t n) {
-  Wire.beginTransmission(MPU_ADDR);
-  Wire.write(reg);
-  if (Wire.endTransmission(true) != 0) return false;
-  if (Wire.requestFrom(MPU_ADDR, n) != n)  return false;
-  if (Wire.available() < n)                return false;
-
-  for (uint8_t i = 0; i < n; i++) {
-    int b = Wire.read();
-    if (b < 0) return false;      // -1: no habia dato que leer
-    dest[i] = (uint8_t)b;
-  }
-  return true;
-}
-\end{lstlisting}
-
-El direccionamiento se cierra con una condición de parada en lugar de un rearranque
-encadenado, variante que la implementación del bus del microcontrolador empleado no gestiona
-de forma fiable y que se identificó como origen de parte de los fallos de reconocimiento
-observados.
-
-Sobre esa base se plantea la política de descarte. La ráfaga son 1024 lecturas
-consecutivas y se descarta completa si una falla, dado que una señal con un hueco produce un
-espectro sin sentido. Ese criterio, sin embargo, resulta extraordinariamente exigente con la
-fiabilidad del bus: con una probabilidad de fallo por lectura de tan solo 0,1 \%, la
-fracción de ráfagas que sobreviviría sería $0{,}999^{1024}$, es decir un 36 \%.
-
-Se introdujo por ello un reintento único por muestra. A \mbox{200 kHz} una lectura consume
-unos \mbox{420 $\mu$s} de los \mbox{1000 $\mu$s} disponibles, de modo que el reintento cabe
-en el mismo intervalo temporal sin alterar la cadencia. La probabilidad de fallo efectiva
-pasa a ser el cuadrado de la original, con lo que la supervivencia de las ráfagas se
-aproxima a la unidad. Solo dos fallos consecutivos, que no responden a un microcorte sino a
-un bus caído, provocan el descarte de la ráfaga y disparan la rutina de recuperación.
-
-La contrapartida asumida es que la muestra reintentada queda desplazada unos
-\mbox{420 $\mu$s} respecto de su instante nominal. Se trata de una perturbación de una
-muestra entre 1024, claramente preferible a la pérdida de \mbox{1,02 s} de señal, y queda
-declarada en el propio mensaje para poder filtrarla en el análisis. El coste temporal
-resulta además observable: en una ráfaga con 35 reintentos la duración de la captura pasó de
-los \mbox{1024 ms} nominales a \mbox{1036 ms}, del orden de \mbox{0,34 ms} por reintento.
-
-\section{Recuperación del bus y verificación de plausibilidad}
-
-La rutina de recuperación reinicia el bus y reconfigura el sensor sin reiniciar el
-microcontrolador. Se descartó de forma deliberada la alternativa de reiniciar el nodo, dado
-que un reinicio interrumpe la continuidad temporal de la señal, que es la información que el
-análisis explota. La rutina se invoca de forma reactiva, cuando una lectura ha fallado
-realmente, en lugar de sondear el bus de forma preventiva en cada ciclo. Tras la
-reinicialización se introduce una espera, porque los registros del acelerómetro permanecen a
-cero hasta que concluye la primera conversión y leerlos antes introduciría precisamente el
-tipo de muestra falsa que el diseño pretende evitar.
-
-Como segunda línea de defensa se añadió una verificación de plausibilidad física: el módulo
-del vector de aceleración debe contener la gravedad, y un compresor doméstico no produce
-aceleraciones de decenas de \mbox{m/s$^2$}. Toda lectura cuyo módulo quede fuera del
-intervalo comprendido entre \mbox{2 m/s$^2$} y \mbox{25 m/s$^2$} se considera inválida. El
-intervalo es deliberadamente amplio para no descartar vibración legítima.
-
-Procede documentar el límite demostrado de esta verificación, que opera sobre el módulo y
-por tanto \textit{no detecta la caída de un solo eje} cuando los restantes conservan magnitud
-suficiente. Se observó en la placa que la corrupción afecta simultáneamente a varios ejes de
-forma que el módulo permanece dentro del intervalo admitido, con lo que el artefacto supera
-la verificación. La comprobación es complementaria de la validación de la transacción y no
-sustitutiva de ella; el modo de fallo descrito requiere un criterio distinto, basado en la
-continuidad entre muestras consecutivas, cuya viabilidad se sustenta en que la pendiente
-máxima físicamente alcanzable por la señal es del orden de \mbox{0,5 m/s$^2$} por
-milisegundo, muy inferior a los saltos observados.
-
-\section{Instrumentación de la calidad del dato}
-
-Un dato perdido que no se contabiliza resulta indistinguible de un dato correcto al analizar
-el conjunto, por lo que ningún descarte se produce en silencio. El nodo publica cuatro
-contadores de salud, recogidos en el cuadro~\ref{table:contadores}, que convierten la
-calidad de cada medida en una magnitud observable en lugar de una suposición.
-
-\begin{table}[ht!]
-\caption{Contadores de salud publicados por el nodo.}
-\label{table:contadores}
-\centering
-\begin{tabular}{|p{3.1cm}|p{9.4cm}|}
-\hline
-\textbf{Contador} & \textbf{Significado y utilidad en el análisis} \\
-\hline
-\texttt{failed\_bursts} & Ráfagas descartadas por fallo del bus. Un salto indica un
-intervalo sin información espectral, no una medida errónea \\
-\hline
-\texttt{bad\_frames} & Tramas del canal lento descartadas por no superar la verificación de
-plausibilidad \\
-\hline
-\texttt{retries} & Reintentos en la ráfaga en curso. Califica la calidad de esa medida
-concreta y permite filtrarla \\
-\hline
-\texttt{total\_retries} & Reintentos acumulados desde el arranque. Su derivada mide el
-estado del cableado a lo largo del tiempo \\
-\hline
-\end{tabular}
-\end{table}
-
-El último contador desempeña además una función de diagnóstico no prevista inicialmente. Al
-ser monótono creciente por construcción, su retorno a cero solo puede corresponder a un
-reinicio del microcontrolador, circunstancia que de otro modo no dejaría rastro alguno en el
-conjunto de datos.
+La corrección se articula en tres mecanismos, cuyo detalle figura en el
+anexo~\ref{anexo:software}. El primero \textbf{valida cada transacción} en cuatro puntos y admite
+un reintento único por muestra, con lo que solo dos fallos consecutivos —que no responden a un
+microcorte sino a un bus caído— descartan la ráfaga completa. El segundo \textbf{recupera el bus}
+reiniciándolo y reconfigurando el sensor sin reiniciar el microcontrolador, porque un reinicio
+interrumpiría la continuidad temporal de la señal, que es la información que el análisis explota;
+lo acompaña una verificación de plausibilidad física del módulo de la aceleración, cuyo límite
+demostrado es que no detecta la caída de un solo eje. El tercero no corrige nada sino que
+\textbf{hace medible la calidad} de cada medida, y su ausencia es la que más daño causa: un dato
+perdido que no se contabiliza resulta indistinguible de uno correcto al analizar el conjunto.
+Ningún descarte se produce por tanto en silencio, y el nodo publica cuatro contadores de salud
+—ráfagas descartadas, tramas inválidas, y reintentos de la ráfaga en curso y acumulados— que
+convierten la calidad de cada medida en magnitud observable. El último, al ser monótono creciente
+por construcción, delata además un reinicio del microcontrolador, circunstancia que de otro modo
+no dejaría rastro en el conjunto de datos.
 
 \section{Diseño del motor de análisis}
 
@@ -494,9 +366,7 @@ un desequilibrio de masa eleva el valor eficaz manteniendo una kurtosis próxima
 senoide, mientras que un rodamiento en deterioro incipiente apenas altera el valor eficaz y
 sin embargo dispara la kurtosis. Son mecanismos de fallo distintos que ese par separa.
 
-\section{Estrategia de detección de anomalías}
-
-La detección se plantea como un problema \textit{no supervisado} de una sola clase. La razón
+Procede exponer a continuación la estrategia de detección. La detección se plantea como un problema \textit{no supervisado} de una sola clase. La razón
 es la disponibilidad de datos: de un activo en servicio se obtiene con facilidad su
 comportamiento normal, mientras que los ejemplos de fallo son escasos y deben provocarse de
 forma deliberada. Un clasificador supervisado exigiría un número de ejemplos de cada modo de
@@ -562,107 +432,124 @@ El procedimiento completo, con los umbrales declarados de forma explícita, est�
 \texttt{server/analisis/}, cuyo fichero \texttt{README.md} recoge la justificación de cada
 decisión de limpieza y de derivación de características.
 
+\section{Los modelos considerados y el criterio de elección}
+
+Establecido que el problema es de detección de una clase, procede enunciar qué familias de
+modelos resultan aplicables y en qué se diferencian, dado que la elección entre ellas condiciona
+tanto la capacidad de detección como el coste de embarcar la inferencia.
+
+Se consideraron cinco modelos y dos reglas de decisión. Los cuatro primeros se designan por su
+nombre habitual en la literatura, que es el inglés; se acompaña la traducción al castellano en
+su primera aparición y en lo sucesivo se emplea la denominación original, todos ellos ajustables únicamente sobre
+observaciones del estado nominal. El cuadro~\ref{table:modelos} resume su fundamento.
+
+\begin{table}[ht!]
+\caption{Modelos de detección de una clase considerados.}
+\label{table:modelos}
+\centering
+\begin{tabular}{|p{3.6cm}|p{10.4cm}|}
+\hline
+\textbf{Modelo} & \textbf{Fundamento} \\
+\hline
+\textit{Elliptic Envelope}\newline\small(envolvente elipsoidal robusta) & \normalsize Ajusta un elipsoide a la nube de observaciones nominales y mide la
+distancia de Mahalanobis al centro. La estimación de la covarianza es robusta, a partir del
+subconjunto de menor determinante, para que unas pocas observaciones atípicas del propio
+conjunto de ajuste no desplacen la frontera~\cite{rousseeuw1999} \\
+\hline
+\textit{Local Outlier Factor}\newline\small(factor local de atipicidad) & \normalsize Compara la densidad local de cada observación con la de su
+vecindad y declara atípico lo que reside en una región menos poblada que su entorno inmediato.
+No presupone forma alguna para la distribución nominal~\cite{breunig2000} \\
+\hline
+\textit{Isolation Forest}\newline\small(bosque de aislamiento) & \normalsize Construye árboles con particiones aleatorias y mide cuántas hacen falta
+para aislar cada observación. Las atípicas se aíslan antes, con un coste que no depende de la
+dimensión~\cite{liu2008} \\
+\hline
+\textit{One-Class SVM}\newline\small(vectores soporte de una clase) & \normalsize Determina la frontera de menor volumen que encierra la mayor
+parte de las observaciones nominales, en un espacio transformado por un núcleo~\cite{scholkopf2001} \\
+\hline
+Envolvente de Mahalanobis & La misma forma cuadrática, con estimación clásica de la covarianza
+y regularización diagonal. Se incluye como referencia de mínimo coste \\
+\hline
+Regla sobre el número de picos & Umbral sobre una única característica: cuántos picos
+espectrales superan una fracción de la amplitud mayor \\
+\hline
+Regla sobre la relación armónica & Intervalo sobre el cociente entre un pico secundario y la
+fundamental del giro \\
+\hline
+\end{tabular}
+\end{table}
+
+Las dos últimas no son modelos de aprendizaje sino umbrales construidos a mano, y se incluyen
+precisamente por eso: si una regla de dos comparaciones iguala a un modelo ajustado, la
+complejidad adicional de este no está justificada.
+
+La elección entre ellos no se resuelve por la tasa de detección, y conviene enunciar por qué antes de
+exponer el procedimiento. Con un conjunto de referencia de tamaño reducido y un único fallo
+disponible, la tasa de detección se satura para cualquier candidato razonable y por tanto no
+discrimina entre ellos. Los criterios que sí discriminan son cuatro, aplicados en este orden.
+
+El primero es el \textbf{comportamiento sobre condiciones de operación no observadas}, estimado
+dejando fuera un episodio de marcha completo y midiendo los falsos positivos sobre él. Es el
+criterio decisivo, y exige que la campaña de referencia comprenda un número suficiente de
+episodios.
+
+El segundo es la \textbf{tasa de falsos positivos} contrastada con el valor que el umbral fija
+por construcción, dado que la tasa medida sobre el propio conjunto de ajuste la determina ese
+umbral y no informa de nada.
+
+El tercero es el \textbf{número de hiperparámetros}. Cada grado de libertad que el conjunto de
+datos no permite ajustar honestamente no constituye capacidad del modelo sino riesgo de
+sobreajuste.
+
+El cuarto es el \textbf{coste de embarcar la inferencia}, que en este trabajo no es una
+consideración de implementación sino el objetivo planteado en el capítulo~\ref{cap:objetivos}.
+Debe consignarse, no obstante, que este criterio se empleó inicialmente para descartar
+candidatos \textit{sin haberlo medido}, y que la medición posterior recogida en el
+capítulo~\ref{cap:resultados} demostró que la restricción no existía.
+
+De esta ordenación se sigue que entre candidatos equivalentes la elección recae en el más
+simple, no por economía de medios sino porque con este tamaño de muestra la simplicidad es la
+propiedad que hace el resultado verificable.
+
 \section{Componente tonal de alta frecuencia y acotación de la banda útil}
 
-Al trasladar el acelerómetro a un punto de transmisión directa, según se describe en el
-anexo~\ref{anexo:hardware}, el nivel de vibración medido se multiplicó por un factor entre
-nueve y veinte. Ese incremento dejó al descubierto un fenómeno que hasta entonces permanecía
-en el nivel del ruido y que condiciona por completo la interpretación de las
-características.
+Al reubicar el acelerómetro en un punto de transmisión mecánica directa sobre la carcasa del
+compresor (anexo~\ref{anexo:hardware}), el nivel de vibración medido se multiplicó por un factor
+entre 9 y 20, dejando al descubierto una componente tonal dominante en torno a \mbox{448 Hz}. Se
+atribuyó en un primer momento a una \textbf{resonancia mecánica del montaje adhesivo}, por dos
+indicios: aparecía ya con el sensor en la posición anterior, aunque con amplitud del orden del
+ruido, y se desplazaba entre \mbox{398} y \mbox{448 Hz} durante la sesión, comportamiento
+incompatible con un artefacto eléctrico, que se habría mantenido fijo. El análisis expuesto en el
+capítulo~\ref{cap:resultados} refutó esa atribución: el desplazamiento aparente no era la deriva de
+una resonancia sino \textbf{dos armónicos distintos} observados en ráfagas distintas, y lo que hay
+es una tríada de armónicos del giro del motor —\mbox{398}, \mbox{448} y \mbox{497 Hz}, los órdenes
+8, 9 y 10 con desviación inferior al 0,05~\% respecto del entero.
 
-El espectro resultó dominado por una componente cuasi senoidal en torno a los \mbox{448 Hz}.
-Dos indicios lo caracterizan: la amplitud estimada en ese pico alcanzaba el 95 \% de la que
-correspondería a una senoide pura del valor eficaz medido, y la kurtosis se situaba en 1,72,
-próxima al valor analítico de 1,5 de una senoide. Se identificaron dos modos, en
-\mbox{397-398 Hz} y \mbox{446-448 Hz}.
+Esta componente tonal dominaba el espectro y fijaba la kurtosis temporal en torno a 1,72 (próxima a
+los 1,5 de una senoide pura), enmascarando el régimen de giro fundamental del motor (\mbox{49,77 Hz})
+y limitando la sensibilidad ante impactos transitorios. Dado que el nodo procesa y descarta la señal
+bruta en el extremo, la discriminación debía resolverse en el propio firmware antes de transmitir:
 
-El origen se atribuyó inicialmente a una resonancia del acoplamiento del sensor, por dos
-observaciones. La primera es que la misma frecuencia aparecía con el sensor en la posición
-anterior, aunque con amplitud del orden del ruido, lo que resultaba coherente con una
-propiedad del conjunto formado por la masa del módulo y la elasticidad de su fijación
-adhesiva. La segunda es que la frecuencia se desplazó entre \mbox{398 Hz} y \mbox{448 Hz}
-durante la sesión de medida, comportamiento incompatible con un artefacto de origen eléctrico,
-que se habría mantenido fijo.
+\begin{enumerate}
+    \item \textbf{Picos espectrales múltiples ordenados:} En lugar del pico dominante único, el nodo
+        extrae y publica los tres picos de mayor amplitud por eje con una guarda de cuatro
+        coeficientes de la transformada, capturando simultáneamente la fundamental y los armónicos dominantes.
+    \item \textbf{Filtrado paso bajo a \mbox{150 Hz}:} Se aplica un filtro digital paso bajo de
+        segundo orden antes de calcular los estadísticos temporales —valor eficaz, pico y kurtosis—, aislando
+        la banda de la fundamental y dejando el cálculo espectral sin filtrar hasta los \mbox{500 Hz}
+de Nyquist. El corte se derivó de la práctica de no emplear un montaje por encima de un
+        tercio de su frecuencia de resonancia, aplicada a los \mbox{448 Hz} que entonces se
+        atribuían al acoplamiento; refutada esa atribución, queda como cota conservadora sin
+        verificación experimental, según se declara en el capítulo~\ref{cap:resultados}.
+\end{enumerate}
 
-\textbf{Esa atribución resultó ser incorrecta.} El análisis posterior, recogido en el
-capítulo~\ref{cap:resultados}, establece que no se trata de una componente aislada sino de
-\textbf{tres componentes simultáneas} en \mbox{398 Hz}, \mbox{448 Hz} y \mbox{497 Hz}, que son
-los armónicos octavo, noveno y décimo de la frecuencia de giro con una desviación inferior al
-0,05 \% respecto del entero. Una resonancia estructural no produce tres componentes en
-múltiplos enteros exactos de una frecuencia que además varía, de modo que la familia la genera
-el giro del motor: es una manifestación del estado de la máquina y no una propiedad del
-montaje. El desplazamiento aparente entre \mbox{398 Hz} y \mbox{448 Hz} que motivó la
-hipótesis inicial no era la deriva de una resonancia, sino \textbf{dos armónicos distintos}
-observados en ráfagas distintas. La hipótesis inicial se consigna porque la prueba que la refuta
-—comprobar si la relación con el giro se mantiene constante— no se planteó hasta que hubo un
-motivo externo para dudar de ella, y esa circunstancia forma parte del método seguido.
+El firmware publica los tres picos \textbf{ordenados por amplitud} y no por frecuencia, de modo
+que la derivación de características ha de reordenarlos: en caso contrario un mismo fenómeno
+arroja cocientes incoherentes cuando un armónico supera a la fundamental y le arrebata la
+posición de dominante. El capítulo~\ref{cap:resultados} recoge el defecto que esa
+circunstancia introdujo.
 
-La consecuencia para el diseño no es la que cabría esperar. Las dos correcciones que se
-describen a continuación se adoptaron bajo la interpretación equivocada y siguen siendo
-necesarias bajo la correcta, si bien por un motivo distinto: la componente no es un artefacto
-que haya que descartar, sino la información más valiosa que registra el sistema.
-
-El efecto sobre las características difiere según su naturaleza, y esa distinción gobierna la
-solución adoptada. Los estadísticos temporales se calculan sobre la señal completa y por tanto
-integran toda la banda, de modo que la componente fijaba la kurtosis en torno a 1,75 con
-independencia de las demás circunstancias del activo, privándola de capacidad diagnóstica
-sobre la banda de baja frecuencia. La estimación espectral, por su parte, devolvía esa
-frecuencia como dominante, con lo que el régimen de giro del motor quedaba oculto. El problema
-no era la presencia de la componente sino que \textit{enmascaraba} el resto del espectro: una
-única característica no puede describir dos fenómenos a la vez.
-
-\section{Corrección en el nodo y su justificación}
-
-Procede señalar por qué la corrección debía aplicarse en el nodo y no en el concentrador, dado
-que es una consecuencia directa del procesado en el borde. El nodo transmite características
-y no señal: una vez publicada una frecuencia dominante de \mbox{448 Hz}, la información sobre
-el pico correspondiente al régimen del motor no existe en ningún otro lugar del sistema y no
-es recuperable por ningún tratamiento posterior. A ello se añade que modificar la definición
-de una característica invalida cualquier conjunto de referencia capturado con la definición
-anterior, puesto que el modelo compara magnitudes que dejarían de ser homogéneas. El firmware
-debía por tanto quedar cerrado antes de iniciar la campaña de referencia.
-
-La primera corrección consiste en publicar los \textbf{tres picos espectrales} de mayor
-magnitud de cada eje en lugar del dominante, separados por una guarda de cuatro coeficientes
-—el ancho del lóbulo principal de la ventana empleada— para no devolver la falda de un mismo
-tono como pico distinto. Se valoró como alternativa acotar la búsqueda a una banda fija y se
-descartó, porque las componentes observadas se extendían entre \mbox{398 Hz} y \mbox{497 Hz}
-y un límite fijo habría fallado ante ese intervalo. La solución adoptada no depende de acertar
-con un valor.
-
-Debe consignarse que esta corrección resultó insuficiente en un aspecto que solo el análisis
-posterior puso de manifiesto. Con tres picos por eje, uno de los cuales corresponde a la
-fundamental, únicamente caben dos armónicos por ráfaga: la familia de tres componentes no se
-registra completa, y la pareja que se observa varía de una ráfaga a otra. La detección no se ve
-afectada, pero la caracterización del fallo sí.
-
-Procede señalar además que el firmware publica los tres picos \textbf{ordenados por amplitud},
-circunstancia que introdujo un defecto en la derivación de características descrito en el
-capítulo~\ref{cap:resultados}.
-
-La segunda corrección aplica un \textbf{filtro paso bajo} de segundo orden con corte en
-\mbox{150 Hz} antes de calcular el valor eficaz, el valor de pico y la kurtosis. El espectro
-se deja deliberadamente sin filtrar. Esta última decisión, adoptada para que la componente
-siguiese siendo observable y caracterizable, resultó ser la que permitió detectar el fallo
-descrito en el capítulo~\ref{cap:resultados}: los estadísticos filtrados no lo registran.
-
-La elección del corte responde a la práctica habitual en medida de vibración de no emplear un
-montaje por encima de un tercio de su frecuencia de resonancia, aplicada entonces a los
-\mbox{448 Hz} que se atribuían al acoplamiento. Refutada esa atribución, el valor de
-\mbox{150 Hz} deja de tener el respaldo experimental que se le suponía: la frecuencia de
-resonancia del montaje adhesivo no se ha medido, de modo que el corte constituye una cota
-conservadora sin verificar. La banda que delimita es suficiente para la componente fundamental
-del activo y sus dos primeros armónicos, que es cuanto se necesita de los estadísticos
-temporales, pero la determinación experimental de la resonancia del acoplamiento queda
-pendiente.
-
-De ello se sigue una precisión necesaria para el análisis posterior: los estadísticos
-temporales describen la banda \mbox{0-150 Hz} mientras que los picos espectrales describen
-todo el intervalo hasta la frecuencia de Nyquist. No son magnitudes de la misma señal y no
-deben tratarse como tales.
-
-El cuadro~\ref{table:resonancia-efecto} recoge el efecto de ambas correcciones, medido sobre
-la misma señal.
+El cuadro~\ref{table:resonancia-efecto} resume el efecto medido de ambas medidas sobre la misma señal.
 
 \begin{table}[ht!]
 \caption{Efecto de las correcciones sobre las características del eje vertical.}
@@ -681,51 +568,28 @@ Fundamental del activo & No identificable & \mbox{49,77 Hz}, tercer pico, en 6 d
 \end{tabular}
 \end{table}
 
-Debe consignarse que el 95 \% del incremento de nivel obtenido al mejorar el punto de medida
-reside en la componente tonal y no en la banda que describen los estadísticos temporales: el
-valor eficaz filtrado gana un factor próximo a 1,6 y no de quince. Bajo la interpretación
-inicial esa distinción se leyó como una reducción del alcance real de la mejora. Establecido
-que la componente es el noveno armónico del giro, la lectura se invierte: lo que el cambio de
-punto de medida hizo accesible es precisamente la parte del espectro donde después se
-identificó el fallo. La limitación que subsiste es distinta y afecta a los estadísticos
-temporales, no al espectro: describen únicamente la banda \mbox{0-150 Hz}, de modo que el
-deterioro incipiente de rodamientos, cuya manifestación reside por encima, solo resulta
-observable a través de los picos espectrales y de las bandas acústicas. Se documenta en el
-capítulo~\ref{cap:conclusiones} como restricción del alcance alcanzado.
-
 \section{Estándares aplicados y consideraciones de seguridad}
 
-El sistema se apoya en los estándares MQTT (ISO/IEC~20922)~\cite{isoiec20922} e
-IEEE~802.11~\cite{ieee80211} para la comunicación, y en la seguridad WPA/WPA2 a nivel de
-enlace inalámbrico.
+El sistema se apoya en MQTT (ISO/IEC~20922)~\cite{isoiec20922} e IEEE~802.11~\cite{ieee80211}
+para la comunicación, con seguridad WPA/WPA2 en el enlace inalámbrico. El intermediario de
+mensajería opera sin cifrado de transporte ni autenticación de cliente, configuración admisible
+para una prueba de concepto en una red de laboratorio no expuesta a Internet.
 
-El intermediario de mensajería opera sin cifrado de transporte ni autenticación de cliente.
-En el escenario de despliegue previsto, con el intermediario alojado en el concentrador
-local y una red inalámbrica de laboratorio no expuesta a Internet, esta configuración
-resulta admisible para una prueba de concepto.
+Durante el desarrollo del firmware, y de forma transitoria, el nodo publicó contra un
+intermediario público accesible desde Internet, empleando un prefijo de tema aleatorio. Procede
+señalar que dicho prefijo \textbf{no constituía una medida de seguridad}: cualquier tercero que
+lo conociera podría publicar tramas en los mismos temas, que el registrador incorporaría al
+conjunto de datos como si procedieran del nodo. La consecuencia no sería una pérdida de
+confidencialidad sino un riesgo de integridad capaz de invalidar el ajuste del modelo sin
+manifestarse. Se estableció por ello como criterio que ninguna campaña destinada a la memoria se
+realizase en esa configuración, abandonada al desplegar el concentrador.
 
-Durante la fase de desarrollo del firmware, y de forma transitoria hasta la puesta en marcha
-del concentrador, el nodo publicó contra un intermediario público accesible desde Internet,
-empleando un prefijo de tema aleatorio para evitar colisiones con otros usuarios del
-servicio. Procede señalar de forma explícita que dicho prefijo no constituía una medida de
-seguridad. En esa configuración la telemetría circulaba sin cifrar y, lo que resulta más
-relevante para la validez del trabajo, cualquier tercero que conociera el prefijo podría
-publicar tramas en los mismos temas, que el registrador incorporaría al conjunto de datos
-como si procedieran del nodo. La consecuencia no sería únicamente una pérdida de
-confidencialidad, sino un riesgo de integridad capaz de invalidar el entrenamiento del modelo
-sin manifestarse de forma evidente. Por este motivo se estableció como criterio que ninguna
-campaña de medida destinada a la memoria se realizase en esa configuración, que se abandonó
-al desplegar el concentrador.
+En la configuración definitiva el intermediario reside en el concentrador, que genera además la
+red inalámbrica sin conexión con ninguna otra. El aislamiento desplaza la garantía de integridad
+a la clave de acceso de esa red, circunstancia cuya implicación resulta poco intuitiva: en este
+sistema la robustez de una contraseña no protege la privacidad de un dato sino \textbf{la validez
+de un resultado experimental}.
 
-En la configuración definitiva el intermediario reside en el concentrador y la red
-inalámbrica la genera este mismo equipo, sin conexión con ninguna otra red. El aislamiento
-desplaza la garantía de integridad del conjunto de datos a la clave de acceso de la red
-inalámbrica, que pasa a ser el único mecanismo que impide a un tercero publicar tramas en los
-temas de telemetría. Se documenta esta circunstancia porque su implicación práctica resulta
-poco intuitiva: en este sistema la robustez de una contraseña de red no protege la
-privacidad de un dato sino la validez de un resultado experimental.
-
-Un despliegue en explotación requeriría, en cualquier caso, autenticación de cliente y
-cifrado TLS del canal MQTT. La ausencia de ambos se justifica por el alcance de prueba de
-concepto del trabajo y por el aislamiento de la red, no por consideraciones de coste o de
-capacidad del nodo, que soporta TLS.
+Un despliegue en explotación requeriría autenticación de cliente y cifrado TLS del canal. Su
+ausencia se justifica por el alcance de prueba de concepto y por el aislamiento de la red, y no
+por el coste o la capacidad del nodo, que soporta TLS.

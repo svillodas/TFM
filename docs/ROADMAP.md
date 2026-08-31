@@ -12,7 +12,9 @@ El estado de cada fase figura en su título.
 *Tarea TFM: "Definición del escenario de prueba"*
 - [x] Activo representativo elegido: compresor de sistema de refrigeración doméstico.
 - [x] Variables físicas de interés: vibración, temperatura, firma acústica.
-- [ ] Caracterización documentada de la firma operativa nominal (depende de Fase 3).
+- [x] **Firma operativa nominal caracterizada y documentada** (EXP-005): 49,15 Hz de giro,
+      1 pico significativo en 503 de 505 ráfagas, energía acústica concentrada en 0–250 Hz
+      (0,870). Recogida en el capítulo de resultados de la memoria.
 
 ## Fase 1 — Diseño de la arquitectura (completada, ~15 h)
 *Tarea TFM: "Diseño de la arquitectura del sistema"*
@@ -201,7 +203,9 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       de referencia debe dimensionarse sobre esa cifra, no sobre la cadencia de publicación.
       Nota lateral, sin confirmar: un 99 % de tiempo en marcha frente al 63 % medido sobre
       20,6 h del nodo A es en sí mismo compatible con un compresor que no alcanza consigna.
-- [ ] Limpieza del dataset: filtrado de valores centinela (ver DATA_SCHEMA.md).
+- [x] **Limpieza del dataset centralizada en `server/analisis/pipeline.py`**: centinelas
+      (`tempExt = -127`, bloques a cero), bytes nulos, filas desalineadas y filtro de calidad.
+      Es la única fuente de verdad de la carga; ningún script lee los CSV por su cuenta.
 - [x] **Criterio de filtrado por calidad establecido**: solo contadores **por ráfaga**
       (`retries` ≤ 5, `cont_rejects` ≤ 2, `kurt_x` en [1, 20]). `bad_frames` y los contadores
       con prefijo `total_` son **acumulados desde el arranque**: exigirles cero descarta el
@@ -263,16 +267,19 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       más costoso exige 15 150 operaciones (~0,1 ms a 240 MHz) frente a una ráfaga cada 30 s. La
       placa tiene 8 MB de PSRAM. **Los cinco caben**, y ese criterio sesgó la elección hacia lo
       simple sin base.
-- [ ] **Embarcar el detector** en el ESP32, con histéresis y guardián de reintentos.
-- [ ] Clasificación de estados de salud del sistema.
+- [x] **Detector embarcado en el ESP32** (2026-08-27), con histéresis y guardián de reintentos.
+      `device/detector.h` implementa LOF, envolvente y regla de picos sin dependencias de Arduino.
+- [ ] Clasificación de estados de salud del sistema. **No alcanzable con los datos actuales** y
+      así se declara en la memoria: un clasificador multiclase exige ejemplos etiquetados de
+      cada estado, y solo se dispone de un modo de fallo real.
 - [x] **Validación cruzada por episodios implementada** (`comparar_modelos.py`). Era la que
       faltaba: con un solo episodio nominal, cualquier partición dejaba en entrenamiento y en
       prueba ráfagas de la misma condición, separadas 30 s y correlacionadas.
-- [ ] Métricas de evaluación y matriz de confusión. **El conjunto de evaluación ya existe**
-      sin necesidad de inducir ningún fallo: EXP-003 aporta 676 ráfagas de un fallo real con
-      etiqueta fiable, y EXP-004 el control nominal. Limitación a declarar: son máquinas
-      distintas, de modo que el contraste no separa el efecto del fallo del de la
-      variabilidad entre ejemplares.
+- [x] **Métricas de evaluación obtenidas** (`comparar_modelos.py`, `protocolo.py`). EXP-003
+      aporta 656 ráfagas de un fallo real con etiqueta fiable y EXP-005 el control nominal:
+      detección 656/656, falsos positivos 8,3 % sobre episodios de prueba no vistos. Limitación
+      declarada en la memoria: son máquinas distintas, de modo que el contraste no separa el
+      efecto del fallo del de la variabilidad entre ejemplares.
 - [x] **Segmentación marcha/parada resuelta y corregida** (2026-08-27). El umbral de 0,05 m/s²
       fijado con EXP-004 **era incorrecto**: caía dentro del grupo de parado, cuyo extremo llega
       a 0,06, y producía episodios espurios de una sola ráfaga. Además el valle es propio de
@@ -296,7 +303,7 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       inducido: la etiqueta no la fija quien monta el experimento, sino que la aporta un tono
       audible ajeno a la instrumentación. Cubre la parte de la validación que consiste en
       demostrar que el sistema detecta algo que ocurre de verdad.
-- [ ] **Provocar paradas en el activo con fallo.** Solo tiene 2 episodios de marcha porque
+- [ ] **Provocar paradas en el activo con fallo.** Solo tiene 3 episodios de marcha porque
       permanece en marcha el 99 % del tiempo, de modo que alargar la captura da más horas del
       mismo episodio y no más episodios. Desconectarlo y reconectarlo unas cuantas veces pasa
       de 2 episodios a 5 o 6 en un par de horas, y es lo que permite afirmar que la firma es
@@ -306,7 +313,8 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       Sin comparación dentro de una misma máquina no se separa el efecto del fallo del de la
       variabilidad entre ejemplares.
 - [ ] Calibración de umbrales y verificación de la precisión del diagnóstico por tipo de fallo.
-- [ ] Registro de cada campaña en [EXPERIMENTOS.md](EXPERIMENTOS.md).
+- [x] **Ocho campañas registradas** en [EXPERIMENTOS.md](EXPERIMENTOS.md) (EXP-001 a EXP-008).
+      EXP-006 está prerregistrada pero no ejecutada, y así consta.
 
 ## Fase 6 — Inferencia en el Edge (en curso, ~15 h)
 - [x] **Detector embarcado escrito y verificado en el PC** (2026-08-27). `device/detector.h`, sin
@@ -325,33 +333,38 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
 - [x] **Histéresis calibrada sobre datos reales**: exigiendo 3 ráfagas consecutivas se emiten
       **0 avisos falsos** en las 505 ráfagas nominales (con 1 ráfaga serían 22), y el fallo se
       notifica.
-- [ ] **Compilar y flashear en el nodo A** (falta `arduino-cli` y la placa). El modelo lleva las
-      medianas del nodo A: **flashearlo en el nodo B daría `not_evaluable` en el 100 %** de las
-      ráfagas, porque su nivel en marcha queda por debajo del umbral del nodo A. El modelo es
-      específico del activo.
-- [ ] Verificar en placa que el ESP32 coincide con Python, cruzando el CSV de ráfaga con el de
-      estado por marca de tiempo, y medir `us_inference` y la ocupación real.
-- [ ] Portar el modelo al ESP32 **a mano en C++, sin TensorFlow Lite Micro**. Ese entorno
-      ejecuta **redes neuronales** y ninguno de los siete candidatos lo es: LOF es una búsqueda
-      de vecinos, la envolvente una forma cuadrática, el bosque un conjunto de árboles. No es
-      que TFLite Micro sea excesivo: **no puede ejecutarlos**. Y una red neuronal no era opción
-      con 505 observaciones. Son ~15 líneas de C++ para la envolvente, ~60 para LOF.
-- [ ] `server/analisis/exportar_modelo.py` → `device/modelo_referencia.h`, generado y no editado
-      a mano, con la campaña y la fecha de procedencia en un comentario.
-- [ ] **Guardián de reintentos**: el nodo debe negarse a emitir veredicto con más de 3
-      reintentos, no juzgar la ráfaga. Sin él marca como fallo todo bus inestable.
-- [ ] **Histéresis**: N ráfagas anómalas consecutivas antes de notificar.
-- [ ] **Fase de referencia en el nodo**: las características normalizadas por el propio activo
-      exigen que aprenda su propia mediana antes de poder juzgar.
-- [ ] Publicar el veredicto de salud en un topic propio (`fridge/status`), reduciendo el
-      tráfico de telemetría cruda.
-- [ ] Medir latencia de inferencia y consumo en el nodo.
+- [x] **Compilado y flasheado en el nodo A** (2026-08-27). Sigue en pie el aviso: el modelo
+      lleva las medianas del nodo A, de modo que **flashearlo en el nodo B daría `not_evaluable`
+      en el 100 %** de las ráfagas. El modelo es específico del activo.
+- [x] **Verificado en placa contra Python** (`verificar_nodo.py`): 0 veredictos discrepantes
+      sobre 1161 ráfagas reales. `us_inference` mediana 14 µs, máximo 1942 µs, esto es entre el
+      0,00005 % y el 0,0065 % del ciclo de 30 s.
+- [x] **Modelo portado a mano en C++, sin TensorFlow Lite Micro.** Ese entorno ejecuta
+      **redes neuronales** y ninguno de los siete candidatos lo es: LOF es una búsqueda de
+      vecinos, la envolvente una forma cuadrática, el bosque un conjunto de árboles. No es que
+      TFLite Micro sea excesivo: **no puede ejecutarlos**.
+- [x] `server/analisis/exportar_modelo.py` → `device/modelo_referencia.h` (896 líneas),
+      generado y no editado a mano, con la campaña y la fecha de procedencia en la cabecera.
+- [x] **Guardián de reintentos**: el nodo emite `not_evaluable` con más de 3 reintentos en
+      lugar de juzgar la ráfaga (`MODELO_MAX_RETRIES`).
+- [x] **Histéresis**: 3 ráfagas anómalas consecutivas antes de notificar (`struct Histeresis`).
+- [x] **Fase de referencia resuelta por exportación** (`MODELO_MEDIANA_*`): las medianas del
+      activo se calculan en el equipo de análisis y se embarcan. Queda como trabajo futuro que el
+      nodo las estime por sí mismo en el arranque.
+- [x] **Veredicto publicado en `fridge/status`** (124 B frente a ~1050 B del mensaje de
+      ráfaga): un orden de magnitud menos de tráfico para quien solo necesita el estado.
+- [x] Latencia de inferencia medida sobre 3390 veredictos reales (mediana 14 µs). El consumo
+      eléctrico no se ha medido: haría falta instrumentación que no se dispone.
 
-## Fase 7 — Prueba en entorno real y memoria (pendiente, ~20 h)
+## Fase 7 — Prueba en entorno real y memoria (casi completada, ~20 h)
 *Tarea TFM: "Pruebas en entorno real"*
-- [ ] Despliegue de la PoC sobre un activo operativo en uso diario.
-- [ ] Evaluación de robustez de la arquitectura (uptime, pérdida de mensajes, falsos positivos).
-- [ ] Redacción de la memoria y preparación de la defensa.
+- [x] **Despliegue sobre un activo operativo en uso diario** (EXP-007 y EXP-008): 29,09 h
+      continuas, 3390 veredictos emitidos por el nodo.
+- [x] **Robustez evaluada**: 0 veredictos discrepantes frente al recálculo, y una tasa de falsos
+      positivos del 18,0 % sobre el activo sano y sin perturbar, que es **el resultado que
+      desaconseja el despliegue** y así se declara en la memoria.
+- [x] **Memoria redactada**: 48 páginas de cuerpo (límite 50), sin marcas pendientes.
+- [ ] **Preparación de la defensa.**
 
 ---
 

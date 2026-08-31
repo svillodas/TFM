@@ -32,7 +32,7 @@ ni `kurt`**, porque el filtro paso bajo a 150 Hz la elimina de los estadísticos
 
 > **Los tres picos vienen ordenados por amplitud, no por frecuencia.** Cualquier cociente del
 > tipo `f2_x / fdom_x` es inestable: en el activo con fallo el armónico supera a la fundamental
-> por un 2 % en 60 de 676 ráfagas y le quita la posición de dominante, con lo que el mismo
+> por un 2 % en 60 de 656 ráfagas y le quita la posición de dominante, con lo que el mismo
 > fenómeno da 9,0 y 0,111. Hay que reordenar por frecuencia y descartar antes los picos con
 > amplitud inferior al 20 % de la mayor. Lo hace
 > [`server/analisis/pipeline.py`](../analisis/pipeline.py); ver su

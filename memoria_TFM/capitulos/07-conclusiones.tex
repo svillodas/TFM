@@ -5,55 +5,37 @@
 
 \section{Discusión}
 
-Los resultados obtenidos a lo largo del desarrollo y de las distintas campañas experimentales
-permiten extraer varias reflexiones de fondo en torno al despliegue de sistemas de mantenimiento
-predictivo basados en el paradigma de computación en el extremo (\textit{Edge Computing}).
+Los resultados permiten extraer cuatro reflexiones sobre el despliegue de sistemas de
+mantenimiento predictivo en el extremo de la red.
 
-En primer lugar, la viabilidad computacional de la inferencia en microcontroladores de bajo coste
-ha quedado demostrada empíricamente. Frente a la tendencia habitual en la literatura reciente
-de trasladar redes neuronales profundas mediante entornos de cuantización como TensorFlow Lite
-Micro, el presente trabajo evidencia que modelos no paramétricos de detección de anomalías de
-una clase (en particular, \textit{Local Outlier Factor}) combinados con una extracción rigurosa
-de características en el dominio del tiempo y de la frecuencia ofrecen una solución altamente
-competente y eficiente. Con un tiempo de ejecución mediano de \mbox{14 \textmu s} y un peor caso
-inferior a \mbox{2 ms}, la inferencia consume únicamente el \mbox{0,00005~\%} del ciclo de trabajo
-de \mbox{30 s} del nodo, demostrando que la restricción computacional en el borde queda superada
-sin necesidad de recurrir a procesadores dedicados de señal o coprocesadores de inteligencia
-artificial.
+La primera es que \textbf{la restricción computacional no es el obstáculo}. Frente a la práctica
+habitual de trasladar redes neuronales mediante entornos de cuantización como TensorFlow Lite
+Micro, un modelo no paramétrico de detección de una clase sobre una extracción rigurosa de
+características basta para resolver el problema: sobre 3390 veredictos reales la inferencia
+presentó una mediana de \mbox{14 \textmu s} y un peor caso de \mbox{1,94 ms}, entre el
+\mbox{0,00005~\%} y el \mbox{0,0065~\%} del ciclo de \mbox{30 s}, sin procesadores dedicados de
+señal ni coprocesadores de inteligencia artificial.
 
-En segundo lugar, el análisis ha puesto de manifiesto que la integridad de la cadena de
-adquisición condiciona por completo la validez del diagnóstico. Tal como se documentó durante la
-fase de diseño y captura, las perturbaciones en el bus I2C derivadas de la vibración mecánica
-son capaces de introducir muestras corruptas aisladas que disparan la kurtosis temporal y
-generan picos espectrales espurios. Estos artefactos numéricos reproducen de forma artificial la
-firma espectral de un fallo sobre una máquina completamente sana. De ello se deriva un principio
-metodológico fundamental: los mecanismos de verificación de integridad (comprobación de
-continuidad, recuento de reintentos de bus y filtrado de calidad) no constituyen un mero
-preproceso descartable, sino que forman parte indisoluble del algoritmo de diagnóstico. La
-decisión del nodo de emitir un veredicto de «no evaluable» ante ráfagas degradadas evita
-decisiones erróneas basadas en datos corruptos.
+La segunda es que \textbf{la integridad de la cadena de adquisición condiciona la validez del
+diagnóstico}. Las perturbaciones del bus I\textsuperscript{2}C derivadas de la propia vibración
+introducen muestras corruptas que disparan la kurtosis y generan picos espurios, artefactos que
+\textit{reproducen de forma artificial la firma del fallo sobre una máquina sana}. De ello se
+deriva un principio metodológico: los mecanismos de verificación no son un preproceso descartable
+sino parte indisoluble del algoritmo, y de ahí que el nodo emita un veredicto de «no evaluable» en
+lugar de juzgar una ráfaga degradada.
 
-En tercer lugar, la integración multimodal ha demostrado ser un elemento diferenciador. La
-presencia del canal acústico permitió corroborar de manera independiente y sin compartir cadena
-de sensado la familia armónica detectada en el activo con fallo (campaña EXP-003), donde el
-reparto energético en las bandas de frecuencia se invirtió respecto a la condición nominal.
-Asimismo, el uso de variables térmicas diferenciales (\texttt{dif\_termico}) aporta robustez
-frente a variaciones lentas de la temperatura ambiente exterior.
+La tercera es que \textbf{la integración multimodal resultó determinante}: el canal acústico
+corroboró sin compartir cadena de sensado la familia armónica del activo averiado, cuyo reparto
+energético por bandas aparece invertido respecto de la condición nominal, y el diferencial térmico
+aporta robustez frente a las variaciones lentas de la temperatura ambiente.
 
-Por último, la introducción de una etapa de histéresis temporal basada en rachas consecutivas de
-anomalías (\texttt{streak = 3}) ha demostrado ser indispensable para la viabilidad operativa del
-sistema. En entornos industriales y domésticos, los transitorios de arranque y las pequeñas
-perturbaciones mecánicas aisladas generan ráfagas anómalas esporádicas. La exigencia de tres
-veredictos anómalos consecutivos reduce en dos órdenes de magnitud el número de avisos frente a
-la fracción de ráfagas marcadas.
-
-Procede sin embargo acotar su eficacia con lo observado. La histéresis absorbe las desviaciones
-aisladas, pero \textbf{no distingue el origen de una desviación sostenida}: en la campaña
-EXP-008 emitió un aviso ante un transitorio acústico de noventa segundos provocado por la
-apertura de una puerta, que es un suceso operativo normal y no un fallo. Sobre la captura
-completa se emitieron dieciséis avisos en \mbox{22,80 h} de operación con el activo en estado
-nominal, cifra que constituye el límite práctico del sistema en su configuración actual y no un
-resultado satisfactorio.
+La cuarta atañe a la histéresis, indispensable para la viabilidad operativa —exigir tres
+veredictos anómalos consecutivos reduce en dos órdenes de magnitud el número de avisos frente a la
+fracción de ráfagas marcadas— pero insuficiente, porque \textbf{no distingue el origen de una
+desviación sostenida}: en EXP-008 notificó un transitorio acústico de noventa segundos provocado
+por abrir una puerta, y en EXP-007, con el activo nominal y sin perturbar, se emitieron catorce
+avisos en \mbox{21,54 h}. Esa cifra es el límite práctico del sistema en su configuración actual y
+no un resultado satisfactorio.
 
 \section{Conclusiones}
 
@@ -63,118 +45,87 @@ electromecánica en el borde de la red. A continuación se evalúa el grado de c
 uno de los objetivos específicos planteados al inicio del proyecto:
 
 \begin{enumerate}
-    \item \textbf{Definición del escenario de prueba:} \textit{Alcanzado.} Se seleccionó como
-        activo representativo un compresor hermético de refrigeración doméstica, caracterizando
-        su régimen nominal de giro a \mbox{49,15 Hz} y estableciendo los límites temporales y
-        espectrales de referencia a partir de más de 22 episodios de marcha.
-    \item \textbf{Diseño de la arquitectura del sistema:} \textit{Alcanzado.} Se definió una
-        arquitectura Edge--Fog desacoplada en tres canales MQTT independientes (canal lento de
-        sensores, canal de ráfagas espectrales y canal de estado del nodo). Esta estructura
-        permite reducir el tráfico de red en un orden de magnitud al transmitir únicamente el
-        veredicto de salud (\texttt{fridge/status}, \mbox{124 B}) hacia los sistemas de nivel
-        superior.
-    \item \textbf{Selección e integración de hardware y software:} \textit{Alcanzado.} Se integró
-        con éxito un microcontrolador ESP32-S3 junto con un acelerómetro triaxial MPU-6050, una
-        sonda térmica DS18B20 y un micrófono digital INMP441. Se desarrollaron rutinas de
-        recuperación automática de bus y extracción de características en C++ (FFT de 1024 puntos
-        a \mbox{1 kHz}) sin dependencias externas.
-    \item \textbf{Desarrollo del motor de análisis inteligente:} \textit{Alcanzado.} Se formuló
-        un modelo de detección de anomalías de una clase basado en \textit{Local Outlier Factor}
-        (LOF), ajustado mediante un protocolo de partición cronológica por episodios libre de
-        sesgo de espionaje. Alcanza una tasa de detección del 100~\% sobre el único fallo real
-        observado y un 7,8~\% de falsos positivos sobre episodios no vistos. Un análisis de
-        sensibilidad frente a cinco direcciones de fallo indica que el modelo reaccionaría a
-        todas ellas, si bien \textbf{ese análisis emplea perturbaciones sintéticas del conjunto
-        nominal y no constituye evidencia experimental}.
-    \item \textbf{Validación experimental:} \textit{Parcialmente alcanzado.} El sistema se
-        contrastó frente a un fallo armónico real en un activo secundario (EXP-003), con verdad
-        de referencia externa a la instrumentación, y el detector lo identificó en la totalidad
-        de las ráfagas. \textbf{No se ha inducido ningún fallo sobre el activo de referencia}, de
-        modo que la limitación de mayor peso del trabajo permanece: el contraste se establece
-        entre máquinas distintas y no separa el efecto del fallo del de la variabilidad entre
-        ejemplares.
-
-        La campaña EXP-008, consistente en abrir la puerta del aparato, no suple esa carencia.
-        El activo se encontraba sano y una prueba de ablación establece que el aviso lo provocó
-        el desplazamiento de la energía acústica y no la firma vibratoria ni la térmica: anulando
-        el canal acústico el episodio deja de detectarse, y anulando cualquier otro grupo de
-        características sigue detectándose. Abrir una puerta no degrada el compresor, de modo
-        que el episodio constituye un falso positivo sobre un suceso operativo normal.
-
-        Sí aportó, en cambio, dos resultados de valor: la constatación de que el canal acústico
-        es el responsable de \mbox{8,3} puntos de la tasa de ráfagas marcadas, y la observación
-        de que el efecto térmico sostenido de la perturbación —un incremento de \mbox{5,5 °C} en
-        el diferencial— fue señalado por el detector con treinta minutos de retraso respecto del
-        transitorio acústico.
-    \item \textbf{Pruebas en entorno real:} \textit{Alcanzado.} El nodo completo con inferencia
-        embarcada fue desplegado en operación continua durante \mbox{22,80 h} consecutivas
-        (EXP-007), acumulando 2659 veredictos con una paridad del 99,42~\% frente al recálculo
-        en el equipo de análisis —1030 de 1036 ráfagas evaluables— y una mediana de inferencia
-        de \mbox{14 \textmu s}. Debe consignarse que la fracción de ráfagas marcadas como
-        anómalas sobre el activo sano fue del \mbox{20,4 \%}, muy por encima del \mbox{7,8 \%}
-        estimado en prueba, y que esa discrepancia \textbf{no está explicada}: ninguna
-        característica la justifica por sí sola.
+    \item \textbf{Definición del escenario de prueba:} \textit{Alcanzado.} Se caracterizó la firma
+        operativa de un compresor hermético de refrigeración doméstica sobre 24 episodios de marcha.
+    \item \textbf{Diseño de la arquitectura del sistema:} \textit{Alcanzado.} Arquitectura
+        Edge--Fog desacoplada en tres canales MQTT —sensores, ráfagas espectrales y estado del
+        nodo—, con el veredicto de salud reduciendo el tráfico a la séptima parte.
+    \item \textbf{Selección e integración de hardware y software:} \textit{Alcanzado.} ESP32-S3 con
+        acelerómetro MPU-6050, sonda DS18B20 y micrófono INMP441, con rutinas propias de
+        recuperación de bus y de extracción de características en C++ sin dependencias externas.
+    \item \textbf{Desarrollo del motor de análisis inteligente:} \textit{Alcanzado.} Detector de
+        una clase basado en \textit{Local Outlier Factor}, ajustado mediante partición cronológica
+        por episodios y un protocolo libre de sesgo de espionaje. Un análisis de sensibilidad
+        indica cobertura de las cinco direcciones de fallo examinadas, si bien \textbf{emplea
+        perturbaciones sintéticas y no constituye evidencia experimental}.
+    \item \textbf{Validación experimental:} \textit{Parcialmente alcanzado.} El detector identificó
+        en la totalidad de las ráfagas la avería preexistente de un activo secundario, con verdad
+        de referencia externa a la instrumentación, y señaló de forma sostenida una sobrecarga
+        térmica inducida en el activo de referencia. \textbf{Ninguna de las perturbaciones
+        inducidas es un fallo mecánico}, de modo que la limitación de mayor peso permanece: el
+        único fallo real disponible pertenece a otra máquina y el contraste no separa su efecto del
+        de la variabilidad entre ejemplares. El aflojamiento del anclaje resultó no concluyente.
+    \item \textbf{Pruebas en entorno real:} \textit{Alcanzado.} El nodo con inferencia embarcada
+        operó \mbox{29,09 h} continuas, reproduciendo el veredicto del recálculo en servidor con un
+        \mbox{99,45~\%} de coincidencia sobre la campaña nominal y una
+        mediana de inferencia de \mbox{14 \textmu s}. Debe consignarse que la fracción de ráfagas
+        marcadas sobre el activo sano y sin perturbar fue del \mbox{18,0 \%} frente al
+        \mbox{8,3 \%} estimado en prueba, sin que esa discrepancia \textbf{esté explicada}.
 \end{enumerate}
 
 Como balance global, el trabajo establece de forma cuantitativa que es factible desplegar
 algoritmos de aprendizaje automático no supervisado en microcontroladores de bajo coste: la
-inferencia ocupa el \mbox{0,004 \%} del ciclo y reproduce el veredicto de la implementación de
-referencia. Lo que \textbf{no} establece, y conviene enunciarlo con la misma claridad, es que el
-detector resultante sea utilizable en explotación: dieciséis avisos en \mbox{22,80 h} sobre un
-activo sano lo desaconsejan, y la especificidad del sistema queda pendiente de la reducción de
-esa tasa.
+inferencia ocupa una fracción despreciable del ciclo y reproduce el veredicto de la
+implementación de referencia. Lo que \textbf{no} establece es que el detector resultante sea utilizable en
+explotación. Sobre el activo sano y sin perturbar, el nodo marcó el \mbox{18,0 \%} de las
+ráfagas frente al \mbox{8,3 \%} que estimaba la validación cruzada y emitió catorce avisos en
+\mbox{21,54 h}: una tasa que ningún operador atendería. La tasa no crece con el tiempo —el
+detector no deriva— pero dobla de forma sostenida la estimación de partida, y reducirla es el
+primer objeto de la continuación del trabajo.
 
 \section{Consideraciones legales, éticas y profesionales}
 
-El sistema desarrollado incorpora un micrófono digital, lo que exige delimitar estrictamente su
-ámbito de aplicación y tratamiento de datos. La señal acústica se procesa localmente en el nodo
-en bloques de corta duración para obtener exclusivamente un vector agregado de energía por bandas
-espectrales, descartándose de inmediato la señal de audio en bruto. El sistema no almacena ni
-transmite grabaciones sonoras, garantizando la imposibilidad técnica de reconstruir
-conversaciones o identificar personas. Esta decisión de diseño garantiza el cumplimiento del
-principio de minimización de datos establecido en el Reglamento (UE) 2016/679 (RGPD)~\cite{gdpr}.
+El sistema incorpora un micrófono digital, lo que exige delimitar su tratamiento de datos. La señal
+acústica se procesa localmente en bloques de corta duración para obtener un vector agregado de
+energía por bandas y la señal en bruto se descarta de inmediato: el sistema no almacena ni
+transmite grabaciones, con lo que reconstruir conversaciones o identificar personas resulta
+técnicamente imposible. La decisión satisface el principio de minimización de datos del Reglamento
+(UE) 2016/679~\cite{gdpr}.
 
-En el ámbito de la ciberseguridad, la prueba de concepto evaluada opera en una red Wi-Fi local
-dedicada generada por el concentrador Raspberry Pi, con aislamiento respecto a redes públicas.
-No obstante, el traslado de este diseño a un entorno industrial de producción requiere
-incorporar mecanismos de autenticación mutua mediante certificados X.509 y cifrado TLS en el
-broker MQTT, evitando la interceptación de telemetría y la inyección de veredictos maliciosos.
+En ciberseguridad, la prueba de concepto opera en una red inalámbrica dedicada y aislada de redes
+públicas, pero un entorno de producción exigiría autenticación mutua mediante certificados X.509 y
+cifrado TLS en el intermediario, para impedir la interceptación de telemetría y la inyección de
+veredictos falsos.
 
-Desde el punto de vista profesional y de responsabilidad de ingeniería, debe subrayarse que un
-sistema de monitorización IoT de bajo coste está concebido como una herramienta de alerta
-temprana y apoyo al mantenimiento, y en ningún caso exime del cumplimiento de los planes de
-mantenimiento preventivo e inspección reglamentaria exigibles por la normativa técnica de
-seguridad industrial.
+En cuanto a la responsabilidad profesional, un sistema de monitorización de bajo coste es una
+herramienta de alerta temprana y apoyo al mantenimiento, y en ningún caso exime de los planes de
+mantenimiento preventivo e inspección reglamentaria exigibles por la normativa de seguridad
+industrial.
 
 \section{Líneas futuras}
 
-A partir de los resultados alcanzados y de las limitaciones identificadas, se proponen las
-siguientes líneas de trabajo futuro:
+Se proponen las siguientes líneas de trabajo, las dos primeras por delante de las demás.
 
 \begin{itemize}
-    \item \textbf{Fallo inducido sobre el activo de referencia.} Es la primera línea por orden
-        de importancia, dado que resuelve la limitación de mayor peso del trabajo. Un
-        aflojamiento del anclaje o un desequilibrio de masa alteran la firma vibratoria del
-        propio activo y permiten separar el efecto del fallo del de la variabilidad entre
+    \item \textbf{Fallo inducido sobre el activo de referencia.} Resuelve la limitación de mayor
+        peso: un aflojamiento del anclaje o un desequilibrio de masa alteran la firma vibratoria
+        del propio activo y permiten separar el efecto del fallo del de la variabilidad entre
         ejemplares, cosa que el contraste entre máquinas distintas no permite.
-    \item \textbf{Reducción de la tasa de avisos falsos.} Los datos sugieren una vía que no se
-        ha ensayado: exigir que la desviación se manifieste también en el canal de vibración
-        antes de notificar, con lo que el canal acústico conservaría su función confirmatoria
-        —fue el que aportó la evidencia independiente del fallo real— sin poder disparar por sí
-        solo ante una perturbación del entorno.
-    \item \textbf{Aprendizaje autónomo en el borde (\textit{On-Device Learning}):} Desarrollar
-        rutinas de autocalibración en el firmware para que el nodo estime de forma autónoma sus
-        medianas nominales durante las primeras horas de puesta en marcha, eliminando el ciclo
-        de exportación de cabeceras desde el servidor.
-    \item \textbf{Ensayos de degradación térmica controlada:} Ejecutar campañas prolongadas de
-        obstrucción parcial de condensador y sobrecarga de puerta abierta para evaluar la
-        dinámica de respuesta del gradiente térmico a lo largo de varios ciclos día--noche.
-    \item \textbf{Generalización sobre flotas de activos:} Desplegar nodos en múltiples unidades
-        de compresores heterogéneos para analizar la transferibilidad del modelo y la
-        variabilidad de los umbrales de vibración entre distintos fabricantes.
-    \item \textbf{Ciberseguridad robusta:} Implementar soporte TLS/MQTTS nativo en el ESP32-S3
-        aprovechando los aceleradores criptográficos por hardware del chip.
-    \item \textbf{Ampliación de la resolución espectral:} Aumentar el número de picos armónicos
-        publicados por el firmware para permitir el seguimiento simultáneo de órdenes
-        superiores de giro (por encima del tercer pico).
+    \item \textbf{Explicar el exceso de falsos positivos en operación,} sin lo cual el sistema no
+        es desplegable. Las hipótesis compatibles con lo observado son que la campaña de referencia
+        no cubra la variabilidad real del activo, que exista una diferencia sistemática entre las
+        condiciones de la campaña y las del despliegue, o que el acoplamiento adhesivo evolucione;
+        distinguirlas exige una campaña de varios días y un montaje rígido.
+    \item \textbf{Almacenamiento local con reenvío diferido,} dado que sin cola de mensajes una
+        interrupción del enlace supone pérdida definitiva de medidas.
+    \item \textbf{Confirmación cruzada antes de notificar:} exigir que la desviación se manifieste
+        también en el canal de vibración, con lo que el acústico conservaría su función
+        confirmatoria sin poder disparar por sí solo ante una perturbación del entorno.
+    \item \textbf{Autocalibración en el nodo,} para que estime sus propias medianas nominales en
+        servicio y se elimine el ciclo de exportación de cabeceras, y \textbf{ampliación de la
+        resolución espectral} a más de tres picos por eje, con la que registrar completa una
+        familia armónica.
+    \item \textbf{Generalización sobre flotas} de compresores heterogéneos, para analizar la
+        transferibilidad del modelo, y \textbf{cifrado del transporte} con TLS nativo sobre los
+        aceleradores criptográficos del propio ESP32-S3.
 \end{itemize}

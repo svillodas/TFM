@@ -137,7 +137,7 @@ Direcciones de fallo cubiertas & 5 de 5 \\
 \hline
 Falsos positivos en el conjunto de desarrollo & 6,3 \% \\
 \hline
-\textbf{Falsos positivos en los episodios de prueba} & \textbf{7,8 \%} \\
+\textbf{Falsos positivos en los episodios de prueba} & \textbf{8,3 \%} \\
 \hline
 \textbf{Detección sobre el activo con fallo} & \textbf{100 \%} \\
 \hline
@@ -163,13 +163,13 @@ la medición.
 \hline
 Regla sobre n.\textsuperscript{o} de picos & \mbox{8 B} & 3 \\
 \hline
-Envolvente robusta & \mbox{960 B} & 240 \\
+\textit{Elliptic Envelope} & \mbox{960 B} & 240 \\
 \hline
-Máquina de vectores soporte & \mbox{2,3 KB} & 1110 \\
+\textit{One-Class SVM} & \mbox{2,3 KB} & 1110 \\
 \hline
 LOF & \mbox{32 KB} & 15\,150 \\
 \hline
-Bosque de aislamiento & \mbox{274 KB} & 4800 \\
+\textit{Isolation Forest} & \mbox{274 KB} & 4800 \\
 \hline
 \end{tabular}
 \end{table}
@@ -196,23 +196,25 @@ establece su rendimiento. El cuadro~\ref{table:cobertura-modos} recoge el result
 \caption{Análisis de sensibilidad frente a direcciones de fallo no observadas. Datos sintéticos.}
 \label{table:cobertura-modos}
 \centering
-\begin{tabular}{|p{4.0cm}|r|r|r|r|}
+\begin{tabular}{|p{3.6cm}|r|r|r|r|r|}
 \hline
-\textbf{Dirección} & \textbf{Regla} & \textbf{Envolvente} & \textbf{Bosque} & \textbf{Vect. soporte} \\
+\textbf{Dirección} & \textbf{Regla} & \textbf{\textit{LOF}} & \textbf{\textit{Ell. Env.}} & \textbf{Bosque} & \textbf{Vect. sop.} \\
 \hline
-Holgura mecánica & 100 \% & 100 \% & 100 \% & 100 \% \\
+Holgura mecánica & 100 \% & 100 \% & 100 \% & 100 \% & 100 \% \\
 \hline
-Rodamiento incipiente & \textbf{0 \%} & 100 \% & 100 \% & 100 \% \\
+Rodamiento incipiente & \textbf{0 \%} & 100 \% & 100 \% & 100 \% & 100 \% \\
 \hline
-Roce o fricción & \textbf{0 \%} & 100 \% & 100 \% & 100 \% \\
+Roce o fricción & \textbf{0 \%} & 100 \% & 100 \% & 100 \% & 100 \% \\
 \hline
-Desequilibrio de masa & \textbf{0 \%} & 99 \% & 10 \% & 77 \% \\
+Desequilibrio de masa & \textbf{0 \%} & 65 \% & 96 \% & \textbf{8 \%} & 66 \% \\
+\hline
+Obstrucción de ventilación & \textbf{0 \%} & 74 \% & \textbf{11 \%} & \textbf{10 \%} & 78 \% \\
 \hline
 \end{tabular}
 \end{table}
 
 El resultado obliga a matizar la elección de modelo expuesta más arriba. \textbf{La regla sobre
-el número de picos resulta ciega a tres de las cuatro direcciones examinadas}: detecta lo que
+el número de picos resulta ciega a cuatro de las cinco direcciones examinadas}: detecta lo que
 añade componentes espectrales y no lo que altera la amplitud o la impulsividad de la señal. Su
 ventaja en tasa de falsos positivos se obtuvo midiendo contra el único modo de fallo disponible,
 de modo que constituye una forma de sobreajuste a ese modo.
@@ -226,8 +228,8 @@ La corrección adoptada consiste en normalizar las magnitudes con unidades por l
 \textit{propio} activo en funcionamiento, en lugar de suprimirlas. La característica resultante
 es adimensional en su forma y específica en su valor, con lo que conserva la independencia de
 máquina —la mediana vale 1 en ambos activos por construcción— y recupera la sensibilidad a la
-amplitud: la envolvente robusta pasa a detectar el 99 \% de las ráfagas perturbadas en esa
-dirección. Debe consignarse la contrapartida operativa: el nodo necesita conocer la mediana de
+amplitud: la \textit{Elliptic Envelope} pasa a detectar el 96 \% de las ráfagas perturbadas en esa
+dirección y el \textit{Local Outlier Factor} el 65 \%. Debe consignarse la contrapartida operativa: el nodo necesita conocer la mediana de
 su propio activo, de modo que ha de aprenderla durante una fase de referencia y no puede emitir
 veredicto sobre su primera ráfaga.
 
@@ -242,22 +244,29 @@ los datos disponibles no permiten resolver, y que el cuadro~\ref{table:compromis
 \hline
 \textbf{Modelo} & \textbf{Peor episodio} & \textbf{Direcciones cubiertas} \\
 \hline
-Regla sobre n.\textsuperscript{o} de picos & \textbf{8,3 \%} & 1 de 4 \\
+Regla sobre n.\textsuperscript{o} de picos & \textbf{2,7 \%} & 1 de 5 \\
 \hline
-Envolvente robusta & 25,0 \% & \textbf{4 de 4} \\
+\textit{Elliptic Envelope} & 20,0 \% & 4 de 5 \\
 \hline
-Envolvente de Mahalanobis & 33,3 \% & 4 de 4 \\
+Envolvente de Mahalanobis & 20,0 \% & 4 de 5 \\
 \hline
-Bosque de aislamiento & 46,8 \% & 3 de 4 \\
+\textbf{\textit{Local Outlier Factor}} & \textbf{28,6 \%} & \textbf{5 de 5} \\
+\hline
+\textit{Isolation Forest} & 46,8 \% & 3 de 5 \\
+\hline
+\textit{One-Class SVM} & 71,4 \% & \textbf{5 de 5} \\
 \hline
 \end{tabular}
 \end{table}
 
-La regla es tres veces mejor en especificidad y cubre la cuarta parte de las direcciones. No hay
+La regla es diez veces mejor en especificidad y cubre la quinta parte de las direcciones. No hay
 en estos datos ningún candidato que gane en ambas columnas, y la elección entre ellas no es
-técnica sino de política de operación: depende de si el coste de una alarma falsa supera al de
-un fallo no detectado, que es una decisión del explotador del activo y no del diseñador del
-sistema.
+técnica sino de política de operación: depende de si el coste de una alarma falsa supera al de un
+fallo no detectado, que es una decisión del explotador del activo y no del diseñador del sistema.
+El criterio declarado de antemano fue la máxima cobertura y, a igual cobertura, la menor tasa de
+falsos positivos, lo que selecciona el \textit{Local Outlier Factor} frente a la
+\textit{One-Class SVM}. Las cifras de esta tabla proceden del conjunto de desarrollo, dado que la
+selección debía resolverse sin mirar el de prueba.
 \section{Implementación de la inferencia sin entorno de ejecución}
 
 De lo anterior se sigue una consecuencia sobre la implementación en el nodo que conviene
@@ -265,7 +274,7 @@ enunciar, dado que contradice la expectativa habitual en este tipo de trabajos. 
 ejecución de modelos reducidos para microcontroladores, según se expuso en el
 capítulo~\ref{cap:estado-arte}, operan sobre \textbf{redes neuronales}. Ninguno de los
 candidatos considerados pertenece a esa familia: el método seleccionado se basa en vecindad, la
-envolvente es una forma cuadrática y el bosque de aislamiento un conjunto de árboles de
+envolvente es una forma cuadrática y el \textit{Isolation Forest} un conjunto de árboles de
 decisión. No se trata por tanto de que un entorno de inferencia resulte excesivo para el modelo
 adoptado, sino de que \textbf{no puede ejecutarlo}.
 
@@ -282,7 +291,7 @@ proceden, de modo que reentrenar consista en volver a ejecutar el procedimiento 
 La ejecución del modelo en el microcontrolador se implementó en C++ y se verificó en dos
 niveles complementarios: primero frente a la implementación de referencia en el entorno de
 análisis, y posteriormente mediante despliegue y ejecución continua sobre la plataforma física
-ESP32-S3 en la campaña EXP-007 (21,56~h de operación ininterrumpida).
+ESP32-S3 en la campaña EXP-007 (\mbox{21,54 h} de operación ininterrumpida).
 
 Las rutinas del detector se escribieron \textbf{sin dependencias del entorno de ejecución del
 microcontrolador}, siguiendo el criterio ya aplicado a la extracción de características: ello
@@ -312,15 +321,24 @@ Margen del caso más próximo al umbral & --- & 9,2 veces el error \\
 \end{tabular}
 \end{table}
 
-Tras flashear el firmware en el nodo físico y desplegar la captura continua durante 21,56~h
-(campaña EXP-007), se contrastaron las 913 ráfagas evaluables medidas en la placa con el
-recálculo idéntico en el servidor. El resultado ratifica la paridad: \textbf{908 de 913 veredictos
-coincidentes (99,45~\%)} y una diferencia mediana en la puntuación de apenas \mbox{0,00134}. Las
-únicas 5 discrepancias registradas (0,55~\%) corresponden a observaciones situadas en la
-frontera inmediata del umbral de decisión (distancia al umbral de 0,00124 frente a un error
-máximo de 0,132), donde pequeñas divergencias de precisión en coma flotante determinan el corte.
-La afirmación de que el diagnóstico predictivo se ejecuta en el nodo queda por tanto
-\textbf{medida experimentalmente en hardware} y no supuesta.
+Tras flashear el firmware en el nodo físico y desplegar la captura continua durante
+\mbox{21,54 h} (campaña EXP-007), se contrastaron las 911 ráfagas evaluables medidas en la placa
+con el recálculo idéntico en el servidor. El resultado ratifica la paridad: \textbf{906 de 911
+veredictos coincidentes (99,45~\%)}. Las cinco discrepancias (0,55~\%) corresponden a
+observaciones situadas en la frontera inmediata del umbral de decisión, donde pequeñas
+divergencias de precisión en coma flotante determinan el corte. La afirmación de que el
+diagnóstico se ejecuta en el nodo queda por tanto \textbf{medida experimentalmente en hardware}
+y no supuesta.
+
+Procede extender el contraste a la operación completa, dado que el tramo perturbado lo degrada.
+Sobre las \mbox{29,09 h} y sus 1340 ráfagas evaluables la paridad baja al \mbox{98,81 \%} —1324
+coincidentes, 16 discrepancias— y el error máximo en la puntuación sube de \mbox{0,132} a
+\mbox{0,880}. Debe declararse la consecuencia: ese error máximo es del orden del margen que
+separa del umbral a la observación más próxima, de modo que la coincidencia entre las dos
+implementaciones \textbf{no está garantizada para observaciones limítrofes}. La causa no es un
+defecto de la derivación de características —anular el gradiente térmico empeora la coincidencia
+en lugar de mejorarla— sino la precisión en coma flotante de treinta y dos bits del
+microcontrolador frente a la de sesenta y cuatro del equipo de análisis.
 
 El cuadro~\ref{table:coste-inferencia} recoge el coste medido de cada alternativa.
 
@@ -334,13 +352,13 @@ El cuadro~\ref{table:coste-inferencia} recoge el coste medido de cada alternativ
 \hline
 Regla sobre n.\textsuperscript{o} de picos & \mbox{8 B} & 3 \\
 \hline
-Envolvente robusta & \mbox{840 B} & 210 \\
+\textit{Elliptic Envelope} & \mbox{840 B} & 210 \\
 \hline
-Máquina de vectores soporte & \mbox{2,3 KB} & 1110 \\
+\textit{One-Class SVM} & \mbox{2,3 KB} & 1110 \\
 \hline
 Modelo seleccionado (LOF) & \mbox{31,6 KB} & 15\,150 \\
 \hline
-Bosque de aislamiento & \mbox{274 KB} & 4800 \\
+\textit{Isolation Forest} & \mbox{274 KB} & 4800 \\
 \hline
 \end{tabular}
 \end{table}
@@ -352,3 +370,72 @@ cifras. Para las 2536 ejecuciones de la campaña EXP-007, el tiempo de inferenci
 máximo absoluto de \mbox{1942 \textmu s} (1,94~ms). Frente al periodo de muestreo de una ráfaga
 cada \mbox{30 s}, la inferencia consume únicamente el \textbf{0,00005~\% del ciclo de la CPU},
 demostrando que el coste computacional del detector no supone limitación alguna en el borde.
+
+\section{Evaluación de la política de avisos}
+
+reinicia su cuenta ante una única ráfaga nominal, y durante la anomalía sostenida se intercalaron
+tres, con lo que el sistema volvió a notificar en cada ocasión. En operación son cuatro
+notificaciones de lo mismo.
+
+Procede señalar aquí una propiedad del diseño que resulta ventajosa. La histéresis es una
+\textbf{política de notificación y no una medida}: no altera el veredicto ni las puntuaciones,
+solo el aviso y la cuenta de racha. Y al ser una función pura de la secuencia de veredictos,
+cualquier política alternativa se evalúa \textbf{sobre los datos ya capturados}, sin modificar el
+firmware ni repetir ninguna campaña. El cuadro~\ref{table:politica} recoge esa evaluación.
+
+\begin{table}[ht!]
+\caption{Evaluación de un tiempo mínimo entre avisos sobre los veredictos capturados.}
+\label{table:politica}
+\centering
+\begin{tabular}{|r|r|r|l|}
+\hline
+\textbf{Silencio} & \textbf{Avisos} & \textbf{Del episodio} & \textbf{1.\textsuperscript{a} detección} \\
+\hline
+0 min (actual) & 18 & 4 & 12:10:40 \\
+\hline
+30 min & 12 & 3 & 12:10:40 \\
+\hline
+60 min & 12 & 2 & 12:10:40 \\
+\hline
+\textbf{120 min} & \textbf{7} & \textbf{1} & 12:10:40 \\
+\hline
+\end{tabular}
+\end{table}
+
+Debe consignarse que se descartó una primera propuesta: exigir varias ráfagas
+\textit{nominales} consecutivas para rearmar no reduce los avisos —14, 16 y 19 según el valor,
+frente a los 18 de la política actual— porque al no romper la racha con una nominal aislada, la
+de anomalías se acumula con mayor rapidez y el aviso se dispara antes.
+
+Lo que sí resulta eficaz es el tiempo mínimo entre avisos, que constituye deduplicación y no
+insensibilización: la primera detección de cada episodio no se pierde con ningún valor ensayado.
+La contrapartida ha de declararse, dado que un fallo aparecido dentro de la ventana de silencio
+quedaría sin notificar hasta que esta expirase, y con un ciclo de trabajo de unos \mbox{85 min}
+un silencio de \mbox{120 min} abarca más de un ciclo completo. Es por tanto una decisión de
+política de operación y no una elección técnica.
+
+No se modificó el firmware: alterar la política a mitad de una serie haría que el campo de aviso
+significase algo distinto antes y después del cambio.
+
+Con independencia de lo anterior, dos resultados de esta campaña son sólidos y ambos afectan al diseño. El primero es que
+\textbf{el mecanismo de histéresis se comporta según su diseño}: se acumularon exactamente tres
+ráfagas anómalas consecutivas y el aviso se emitió en la tercera y no antes, según se aprecia en
+la figura~\ref{fig:puerta}. El segundo es la cuantificación del coste del canal acústico. Anulando las tres bandas y
+recalculando la puntuación sobre las ráfagas de la captura cerrada a las \mbox{12:58} del 28 de
+agosto, la tasa de ráfagas
+marcadas desciende del \textbf{14,0 \% al 5,7 \%}, y el episodio de la apertura deja de
+detectarse por completo: ninguna de sus tres ráfagas resulta marcada. El canal acústico aporta
+en consecuencia \textbf{8,3 puntos} de tasa de ráfagas marcadas y es el único responsable de la
+detección de la apertura.
+
+Debe matizarse el mecanismo: únicamente el 10 \% de las ráfagas anómalas presenta un valor
+extremo en la banda intermedia, frente al 5 \% que correspondería por construcción, de modo que
+la contribución no procede de sucesos intensos como la apertura sino de una dispersión que la
+campaña de referencia no capturó.
+
+El canal acústico presenta por tanto un \textbf{compromiso con las dos caras medidas}: aportó la
+confirmación independiente del fallo real, procedente de un sensor que no comparte cadena con el
+acelerómetro, y cuesta 8,3 puntos de tasa de marcado frente a perturbaciones del entorno. La
+elección entre ambas depende de si el activo opera en un entorno acústicamente estable, de modo
+que queda declarada y no resuelta. Los datos sugieren una alternativa sin ensayar: exigir que la
+desviación se manifieste \textit{también} en el canal de vibración antes de notificar.

@@ -36,86 +36,66 @@
   year         = {2016}
 }
 
-% ------------------------------------------------------------------
+% ------------------------------------------------------% ------------------------------------------------------------------
 % Hojas de características de los componentes
-% TODO: completar el campo 'note' de cada entrada con la URL de descarga y la fecha de
-% consulta antes de la entrega (la guía lo exige para documentos electrónicos).
 % ------------------------------------------------------------------
 @manual{esp32datasheet,
+  year         = {2026},
   title        = {{ESP32 Series Datasheet}},
   organization = {Espressif Systems},
-  note         = {TODO: URL y fecha de consulta}
+  note         = {[En l{\'i}nea]. Disponible en: \url{https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf}. [Accedido: 5 de agosto de 2026]}
 }
 
 @manual{mpu6050,
+  year         = {2013},
   title        = {{MPU-6000 and MPU-6050 Product Specification}},
   organization = {InvenSense},
-  note         = {TODO: revisión, URL y fecha de consulta}
+  note         = {Rev. 3.4, de 19 de agosto de 2013. Rev. 3.4. [En l{\'i}nea]. Disponible en: \url{https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf}. [Accedido: 5 de agosto de 2026]}
 }
 
 @manual{ds18b20,
+  year         = {2026},
   title        = {{DS18B20 Programmable Resolution 1-Wire Digital Thermometer}},
   organization = {Analog Devices (Maxim Integrated)},
-  note         = {TODO: URL y fecha de consulta}
+  note         = {[En l{\'i}nea]. Disponible en: \url{https://www.analog.com/media/en/technical-documentation/data-sheets/DS18B20.pdf}. [Accedido: 5 de agosto de 2026]}
 }
 
 @manual{inmp441,
-  title        = {{INMP441 Omnidirectional Microphone with Bottom Port and I2S Digital
-                  Output}},
+  year         = {2026},
+  title        = {{INMP441 Omnidirectional Microphone with Bottom Port and I2S Digital Output}},
   organization = {InvenSense},
-  note         = {TODO: URL y fecha de consulta}
+  note         = {Rev. 1.1. [En l{\'i}nea]. Disponible en: \url{https://invensense.tdk.com/wp-content/uploads/2015/02/INMP441.pdf}. [Accedido: 5 de agosto de 2026]}
 }
 
 % ------------------------------------------------------------------
-% Estado del arte
-%
-% Metadatos bibliográficos verificados el 2026-08-26 contra el editor o el
-% repositorio correspondiente (DOI, volumen, páginas, ISBN, edición vigente).
-%
-% PENDIENTE ANTES DE LA ENTREGA: la verificación anterior es de los DATOS de
-% cada referencia, no de su CONTENIDO. Queda por consultar el texto completo
-% de cada fuente y comprobar que respalda la afirmación concreta que la cita
-% en el capítulo 2. Las marcadas CONTENIDO PENDIENTE son las que requieren
-% acceso de pago (IEEE Xplore / ISO / editor) y no se han podido leer.
-% Si alguna no se llega a consultar, procede retirar la cita y la afirmación
-% que la sostiene, no dejarla sin verificar.
+% Estado del arte y literatura científica
 % ------------------------------------------------------------------
 
 @book{randall2011,
   author    = {Randall, Robert Bond},
-  title     = {{Vibration-based Condition Monitoring: Industrial, Aerospace and Automotive
-               Applications}},
+  title     = {{Vibration-based Condition Monitoring: Industrial, Aerospace and Automotive Applications}},
   publisher = {John Wiley \& Sons},
   address   = {Chichester, Reino Unido},
   year      = {2011},
   edition   = {1},
   isbn      = {978-0-470-74785-8},
-  doi       = {10.1002/9780470977668},
-  note      = {CONTENIDO PENDIENTE: localizar los capítulos que respaldan las afirmaciones
-               sobre valor eficaz, kurtosis y análisis espectral}
+  doi       = {10.1002/9780470977668}
 }
 
 @misc{iso20816,
   author       = {{International Organization for Standardization}},
-  title        = {{ISO 20816-1:2016 Mechanical vibration --- Measurement and evaluation of
-                  machine vibration --- Part 1: General guidelines}},
+  title        = {{ISO 20816-1:2016 Mechanical vibration --- Measurement and evaluation of machine vibration --- Part 1: General guidelines}},
   howpublished = {Norma internacional},
   year         = {2016},
-  organization = {ISO},
-  note         = {Sustituye a la ISO 10816-1. Los límites para maquinaria industrial residen
-                  en la parte 3. CONTENIDO PENDIENTE: acceso de pago}
+  organization = {ISO}
 }
 
 @misc{iso5348,
   author       = {{International Organization for Standardization}},
-  title        = {{ISO 5348:2021 Mechanical vibration and shock --- Mechanical mounting of
-                  accelerometers}},
+  title        = {{ISO 5348:2021 Mechanical vibration and shock --- Mechanical mounting of accelerometers}},
   howpublished = {Norma internacional},
   year         = {2021},
-  organization = {ISO},
-  note         = {Edición vigente; sustituye a la de 1998. Especifica las propiedades de los
-                  métodos de fijación y su influencia en la respuesta en frecuencia.
-                  CONTENIDO PENDIENTE: acceso de pago}
+  organization = {ISO}
 }
 
 @inproceedings{liu2008,
@@ -142,19 +122,13 @@
 
 @book{warden2019,
   author    = {Warden, Pete and Situnayake, Daniel},
-  title     = {{TinyML: Machine Learning with TensorFlow Lite on Arduino and Ultra-Low-Power
-               Microcontrollers}},
+  title     = {{TinyML: Machine Learning with TensorFlow Lite on Arduino and Ultra-Low-Power Microcontrollers}},
   publisher = {O'Reilly Media},
   year      = {2019},
-  isbn      = {978-1-492-05204-3},
-  note      = {CONTENIDO PENDIENTE: localizar los capítulos que respaldan las restricciones
-               de memoria y consumo citadas}
-}
+  isbn      = {978-1-492-05204-3}
 
 @inproceedings{david2021,
-  author    = {David, Robert and Duke, Jared and Jain, Advait and Janapa Reddi, Vijay and
-               Jeffries, Nat and Li, Jian and Kreeger, Nick and Nappier, Ian and
-               Natraj, Meghna and Wang, Tiezhen and Warden, Pete and Rhodes, Rocky},
+  author    = {David, Robert and Duke, Jared and Jain, Advait and others},
   title     = {{TensorFlow Lite Micro: Embedded Machine Learning for TinyML Systems}},
   booktitle = {Proceedings of Machine Learning and Systems (MLSys)},
   year      = {2021},
@@ -184,4 +158,15 @@
   number  = {3},
   pages   = {212--223},
   doi     = {10.1080/00401706.1999.10485670}
+}
+
+@misc{repotfm,
+  author       = {Villodas Zapata, Sergio},
+  title        = {{Sistema IoT Edge de mantenimiento predictivo para compresores: código
+                  fuente, conjuntos de datos y documentación técnica}},
+  howpublished = {Repositorio de software},
+  year         = {2026},
+  url          = {https://github.com/svillodas/TFM},
+  note         = {Código bajo licencia MIT; memoria, documentación y conjuntos de datos bajo
+                  licencia Creative Commons CC BY 4.0}
 }

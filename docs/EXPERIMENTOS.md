@@ -229,7 +229,7 @@ del activo con fallo. Las dos modalidades coinciden sin compartir sensor ni cade
 
 | Análisis | Campañas | Script | Resultado |
 | :--- | :--- | :--- | :--- |
-| Baseline de detección de anomalías | EXP-003 vs **EXP-005** | [`server/analisis/`](../server/analisis/) | 656/656 detectadas. Validación cruzada por episodios: 0,5 % de falsos positivos de media, 8,3 % en el peor arranque. Ver EXP-005 al final |
+| Baseline de detección de anomalías | EXP-003 vs **EXP-005** | [`server/analisis/`](../server/analisis/) | 656/656 detectadas. Validación cruzada por episodios (24 episodios): la regla sobre n_picos da 0,3 % de falsos positivos de media y 5,0 % en el peor arranque; el modelo adoptado (LOF), 8,4 % y 35,0 %. Se adopta LOF por cobertura de modos, no por especificidad. Ver EXP-005 al final |
 
 **Advertencia sobre este análisis.** Un detector ajustado sobre características con unidades
 físicas (`rms`, `peak`, `kurt`) alcanza el 99,8 % de detección **sin haber empleado ninguna
@@ -252,7 +252,7 @@ característica **defectuosa** y quedan sustituidas por las siguientes. Se consi
 porque es instructivo.
 
 **El defecto.** Los cocientes se calculaban como `f2_x / fdom_x`, y el firmware publica los
-tres picos **ordenados por amplitud**. En 60 de 676 ráfagas el armónico del fallo supera a la
+tres picos **ordenados por amplitud**. En 60 de 656 ráfagas el armónico del fallo supera a la
 fundamental del giro por un 2 % (0,2056 frente a 0,2016) y pasa a ocupar la posición de pico
 dominante: el mismo fenómeno físico daba un cociente de 9,0 en unas ráfagas y de 0,111 en
 otras. `fdom_x` aparentaba un CV del 133 %.
@@ -265,12 +265,12 @@ de la fundamental—. Verificado entre el 15 % y el 30 %: el resultado no depend
 
 | Magnitud | Valor |
 | :--- | :--- |
-| Duración | 7,14 h, 815 ráfagas, 676 utilizables, **2 episodios de marcha útiles** |
+| Duración | 7,14 h, 815 ráfagas, 656 utilizables, **3 episodios de marcha útiles** |
 | Frecuencia de giro | 49,745 Hz, CV **0,12 %** |
 | Componentes tonales | **398, 448 y 497 Hz** = armónicos **8×, 9× y 10×** |
 | Desviación respecto del entero | < 0,05 % |
 | Cociente del 9.º armónico | 9,0042, CV 0,137 % (n = 429) |
-| Presencia | 659/676 ráfagas con tres picos significativos (97 %) |
+| Presencia | 640/656 ráfagas con tres picos significativos (98 %) |
 | Picos significativos | 3 (frente a 1 del activo de referencia, separación 6,90 sd) |
 
 **Lo que mejora respecto de la versión anterior.** No es una componente aislada sino una
@@ -292,7 +292,7 @@ caracterizar una familia armónica de más de dos componentes.
   marcha/parada, para calibrar el umbral del detector y hacer posible la validación cruzada por
   episodios, que con EXP-004 no lo era.
 - **Activo:** compresor de referencia (nodo A, `|a|` = 10,33), en uso doméstico normal.
-- **Fecha/hora:** 2026-08-26 15:13 – 2026-08-27 12:46 (Europe/Madrid), **21,54 h continuas**.
+- **Fecha/hora:** 2026-08-26 15:13 – 2026-08-27 12:46 (Europe/Madrid), **21,53 h continuas**.
 - **Firmware:** `fw-46col`, sin modificaciones respecto de EXP-003 y EXP-004.
 - **Ficheros:** `server/data/nodo-a-nevera-buena/fw-46col/2026-08-26-vibration.csv` (866) y
   `2026-08-27-vibration.csv` (1241), más los dos del canal lento (75 308 tramas). Sin bytes NUL.
@@ -475,9 +475,9 @@ de avisos por fase, y desplazamiento medido de cada característica.
 
 ---
 
-### EXP-007 — Verificación del detector embarcado en hardware (21,56 h continuas)
+### EXP-007 — Verificación del detector embarcado en hardware (21,54 h continuas)
 
-- **Fecha/hora:** 2026-08-27 14:10 – 2026-08-28 11:43 (Europe/Madrid), 21,56 h continuas.
+- **Fecha/hora:** 2026-08-27 14:10 – 2026-08-28 11:43 (Europe/Madrid), 21,54 h continuas.
 - **Activo:** compresor de referencia (nodo A, `nodo-a-nevera-buena`), en estado nominal en banco de ensayos.
 - **Montaje del sensor:** acelerómetro MPU-6050 adherido al tubo de descarga, sensor DS18B20 y micrófono INMP441.
 - **Ficheros:** `server/data/nodo-a-nevera-buena/fw-46col/2026-08-27-status.csv`, `2026-08-27-vibration.csv`, `2026-08-27.csv`, `2026-08-28-status.csv`, `2026-08-28-vibration.csv`, `2026-08-28.csv` (162 670 filas en total acumuladas).
@@ -488,14 +488,14 @@ de avisos por fase, y desplazamiento medido de cada característica.
 
 | Magnitud | Valor medido en hardware |
 | :--- | :--- |
-| Duración de la captura continua | **21,56 h** |
+| Duración de la captura continua | **21,54 h** |
 | Veredictos totales emitidos por el nodo | **2536** |
 | Veredicto `health = not_evaluable` (reposo/bus) | 1623 (64,0 %) |
 | Veredicto `health = nominal` | 749 (29,5 %) |
 | Veredicto `health = anomaly` | 164 (6,5 %) |
 | Ráfagas evaluables (compresor en marcha) | **913** (36,0 % del total) |
 | Ráfagas anómalas sobre evaluables | 164 / 913 (18,0 %) |
-| Avisos emitidos tras histéresis (`notify = 1`) | **14 avisos** (concentrados en ciclos nocturnos) |
+| Avisos emitidos tras histéresis (`notify = 1`) | **14 avisos** (repartidos de forma uniforme a lo largo del día; ver observaciones) |
 | Racha máxima de anomalías consecutivas | 11 |
 | **Tiempo de inferencia (mediana)** | **14 µs** |
 | **Tiempo de inferencia (p99 / máx)** | **1380 µs / 1942 µs** (1,38 ms / 1,94 ms) |

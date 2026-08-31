@@ -97,3 +97,32 @@ Dos exigencias que suelen olvidarse y que la Guía pide explícitamente:
 | Curso | 2025/2026 |
 | Idioma | castellano (`\usepackage[spanish]{babel}`; la solicitud admite galego/castelán/inglés) |
 | Duración | 6 ECTS (1 ECTS = 25 h) → ≈ 150 h |
+
+## Antiplagio y archivo (normativa, puntos 5 y 6)
+
+Dos cláusulas de la normativa condicionan cómo se publica este trabajo, y conviene tenerlas
+aquí porque afectan a decisiones del repositorio y no solo a la redacción:
+
+**5. Medidas antiplagio.** Todas las memorias se someten a control de plagio con **Turnitin**.
+La detección de plagio supone suspenso en la materia en convocatoria ordinaria y
+extraordinaria, con pérdida de los derechos de matrícula y **sin derecho a dispensa ni
+anulación**. La sanción no es apelable, de modo que el criterio aplicable es evitar cualquier
+coincidencia, incluida la que no sea plagio real.
+
+**6. Archivo.** Salvo indicación en contra, las memorias se archivan para consulta en un
+repositorio digital **público**. Las confidenciales se archivan transcurridos dos años.
+
+### Consecuencia operativa: el repositorio de código
+
+Turnitin indexa GitHub. Si el fuente de la memoria está en un repositorio público en el
+momento de la entrega, el informe puede señalar una coincidencia elevada **contra el propio
+repositorio del autor**. No es plagio, pero el tribunal ve primero el porcentaje, y la carga de
+explicarlo recae en el estudiante bajo una sanción que no admite dispensa.
+
+Regla: `memoria_TFM/` no debe estar en un repositorio público hasta que la entrega haya pasado
+el control de plagio. Después es indiferente, dado que el punto 6 archiva la memoria en abierto
+de todas formas.
+
+Los informes de `docs/` no plantean este problema: se midió su solapamiento con el cuerpo de la
+memoria y es del **1,2 %** en secuencias de ocho palabras, porque están reescritos y no
+copiados.

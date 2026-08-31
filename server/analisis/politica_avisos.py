@@ -87,10 +87,16 @@ def main():
         print(f"{sil:>7} min{len(av):>9}{len(ep):>14}   {pri}"
               + ("   <- politica actual" if sil == 0 else ""))
 
-    print("""
+    # Las cifras de la lectura se toman de la propia simulacion y no se
+    # escriben a mano: al crecer la captura, un texto fijo queda desmentido por
+    # la tabla que tiene justo encima.
+    av0, av120 = simular(e, silencio_min=0), simular(e, silencio_min=120)
+    ep0 = len([i for i in av0 if EP[0] <= str(e.t[i]) <= EP[1]])
+    ep120 = len([i for i in av120 if EP[0] <= str(e.t[i]) <= EP[1]])
+    print(f"""
 LECTURA. El tiempo minimo entre avisos reduce la duplicacion sin perder la
-primera deteccion de ningun episodio: con 120 min los avisos bajan de 18 a 7 y
-el episodio de puerta abierta produce uno solo en lugar de cuatro.
+primera deteccion de ningun episodio: con 120 min los avisos bajan de {len(av0)}
+a {len(av120)} y el episodio de puerta abierta produce {ep120} en lugar de {ep0}.
 
 La contrapartida hay que declararla: un fallo que apareciera dentro de la
 ventana de silencio quedaria sin notificar hasta que esta expirase. Con un ciclo

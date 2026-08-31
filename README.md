@@ -214,3 +214,29 @@ memoria_TFM/           Memoria LaTeX (plantilla oficial MUIoT)
   └── plantilla/       Copia intacta de la plantilla oficial
 hardware/              Notas de montaje, fotos y esquemas del banco de pruebas
 ```
+
+## Licencia
+
+Este repositorio combina software y material académico, y cada parte tiene su
+licencia:
+
+| Contenido | Licencia |
+| --- | --- |
+| Código (`device/`, `server/`, scripts) | [MIT](LICENSE) |
+| Memoria, documentación y datasets (`memoria_TFM/`, `docs/`, `wiki/`, `hardware/`, `server/data/`) | [CC BY 4.0](LICENSE-DOCS) |
+
+En ambos casos basta con citar la autoría. Atribución sugerida para la memoria y
+los datos experimentales:
+
+> S. Villodas Zapata, «Sistema IoT Edge de Mantenimiento Predictivo para
+> Compresores», Trabajo Fin de Máster, Máster Universitario en Internet das
+> Cousas (MUIoT), Universidade da Coruña, 2026. Licencia CC BY 4.0.
+
+**Material de terceros excluido.** La plantilla oficial del MUIoT
+(`memoria_TFM/plantilla/`, `tfm-muiot.sty`, `portada_TFM.pdf`, los logotipos de
+UDC, USC y UVigo) y los PDF de normativa en [docs/normativa/](docs/normativa/) se
+incluyen solo para poder compilar la memoria y como referencia: pertenecen a sus
+respectivos titulares y no quedan cubiertos por las licencias anteriores. El
+estilo bibliográfico `IEEEtran.bst` es de Michael Shell y se distribuye bajo
+LaTeX Project Public License 1.3. El detalle completo está en
+[LICENSE-DOCS](LICENSE-DOCS).

@@ -72,6 +72,23 @@ MAX_RETRIES = 3
 MAX_CONT_REJECTS = 2
 KURT_RANGO = (1.0, 20.0)     # kurtosis fisicamente posible; 1,5 es una senoide
 
+# --- Corte de campana ---------------------------------------------------------
+# Las cifras de la memoria corresponden a una campana CERRADA. Sin un corte
+# declarado, cada captura nueva las modifica y el documento deja de ser
+# verificable: un lector que ejecute el analisis obtendria otros numeros y no
+# sabria si es que los datos crecieron o si la memoria se equivoca.
+#
+# Se fija por tanto el final de cada campana. Los datos posteriores no se
+# descartan —siguen en server/data/ y se analizan aparte— pero no entran en las
+# cifras que el documento cita.
+#
+# Con CORTE=None se emplea todo lo capturado, que es lo que interesa para
+# vigilar la evolucion del sistema, no para citar en la memoria.
+import os
+CORTE = os.environ.get("CORTE", "2026-08-27T12:46:07")
+if CORTE.lower() in ("", "none", "todo"):
+    CORTE = None
+
 # --- Segmentacion marcha / parada --------------------------------------------
 # El valor eficaz filtrado es bimodal, pero el nivel de cada modo es PROPIO DE
 # CADA MAQUINA: el nodo A da 0,024 parado y 1,61 en marcha, mientras el nodo B
@@ -143,8 +160,17 @@ def series(uso, canal="rafaga"):
     return admitidas
 
 
-def cargar(uso, canal="rafaga", verboso=True):
-    """Carga y concatena las series de un uso. Devuelve el DataFrame crudo."""
+def cargar(uso, canal="rafaga", verboso=True, aplicar_corte=True):
+    """Carga y concatena las series de un uso. Devuelve el DataFrame crudo.
+
+    aplicar_corte=False levanta el corte de campana para esta llamada. Solo
+    debe usarse para material que es POSTERIOR al corte por definicion, como
+    las campanas de verificacion fuera de muestra: el modelo ya esta ajustado
+    con los datos anteriores y esas ráfagas nunca entraron en su estimacion.
+    No debe usarse para recalcular cifras que la memoria cite como propias del
+    conjunto de referencia, porque entonces el corte dejaria de cumplir su
+    funcion.
+    """
     if canal not in CANALES:
         sys.exit(f"ABORTA: canal '{canal}' desconocido. Conocidos: {list(CANALES)}")
     sufijo, n_col = CANALES[canal]
@@ -169,7 +195,13 @@ def cargar(uso, canal="rafaga", verboso=True):
         sys.exit(f"ABORTA: ninguna serie con uso='{uso}' y canal='{canal}' en el manifiesto.")
     d = pd.concat(marcos, ignore_index=True)
     d["t"] = pd.to_datetime(d.ts, format="mixed")
-    return d.sort_values("t").reset_index(drop=True)
+    d = d.sort_values("t").reset_index(drop=True)
+    if CORTE and uso == "entrenamiento" and aplicar_corte:
+        antes = len(d)
+        d = d[d.t <= pd.Timestamp(CORTE, tz=d.t.dt.tz)].reset_index(drop=True)
+        if verboso and antes != len(d):
+            print(f"    corte de campana en {CORTE}: {antes} -> {len(d)} filas")
+    return d
 
 
 # =============================================================================

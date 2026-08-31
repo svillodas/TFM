@@ -88,7 +88,7 @@
       ],
       "uso": "fallo",
       "campana": "EXP-003",
-      "nota": "CASO DE FALLO. 815 rafagas / 7,14 h, 676 utiles en 2 episodios de marcha aprovechables, con firma confirmada por dos modalidades independientes: armonicos 8x, 9x y 10x del giro en el acelerometro, y aud_b1 = 0,986 frente a 0,192 del activo nominal en la acustica. Es el conjunto de evaluacion del detector. NO mezclar con el de entrenamiento: es una maquina distinta, de modo que el contraste no separa el efecto del fallo del de la variabilidad entre ejemplares, y esa limitacion debe declararse en cualquier metrica que se obtenga.",
+      "nota": "CASO DE FALLO. 815 rafagas / 7,14 h, 656 utiles en 3 episodios de marcha aprovechables, con firma confirmada por dos modalidades independientes: armonicos 8x, 9x y 10x del giro en el acelerometro, y aud_b1 = 0,986 frente a 0,118 del activo nominal en la acustica. Es el conjunto de evaluacion del detector. NO mezclar con el de entrenamiento: es una maquina distinta, de modo que el contraste no separa el efecto del fallo del de la variabilidad entre ejemplares, y esa limitacion debe declararse en cualquier metrica que se obtenga.",
       "campos_con_firma": [
         "f2_x",
         "f3_x",
@@ -144,7 +144,7 @@
     "Fallo inducido sobre el activo de REFERENCIA: es la unica via para separar el efecto del fallo del de la variabilidad entre ejemplares. Primera linea de continuacion.",
     "Soldar el conexionado del sensor. Sube de prioridad: los reintentos del bus no solo descartan rafagas, sino que FABRICAN la firma del fallo sobre el activo sano.",
     "Ampliar los picos espectrales del firmware de 3 a 5: con tres, uno de ellos la fundamental, solo caben dos armonicos por rafaga y la familia 8x/9x/10x no se registra completa. No reflashear con una campana en curso.",
-    "Embarcar la inferencia en el nodo, a mano en C++ (no con TFLite Micro: ejecuta redes neuronales y ninguno de los modelos candidatos lo es). Con guardian de reintentos e histeresis, y una fase de referencia para que el nodo aprenda la mediana de su activo.",
+    "HECHO (2026-08-27): inferencia embarcada a mano en C++ con guardian de reintentos e histeresis; 0 veredictos discrepantes sobre 1161 rafagas. Queda pendiente que el nodo estime por si mismo la mediana de su activo en el arranque, en lugar de recibirla exportada.",
     "Umbral de continuidad relativo a la componente continua de cada eje: con el umbral absoluto de 6 m/s2, los cortes del eje Z del nodo A no se detectan porque la gravedad reposa sobre X y su continua es de solo 1,66 m/s2.",
     "Ajustar DATA_DIR en cada concentrador a su subdirectorio de nodo y firmware."
   ],

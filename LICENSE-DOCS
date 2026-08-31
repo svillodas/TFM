@@ -1,0 +1,49 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+Copyright (c) 2025-2026 Sergio Villodas Zapata
+
+Esta licencia se aplica al contenido NO software de este repositorio:
+
+  - memoria_TFM/    Memoria del TFM: capítulos LaTeX, figuras y bibliografía
+                    propias del autor
+  - docs/           Documentación de ingeniería e informes de avance
+  - wiki/           Páginas de documentación del proyecto
+  - hardware/       Notas de montaje, esquemas y fotografías del banco de pruebas
+  - server/data/    Datasets experimentales (registros de telemetría en CSV)
+
+Usted es libre de compartir (copiar y redistribuir el material en cualquier
+medio o formato) y adaptar (remezclar, transformar y construir a partir del
+material) para cualquier finalidad, incluso comercial, siempre que dé crédito
+de forma adecuada, aporte un enlace a la licencia e indique si se han
+realizado cambios.
+
+Atribución sugerida:
+
+  S. Villodas Zapata, "Sistema IoT Edge de Mantenimiento Predictivo para
+  Compresores", Trabajo Fin de Máster, Máster Universitario en Internet das
+  Cousas (MUIoT), Universidade da Coruña, 2026. Licencia CC BY 4.0.
+
+Texto legal completo de la licencia:
+
+  https://creativecommons.org/licenses/by/4.0/legalcode.es
+  https://creativecommons.org/licenses/by/4.0/deed.es   (resumen)
+
+EXCLUSIONES
+
+Los siguientes materiales son de terceros, se incluyen únicamente para poder
+compilar la memoria o como documentación de referencia, y conservan la
+titularidad y las condiciones de uso de sus respectivos propietarios. NO
+quedan cubiertos ni por esta licencia ni por la licencia MIT del software:
+
+  - memoria_TFM/plantilla/           Plantilla oficial del MUIoT (copia intacta)
+  - memoria_TFM/tfm-muiot.sty        Plantilla oficial del MUIoT
+  - memoria_TFM/portada_TFM.pdf      Plantilla oficial del MUIoT
+  - memoria_TFM/logo-uni.pdf
+  - memoria_TFM/logo_udc.pdf         Marcas y logotipos de UDC, USC y UVigo
+  - memoria_TFM/logo_usc.pdf
+  - memoria_TFM/logo_uvigo.pdf
+  - docs/normativa/*.pdf             Documentos oficiales del MUIoT (guía de la
+                                     memoria, rúbrica, solicitud de tema)
+
+  - memoria_TFM/IEEEtran.bst         (c) 2003-2015 Michael Shell, distribuido
+                                     bajo LaTeX Project Public License 1.3
