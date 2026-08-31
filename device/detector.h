@@ -1,17 +1,14 @@
 // =====================================================================
 // Detector de anomalías embarcado.
 //
-// SIN DEPENDENCIAS DE ARDUINO a propósito, igual que signal_processing.h:
-// permite compilarlo y verificarlo en el PC antes de subirlo a la placa.
-// Depurar aritmética a través del puerto serie es tiempo perdido.
+// SIN DEPENDENCIAS DE ARDUINO a proposito, igual que signal_processing.h: se
+// compila y verifica en el PC antes de subirlo a la placa.
 //
-//   g++ -std=c++11 -O2 -o /tmp/test_det device/test/test_detector.cpp \
-//       && /tmp/test_det
+//   g++ -std=c++11 -O2 -o /tmp/test_det device/test/test_detector.cpp
 //
-// Los parámetros viven en modelo_referencia.h, que lo genera
-// server/analisis/exportar_modelo.py. Este fichero contiene la aritmética;
-// aquel, los números. La separación es deliberada: reentrenar no debe
-// obligar a tocar código.
+// Los parametros viven en modelo_referencia.h, que genera
+// server/analisis/exportar_modelo.py: aqui la aritmetica, alli los numeros.
+// Reentrenar no debe obligar a tocar codigo.
 // =====================================================================
 #ifndef DETECTOR_H
 #define DETECTOR_H
@@ -78,24 +75,19 @@ struct MedidaRafaga {
 // ---------------------------------------------------------------------
 // Deriva el vector de características a partir de la medida cruda.
 //
-// ESTA FUNCIÓN DEBE REPRODUCIR EXACTAMENTE server/analisis/pipeline.py. Una
-// discrepancia no produce ningún error: produce un veredicto sin sentido. Por
-// eso se verifica en el PC contra los valores que calcula Python sobre las
-// mismas ráfagas reales (device/test/test_detector.cpp).
-//
-// El orden de las 14 posiciones es el que declara modelo_referencia.h.
+// DEBE REPRODUCIR EXACTAMENTE server/analisis/pipeline.py. Una discrepancia no
+// da error: da un veredicto sin sentido. Se verifica contra los valores de
+// Python sobre las mismas rafagas reales (device/test/test_detector.cpp).
+// El orden de las 14 posiciones lo declara modelo_referencia.h.
 // ---------------------------------------------------------------------
 inline void derivarCaracteristicas(const MedidaRafaga& m, float* x) {
-  // Los tres picos se REORDENAN POR FRECUENCIA, no por amplitud, y antes se
-  // descartan los de amplitud despreciable. Las dos condiciones son
-  // necesarias:
-  //
-  //   - Por amplitud (como los da el firmware) los cocientes son inestables:
-  //     en el activo con fallo el armónico supera a la fundamental por un 2 %
-  //     en el 9 % de las ráfagas y le quita la posición de dominante, con lo
-  //     que el mismo fenómeno físico daba 9,0 en unas y 0,111 en otras.
-  //   - Ordenar solo por frecuencia toma picos de ruido de frecuencia baja
-  //     por fundamental, y el cociente de amplitudes se dispara.
+  // Los tres picos se REORDENAN POR FRECUENCIA, no por amplitud, descartando
+  // antes los de amplitud despreciable. Ambas condiciones son necesarias:
+  //   - por amplitud (como los da el firmware) el armonico puede superar a la
+  //     fundamental y quitarle la posicion de dominante: el mismo fenomeno
+  //     daba 9,0 en unas rafagas y 0,111 en otras;
+  //   - solo por frecuencia, un pico de ruido bajo pasa por fundamental y el
+  //     cociente de amplitudes se dispara.
   float fr[3] = {m.fdom, m.f2, m.f3};
   float am[3] = {m.adom, m.a2, m.a3};
 

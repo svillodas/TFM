@@ -12,12 +12,9 @@
 //                      de una ráfaga de vibración muestreada a 1 kHz y
 //                      de una ventana de audio a 16 kHz.
 //
-// Por qué la ráfaga: para observar una vibración de frecuencia f hay que
-// muestrear por encima de 2f (Nyquist). El compresor vibra en torno a los
-// 48 Hz (2900 RPM) y sus armónicos, luego muestrear a 1 Hz no permite
-// ningún análisis frecuencial: la señal se pliega (aliasing). La ráfaga a
-// 1 kHz sí lo permite, y las características se calculan en el propio
-// nodo para no transmitir la señal cruda.
+// A 1 Hz no cabe analisis frecuencial: el compresor vibra en torno a 48 Hz
+// (2900 RPM). De ahi la rafaga a 1 kHz, con las caracteristicas calculadas
+// en el nodo para no transmitir senal cruda.
 // =====================================================================
 #include <Wire.h>
 #include <Adafruit_MPU6050.h>
@@ -38,14 +35,9 @@
 #endif
 const char* TOPIC_SLOW  = MQTT_TOPIC_PREFIX "fridge/sensors";
 const char* TOPIC_BURST = MQTT_TOPIC_PREFIX "fridge/vibration";
-// El veredicto va en un topic PROPIO y no como campos nuevos del payload de
-// rafaga. El motivo es concreto: anadir campos cambia la cabecera del CSV, y el
-// registrador solo la escribe al crear el fichero, de modo que las filas
-// posteriores quedan desplazadas y la serie se parte en dos conjuntos no
-// comparables. Ya ocurrio una vez (ver server/data/README.md).
-//
-// Y es el objetivo del TFM: con este topic, un consumidor que solo quiera saber
-// el estado del activo recibe un mensaje corto en lugar de 46 caracteristicas.
+// Topic PROPIO, no campos nuevos del payload de rafaga: anadir campos cambia
+// la cabecera del CSV, que el registrador solo escribe al crear el fichero, y
+// las filas posteriores quedan desplazadas. Ya ocurrio (server/data/README.md).
 const char* TOPIC_STATUS = MQTT_TOPIC_PREFIX "fridge/status";
 
 // --- CADENCIAS (no bloqueantes, gestionadas con millis) ---
@@ -92,18 +84,11 @@ static int16_t burstX[VIB_N], burstY[VIB_N], burstZ[VIB_N];
 static int32_t rawAudio[AUDIO_N];
 static float workRe[MAX_SAMPLES], workIm[MAX_SAMPLES];
 static float floatSamples[MAX_SAMPLES];
-// 1152 B con setBufferSize(1408) de PubSubClient: la cabecera del PUBLISH
-// más el topic ocupan ~45 B, así que quedan ~1360 B útiles. El peor caso
-// del payload de ráfaga, con los campos cont_rejects/total_cont_rejects
-// añadidos, se midió en ~610 B forzando valores extremos en cada campo con
-// un snprintf equivalente compilado aparte en el PC.
+// 1152 B con setBufferSize(1408): la cabecera del PUBLISH y el topic ocupan
+// ~45 B. Peor caso medido del payload de rafaga: ~1015 B.
 //
-// AMPLIADO (2026-08-26) al añadir el segundo y el tercer pico espectral de
-// cada eje: doce campos más que elevan el peor caso a ~1015 B. El coste en
-// memoria, 1,1 KiB, no compite con los 22,9 KiB de los almacenes de señal.
-//
-// Un desbordamiento haría que snprintf truncase y publicase JSON inválido
-// en silencio, así que cualquier campo nuevo exige recalcular esto.
+// AVISO: un desbordamiento haria que snprintf truncase y publicase JSON
+// invalido en silencio. Todo campo nuevo exige recalcular esto.
 static char payload[1152];
 
 // Factor de conversión de cuentas a m/s^2 para el rango +-4 g
@@ -131,41 +116,20 @@ const float ACC_MAG_MAX = 25.0f;   // m/s^2
 const float ACC_MAG2_MIN_LSB = (ACC_MAG_MIN / LSB_TO_MS2) * (ACC_MAG_MIN / LSB_TO_MS2);
 const float ACC_MAG2_MAX_LSB = (ACC_MAG_MAX / LSB_TO_MS2) * (ACC_MAG_MAX / LSB_TO_MS2);
 
-// Salto máximo admisible entre dos muestras consecutivas de un mismo eje
-// dentro de una ráfaga. La comprobación de módulo de arriba es deliberadamente
-// ancha y por eso NO detecta la caída de un solo eje si los otros dos la
-// compensan: se midió en placa un kurt_z de hasta 750 con peak_z cayendo a
-// 5,8-6,16 m/s^2 (el eje Z sano marca ~9,8 m/s^2 de gravedad), y failed_bursts
-// se mantuvo en 0 porque el módulo total seguía dentro de banda. Con un valor
-// eficaz de vibración de 0,03-0,3 m/s^2 y el filtro interno del sensor
-// limitado a 260 Hz, la pendiente máxima físicamente alcanzable entre dos
-// muestras separadas 1 ms (el periodo exacto de la ráfaga) es del orden de
-// 0,5 m/s^2.
+// Salto maximo admisible entre dos muestras consecutivas de un mismo eje. La
+// comprobacion de modulo es ancha y NO detecta la caida de un solo eje si los
+// otros dos la compensan: se midio kurt_z de 750 con peak_z en 5,8-6,16 m/s^2
+// y failed_bursts en 0, porque el modulo seguia en banda.
 //
-// REVISADO (2026-08-26) tras reubicar el sensor. Al mejorar el punto de
-// medida aparecieron componentes entre 398 Hz y 497 Hz con amplitud de
-// hasta 0,93 m/s^2, que son señal legítima y producen una pendiente de
-// 2*pi*448*0,93 = 2,6 m/s^2 por milisegundo. Se atribuyeron entonces a una
-// resonancia del pegado adhesivo; el análisis posterior establecio que son
-// los armónicos 8x, 9x y 10x del giro, es decir la firma de un fallo real
-// del activo. Para este umbral da igual el origen: la pendiente es la
-// misma y es legítima. Con el
-// umbral anterior de 3 m/s^2 esa pendiente quedaba al 87 % del límite y el
-// filtro habría empezado a rechazar muestras buenas.
+// El umbral queda entre los dos limites medidos:
+//   pendiente legitima maxima      2,6 m/s^2 por muestra (0,93 m/s^2 a 448 Hz)
+//   salto de muestra corrupta      5,8 a 11,9 m/s^2, segun la orientacion
+// 6 m/s^2 deja factor 2,3 sobre la primera y queda bajo el menor salto de
+// corrupcion observado.
 //
-// El umbral se sitúa por tanto entre los dos límites medidos:
-//   - pendiente legítima máxima:            2,6 m/s^2 por muestra
-//   - salto de una muestra corrupta:        5,8 a 11,9 m/s^2, según la
-//     orientación, porque la muestra se lee próxima a cero y el salto
-//     equivale a la continua del eje
-// 6 m/s^2 deja un factor 2,3 sobre la primera y queda por debajo del
-// menor salto de corrupción observado.
-//
-// PENDIENTE: el umbral debería ser relativo a la componente continua de
-// cada eje y no absoluto. Con 6 m/s^2 los cortes del eje Z del nodo A no
-// se detectan, porque la gravedad reposa sobre X y la continua de Z es de
-// solo 1,66 m/s^2: un corte de ese eje produce un salto inferior al
-// umbral. No modificar con una campaña de captura en curso.
+// PENDIENTE: deberia ser relativo a la continua de cada eje. Con 6 m/s^2 los
+// cortes del eje Z del nodo A no se detectan, porque la gravedad reposa sobre X
+// y la continua de Z es de 1,66 m/s^2. No modificar con una campana en curso.
 const float ACC_STEP_MAX_MS2 = 6.0f;   // m/s^2 por muestra (periodo 1 ms)
 const float ACC_STEP_MAX_LSB = ACC_STEP_MAX_MS2 / LSB_TO_MS2;
 
@@ -196,21 +160,17 @@ const float VIB_LP_CUTOFF_HZ = 150.0f;
 const uint8_t DET_RAFAGAS_CONSECUTIVAS = 3;
 Histeresis histeresis;
 
-// Ventana circular de temperatura del motor, alimentada por el canal lento a
-// 1 Hz. Sirve para estimar la pendiente termica del minuto anterior, que es una
-// de las caracteristicas y la que distingue el arranque en frio del regimen
-// estacionario. Se dimensiona con un margen sobre la ventana del modelo porque
-// la cadencia del canal lento puede desviarse.
+// Ventana circular de temperatura del motor: estima la pendiente termica del
+// minuto anterior, que distingue el arranque en frio del regimen estacionario.
+// Con margen sobre la ventana del modelo, porque el canal lento puede desviarse.
 const uint8_t TERM_N = MODELO_VENTANA_GRADIENTE_S + 8;
 float termTemp[TERM_N];
 uint32_t termMs[TERM_N];
 uint8_t termCabeza = 0;
 uint8_t termLlenado = 0;
 
-// Diferencial termico del instante mas reciente. Lo actualiza el canal lento y
-// lo consume el de rafaga: los dos canales corren a cadencias distintas y esta
-// es la union entre ellos dentro del nodo, equivalente a la que el analisis
-// hace por marca de tiempo.
+// Diferencial termico mas reciente. Lo escribe el canal lento y lo lee el de
+// rafaga: es la union entre ambas cadencias dentro del nodo.
 float ultimoDifTermico = 0.0f;
 bool difTermicoValido = false;
 
@@ -559,21 +519,12 @@ bool captureVibrationBurst(uint16_t &retries, uint16_t &contRejects) {
                        hasPrev, prevX, prevY, prevZ, contFail)) {
       // Un fallo aislado se reintenta una vez dentro del mismo hueco
       // temporal. A 200 kHz una lectura cuesta ~420 us de los 1000 us
-      // disponibles, así que el reintento cabe sin romper la cadencia.
-      // Mismo tratamiento tanto si el rechazo viene del módulo como de la
-      // continuidad: en ambos casos la muestra es basura y el reintento es
-      // la respuesta correcta.
+      // disponibles, asi que el reintento cabe sin romper la cadencia. Sin el,
+      // con una tasa de fallo del 0,1 % por lectura solo sobreviviria el 36 %
+      // de las rafagas (0,999^1024); con el, practicamente todas.
       //
-      // Por qué importa: la ráfaga son 1024 lecturas consecutivas y se
-      // descarta entera si una falla, de modo que con una tasa de fallo
-      // del 0,1 % por lectura solo sobreviviría el 36 % de las ráfagas
-      // (0,999^1024). Con un reintento la probabilidad de fallo efectiva
-      // pasa a 1e-6 y sobrevive prácticamente el 100 %.
-      //
-      // El coste es que esa muestra queda ~420 us desplazada de su
-      // instante nominal. Es una perturbación de una muestra entre 1024,
-      // muy preferible a perder 1,02 s de señal, y queda declarada en el
-      // campo retries para poder filtrar en el análisis.
+      // Coste: esa muestra queda ~420 us desplazada. Queda declarado en el
+      // campo retries para poder filtrar en el analisis.
       if (contFail) {
         contRejects++;
         totalContRejects++;
