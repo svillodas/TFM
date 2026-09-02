@@ -182,7 +182,8 @@ Requiere XeLaTeX o tectonic: la plantilla usa `fontspec` y `pdflatex` no sirve.
 
 Las reglas de formato, estilo y estructura están destiladas en
 [docs/normativa/GUIA_MEMORIA.md](docs/normativa/GUIA_MEMORIA.md); los PDF oficiales
-(solicitud de tema y guía de la memoria) están en [docs/normativa/](docs/normativa/).
+(guía de la memoria y rúbrica de evaluación) están en [docs/normativa/](docs/normativa/).
+La solicitud de tema firmada no se versiona: contiene datos personales.
 
 No se modifican `tfm-muiot.sty`, `IEEEtran.bst`, `logo_*.pdf` ni `portada_TFM.pdf`: son
 plantilla oficial y hay copia intacta en `memoria_TFM/plantilla/`.

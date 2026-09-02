@@ -56,3 +56,7 @@ build/
 *.fdb_latexmk
 *.synctex.gz
 memoria_TFM/memoria_TFM.pdf
+
+# Documentación administrativa con datos personales: nunca versionar
+docs/normativa/*Solicitude*
+docs/normativa/*solicitud*
