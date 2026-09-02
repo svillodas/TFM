@@ -62,7 +62,7 @@ registradas no habrían contenido información espectral aprovechable.
 
 La validación se realizó en dos etapas deliberadamente separadas. Las rutinas de extracción de
 características se implementaron sin dependencias del entorno de ejecución del microcontrolador,
-lo que permitió verificarlas en un computador frente a señales sintéticas de propiedades conocidas
+lo que permitió verificarlas en un ordenador frente a señales sintéticas de propiedades conocidas
 analíticamente; solo después se comprobaron en la placa. Depurar operaciones matemáticas a través
 del puerto serie resulta desproporcionadamente lento frente a hacerlo en un entorno local.
 
@@ -163,7 +163,7 @@ característica resulta ciega a cuatro de las cinco direcciones.
 de ejecución de modelos reducidos, por la razón expuesta en el capítulo~\ref{cap:objetivos}. Los
 parámetros ajustados se generan como fichero de cabecera desde el entorno de análisis, de modo que
 reentrenar no obliga a editar código, y las rutinas se escribieron sin dependencias de la
-plataforma para poder contrastarlas en un computador frente a la implementación de referencia antes
+plataforma para poder contrastarlas en un ordenador frente a la implementación de referencia antes
 de programar la placa. Se añadieron dos guardianes que forman parte del detector y no de su
 preproceso: el nodo se niega a emitir veredicto sobre una ráfaga con más reintentos del bus que el
 límite establecido, y exige varias ráfagas anómalas consecutivas antes de notificar.

@@ -39,10 +39,10 @@ ciclo de medida. El listado~\ref{listado:trama} muestra un ejemplo de trama.
  "gyroX":0.01,"gyroY":0.00,"gyroZ":-0.02,"motorTemp":38.6,"noise":142}
 \end{lstlisting}
 
-El cuadro de las nueve variables de este canal, con su unidad e intervalo, figura en el
+La tabla de las nueve variables de este canal, con su unidad e intervalo, figura en el
 capítulo~\ref{cap:diseno}. El canal de ráfaga, publicado en el tema
 \texttt{fridge/vibration}, transporta en cambio características ya calculadas y no medidas
-instantáneas. El cuadro~\ref{table:rafaga} recoge su contenido completo.
+instantáneas. La tabla~\ref{table:rafaga} recoge su contenido completo.
 
 \begin{table}[ht!]
 \caption{Campos del canal de ráfaga. El sufijo \texttt{\_x}, \texttt{\_y} o \texttt{\_z}
@@ -106,10 +106,10 @@ conjunto de datos.
 
 \section{Dependencias del entorno de desarrollo}
 
-El cuadro~\ref{table:dependencias} recoge las versiones empleadas, tomadas del registro de
+La tabla~\ref{table:dependencias} recoge las versiones empleadas, tomadas del registro de
 compilación del firmware y del fichero de dependencias del concentrador. Se documentan de
 forma explícita porque el comportamiento de una de ellas resultó determinante para el diseño
-de la adquisición, según se describe en el capítulo~\ref{cap:diseno}.
+de la adquisición, según se describe más adelante en este anexo.
 
 \begin{table}[ht!]
 \caption{Versiones del entorno de desarrollo y de las dependencias.}
@@ -152,8 +152,7 @@ La biblioteca Adafruit MPU6050 se emplea únicamente para la configuración inic
 sensor, y no para la lectura de medidas. El motivo es que su función de obtención de datos
 devuelve un indicador de éxito incondicional y opera sobre un almacén no inicializado, de
 modo que ante un fallo del bus entrega como medida el contenido residual de la pila. La
-lectura se realiza por ello mediante acceso directo a los registros del dispositivo, con la
-validación descrita en el capítulo~\ref{cap:diseno}. Se documenta esta circunstancia porque
+lectura se realiza por ello mediante acceso directo a los registros del dispositivo, con la validación descrita más adelante en este anexo. Se documenta esta circunstancia porque
 condiciona la reproducibilidad: una implementación que confiara en esa biblioteca para la
 adquisición reproduciría el mismo defecto.
 
@@ -176,7 +175,7 @@ cd ~/TFM
 sudo AP_PASS='<clave-de-la-red>' ./server/provision-pi.sh todo
 \end{lstlisting}
 
-El cuadro~\ref{table:fases-aprovisionamiento} detalla las operaciones y su orden, que no es
+La tabla~\ref{table:fases-aprovisionamiento} detalla las operaciones y su orden, que no es
 arbitrario.
 
 \begin{table}[ht!]
@@ -274,7 +273,7 @@ sudo systemctl start tfm-logger       # los recrea con su cabecera
 \end{lstlisting}
 
 Los ficheros se archivan en lugar de eliminarse, dado que las capturas de puesta a punto
-constituyen la evidencia de las incidencias descritas en el capítulo~\ref{cap:diseno}. Debe
+constituyen la evidencia de las incidencias descritas en este anexo. Debe
 evitarse crear los ficheros de forma manual tras retirarlos: el registrador escribe la
 cabecera únicamente cuando el fichero no existe o está vacío, y un fichero preexistente
 produciría un conjunto de datos sin nombres de columna.
@@ -291,7 +290,7 @@ de análisis, según la secuencia siguiente:
       y la fecha de generación.
 \item Un segundo procedimiento exporta las ráfagas reales con la puntuación que produce la
       biblioteca de referencia sobre cada una, para contrastar la implementación embarcada.
-\item Las rutinas del detector se compilan y verifican en un computador frente a esos valores.
+\item Las rutinas del detector se compilan y verifican en un ordenador frente a esos valores.
 \item Solo entonces se compila el firmware y se programa la placa.
 \end{enumerate}
 
@@ -314,6 +313,53 @@ referencia, de modo que sus ráfagas se clasifican como capturadas con el compre
 referencia. De ello se sigue asimismo que el nodo necesita una fase de referencia antes de poder
 emitir su primer veredicto, dado que las características normalizadas por el propio activo
 exigen conocer su mediana.
+
+\section{Integridad del dato frente al fallo del bus}
+
+El bucle principal no emplea esperas activas prolongadas: las dos cadencias se gobiernan
+comparando el reloj de milisegundos del microcontrolador con el instante de la última publicación
+de cada canal, y la conversión de la sonda de temperatura —unos \mbox{750 ms}— se solicita en un
+ciclo y se recoge en el siguiente. La captura de la ráfaga es la única excepción deliberada y
+bloquea el bucle unos \mbox{1,02 s}, porque el análisis frecuencial exige muestras equiespaciadas
+y cualquier trabajo intercalado introduciría ruido espectral.
+
+La vibración del activo provoca microcortes en el cableado del acelerómetro, que es precisamente
+la magnitud que el sistema debe medir. Esta circunstancia condiciona el diseño de la adquisición
+más que ninguna otra. El planteamiento inicial confiaba en que la biblioteca de acceso al bus
+señalase el fracaso de una transacción devolviendo menos bytes de los solicitados, y se comprobó
+que no lo hace: el controlador registra el error internamente mientras la función devuelve la
+cuenta pedida. El código leía entonces de un almacén vacío, cuya lectura devuelve $-1$, valor que
+al asignarse a una variable sin signo de ocho bits se convierte en \texttt{0xFF}, de modo que los
+tres ejes resultaban $-1$ y esa muestra se publicaba como medida válida.
+
+El efecto es desproporcionado respecto a la magnitud del fallo: una única muestra anómala entre
+las 1024 de una ráfaga elevó la kurtosis del eje vertical desde 2,9 hasta 847, en coincidencia
+exacta con la predicción analítica para un impulso aislado. Y la gravedad no reside en la pérdida
+de una medida sino en que \textit{el artefacto imita el fenómeno que el sistema debe detectar}: la
+kurtosis se seleccionó precisamente por su sensibilidad a los impulsos aislados, indicador
+temprano clásico del deterioro de un rodamiento, de modo que un impulso de origen eléctrico y un
+impacto mecánico incipiente resultan indistinguibles para ese estadístico. El efecto sobre la
+estimación espectral es equivalente, dado que un impulso aislado presenta espectro plano, domina
+la transformada y desplaza la frecuencia dominante a un valor arbitrario. La corrupción de una
+sola muestra inutiliza por tanto las dos características principales del sistema, y un modelo
+entrenado sobre datos así contaminados consideraría normal un intervalo de valores tan amplio que
+perdería toda capacidad de discriminación.
+
+La corrección se articula en tres mecanismos, cuyo detalle figura en el
+anexo~\ref{anexo:software}. El primero \textbf{valida cada transacción} en cuatro puntos y admite
+un reintento único por muestra, con lo que solo dos fallos consecutivos —que no responden a un
+microcorte sino a un bus caído— descartan la ráfaga completa. El segundo \textbf{recupera el bus}
+reiniciándolo y reconfigurando el sensor sin reiniciar el microcontrolador, porque un reinicio
+interrumpiría la continuidad temporal de la señal, que es la información que el análisis explota;
+lo acompaña una verificación de plausibilidad física del módulo de la aceleración, cuyo límite
+demostrado es que no detecta la caída de un solo eje. El tercero no corrige nada sino que
+\textbf{hace medible la calidad} de cada medida, y su ausencia es la que más daño causa: un dato
+perdido que no se contabiliza resulta indistinguible de uno correcto al analizar el conjunto.
+Ningún descarte se produce por tanto en silencio, y el nodo publica cuatro contadores de salud
+—ráfagas descartadas, tramas inválidas, y reintentos de la ráfaga en curso y acumulados— que
+convierten la calidad de cada medida en magnitud observable. El último, al ser monótono creciente
+por construcción, delata además un reinicio del microcontrolador, circunstancia que de otro modo
+no dejaría rastro en el conjunto de datos.
 
 \section{Política de descarte y reintento}
 
@@ -348,8 +394,8 @@ sobre $n$ muestras, la kurtosis tiende a
 \end{equation}
 
 La expresión~\ref{eq:kurtosis-impulso} arroja para los valores medidos en placa 1001,6 frente a los
-1001,068 observados. La coincidencia establece que el artefacto descrito en el
-capítulo~\ref{cap:diseno} corresponde exactamente a una muestra corrupta por ráfaga, y no a una
+1001,068 observados. La coincidencia establece que el artefacto descrito más arriba
+corresponde exactamente a una muestra corrupta por ráfaga, y no a una
 degradación distribuida de la señal.
 
 \section{Lectura validada de registros del acelerómetro}
@@ -377,8 +423,8 @@ inline bool readRegisters(uint8_t reg, uint8_t* dest, uint8_t n) {
 
 \section{Contadores de salud publicados por el nodo}
 
-El cuadro~\ref{table:contadores} recoge los cuatro contadores con los que el nodo hace observable
-la calidad de cada medida, según se expone en el capítulo~\ref{cap:diseno}.
+La tabla~\ref{table:contadores} recoge los cuatro contadores con los que el nodo hace observable
+la calidad de cada medida, según se expone más arriba.
 
 \begin{table}[ht!]
 \caption{Contadores de salud publicados por el nodo.}

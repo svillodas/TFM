@@ -99,7 +99,7 @@ del activo con fallo. Las dos modalidades coinciden sin compartir sensor ni cade
 - **Fecha/hora:** 2026-08-26 15:13 – 17:06 (Europe/Madrid), 1,88 h. **Captura en curso.**
 - **Activo:** compresor de referencia (nodo A).
 - **Condición:** nominal. Sin tono audible.
-- **Montaje del sensor:** adherido al tubo de descarga; gravedad en el eje X
+- **Montaje del sensor:** adherido al lateral del cuerpo del compresor; gravedad en el eje X
   (`accX` ≈ 10,20).
 - **Ficheros:** `server/data/nodo-a-nevera-buena/fw-46col/2026-08-26-vibration.csv`
   (216 ráfagas hasta el momento) y `2026-08-26.csv`.
@@ -137,9 +137,11 @@ del activo con fallo. Las dos modalidades coinciden sin compartir sensor ni cade
 - **Activo:** compresor del sistema de refrigeración doméstico del banco de pruebas.
 - **Condición:** nominal, sin fallo inducido. Compresor en marcha (salto térmico de
   \mbox{5,7 °C} sobre el ambiente).
-- **Montaje del sensor:** acelerómetro adherido con cinta al **tubo de descarga** del
-  compresor (posición 2 de las evaluadas), no a la cúpula. El tubo está unido rígidamente al
-  cuerpo de la bomba y transporta la pulsación sin atravesar su suspensión interna. Orientación: `accX` = 1,60 y `accZ` = 11,62 m/s².
+- **Montaje del sensor:** acelerómetro adherido con cinta al **lateral del cuerpo** de la
+  carcasa, sobre la placa de características y a la altura de la salida de descarga, **no al
+  domo**. Ambas posiciones están sobre la carcasa: lo que las separa es la rigidez local y la
+  proximidad al conjunto motor-bomba, no la suspensión interna. Orientación: `accX` = 1,60 y
+  `accZ` = 11,62 m/s².
   Fijación **no rígida**: limitación conocida y aceptada, ver observaciones.
 - **Ficheros:** `server/data/nodo-b-otro-compresor/fw-46col/2026-08-26-vibration.csv` y
   `server/data/nodo-b-otro-compresor/fw-46col/2026-08-26.csv`. La ventana de la campaña son
@@ -479,7 +481,7 @@ de avisos por fase, y desplazamiento medido de cada característica.
 
 - **Fecha/hora:** 2026-08-27 14:10 – 2026-08-28 11:43 (Europe/Madrid), 21,54 h continuas.
 - **Activo:** compresor de referencia (nodo A, `nodo-a-nevera-buena`), en estado nominal en banco de ensayos.
-- **Montaje del sensor:** acelerómetro MPU-6050 adherido al tubo de descarga, sensor DS18B20 y micrófono INMP441.
+- **Montaje del sensor:** acelerómetro MPU-6050 adherido al lateral del cuerpo del compresor, sensor DS18B20 y micrófono INMP441.
 - **Ficheros:** `server/data/nodo-a-nevera-buena/fw-46col/2026-08-27-status.csv`, `2026-08-27-vibration.csv`, `2026-08-27.csv`, `2026-08-28-status.csv`, `2026-08-28-vibration.csv`, `2026-08-28.csv` (162 670 filas en total acumuladas).
 - **Firmware:** `fw-46col` con detector Local Outlier Factor (LOF) embarcado en C++, guardián de reintentos I2C, filtro de calidad y publicación del canal de estado en `fridge/status`.
 - **Etiqueta (ground truth):** nominal.

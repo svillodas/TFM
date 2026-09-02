@@ -20,6 +20,18 @@
 > **Lo que cambia de sentido:** el «95 % del incremento no es señal aprovechable» era lo
 > contrario. Ese 95 % es la banda donde estaba el fallo.
 >
+> **Segunda corrección (2026-09-02):** el punto de medida adoptado fue el **lateral del
+> cuerpo de la carcasa**, sobre la placa de características y a la altura de la salida de
+> descarga, y no el tubo de descarga. Lo acredita la fotografía
+> `nevera baseline/…18.16.56 (1).jpeg`, en la que el módulo está sobre esa placa y la pata de
+> anclaje se ve, sin sensor, a su derecha. Ni el anclaje al chasis ni el tubo —las dos
+> posiciones que proponía la guía visual— llegaron a ensayarse. Los apartados 1, 3 y 7 de este
+> informe nombran mal el punto adoptado. Las cifras del traslado no cambian, porque son las de
+> la posición realmente adoptada; lo que no es aplicable es la justificación física asociada
+> («unido rígidamente al cuerpo de la bomba»), que describe el tubo. Registro corregido en
+> [`hardware/fotos/README.md`](../../hardware/fotos/README.md) y en
+> [`../EXPERIMENTOS.md`](../EXPERIMENTOS.md).
+>
 > Corrección completa en
 > [`2026-08-26-fallo-real-noveno-armonico.md`](2026-08-26-fallo-real-noveno-armonico.md) y en
 > [`../EXPERIMENTOS.md`](../EXPERIMENTOS.md).

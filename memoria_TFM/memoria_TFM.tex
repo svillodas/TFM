@@ -20,6 +20,10 @@
 % * Idioma: galician, spanish, english
 % **************************************************
 \usepackage[spanish]{babel}
+% El tutor pide que los flotantes se llamen "Tabla" y no "Cuadro", que es
+% lo que babel-spanish pone por omision.
+\addto\captionsspanish{\renewcommand{\tablename}{Tabla}%
+                       \renewcommand{\listtablename}{Índice de tablas}}
 
 % **************************************************
 % * Leyendas de tablas, figuras y listados en cuerpo menor.
@@ -51,7 +55,7 @@
 % **************************************************
 % * Datos para la portada
 % **************************************************
-\title{Sistema IoT Edge para mantenimiento predictivo}
+\title{Sistema IoT Edge para Mantenimiento Predictivo}
 \author{Sergio Villodas Zapata}
 \advisor{Tiago Manuel Fernández Caramés}
 \course{2025/2026}
@@ -66,6 +70,18 @@
 % **************************************************
 \begin{document}
 
+% Evita que IEEEtran sustituya por "---" el autor repetido (las dos normas ISO).
+% \bstctlcite la define IEEEtran.cls, que aqui no se usa: se replica su
+% definicion, que solo escribe la cita en el .aux para que BibTeX la procese.
+\makeatletter
+\providecommand{\bstctlcite}[1]{\@bsphack
+  \@for\@citeb:=#1\do{\edef\@citeb{\expandafter\@firstofone\@citeb}%
+    \if@filesw\immediate\write\@auxout{\string\citation{\@citeb}}\fi}%
+  \@esphack}
+\makeatother
+\bstctlcite{IEEEexample:BSTcontrol}
+
+
 \maketitle
 \clearemptydoublepage
 
@@ -78,18 +94,18 @@
 % **************************************************
 \thispagestyle{plain}
 \section*{Resumen}
-Este trabajo presenta un sistema IoT Edge para mantenimiento predictivo y detección de anomalías
-en maquinaria rotativa. Como el análisis de vibraciones exige un muestreo incompatible con la
-transmisión inalámbrica continua, el diagnóstico se ejecuta localmente. Para ello, un nodo de bajo
-coste (ESP32-S3) con acelerómetro, micrófono digital y sonda de temperatura extrae las
-características del activo. La detección emplea un modelo no supervisado (\textit{Local Outlier
+Este Trabajo de Fin de Máster presenta un sistema IoT Edge para mantenimiento predictivo y
+detección de anomalías en maquinaria rotativa. Como el análisis de vibraciones exige un muestreo
+incompatible con la transmisión inalámbrica continua, el diagnóstico se ejecuta localmente. Para
+ello, un nodo de bajo coste (basado en un ESP32-S3) con acelerómetro, micrófono digital y sonda de
+temperatura extrae las características del activo. La detección emplea un modelo no supervisado (\textit{Local Outlier
 Factor}), entrenado exclusivamente con comportamiento nominal sin requerir ejemplos de fallo,
 reduciendo el tráfico al enviar un veredicto de unos cien bytes en lugar de la señal en bruto.
 
-En su validación sobre un compresor de refrigeración doméstica durante \mbox{29,09} horas
-continuas, la inferencia en el microcontrolador tardó \mbox{14 \textmu s} (el \mbox{0,00005 \%} de
-un ciclo de \mbox{30 s}), logrando un \mbox{99,45 \%} de coincidencia frente a las predicciones del
-servidor en campaña nominal. Además, el sistema detectó en todas las mediciones un fallo
+De cara a validar el sistema desarrollado, se aplicó este modelo sobre un compresor de refrigeración doméstica
+durante \mbox{29,09} horas continuas, obteniendo un tiempo de inferencia en el microcontrolador de
+\mbox{14 \textmu s} —el \mbox{0,00005 \%} de un ciclo de \mbox{30 s}— y un \mbox{99,45 \%} de
+coincidencia con las predicciones del servidor sobre el activo en estado nominal. Además, el sistema detectó en todas las mediciones un fallo
 preexistente en un segundo compresor —armónicos del giro, confirmados por un tono audible ajeno a
 la instrumentación— y, de forma sostenida, una sobrecarga térmica inducida en el activo de
 referencia.
@@ -103,18 +119,19 @@ en validación cruzada.
 \vspace{0.1cm}
 
 \section*{Abstract}
-This work presents an IoT Edge system for predictive maintenance and anomaly detection in rotating
-machinery. Since vibration analysis demands a sampling rate incompatible with continuous wireless
-transmission, diagnosis is executed locally. To that end, a low-cost node (ESP32-S3) with an
-accelerometer, a digital microphone and a temperature probe extracts the features of the asset.
+This Master's Thesis presents an IoT Edge system for predictive maintenance and anomaly detection
+in rotating machinery. Since vibration analysis demands a sampling rate incompatible with
+continuous wireless transmission, diagnosis is executed locally. To that end, a low-cost node
+(based on an ESP32-S3) with an accelerometer, a digital microphone and a temperature probe
+extracts the features of the asset.
 Detection relies on an unsupervised model (\textit{Local Outlier Factor}) trained exclusively on
 nominal behaviour, requiring no examples of faults, and reduces traffic by sending a verdict of
 around one hundred bytes instead of the raw signal.
 
-In its validation on a domestic refrigeration compressor over \mbox{29.09} continuous hours,
-inference on the microcontroller took \mbox{14 \textmu s} (\mbox{0.00005 \%} of a \mbox{30 s}
-cycle), achieving \mbox{99.45 \%} agreement against the server predictions over the nominal
-campaign. The system also detected, in every measurement, a pre-existing fault on a second
+To validate the system it was deployed on a domestic refrigeration compressor over \mbox{29.09}
+continuous hours, yielding an inference time on the microcontroller of \mbox{14 \textmu s}
+—\mbox{0.00005 \%} of a \mbox{30 s} cycle— and \mbox{99.45 \%} agreement with the server
+predictions on the asset in its nominal state. The system also detected, in every measurement, a pre-existing fault on a second
 compressor —rotation harmonics, confirmed by an audible tone external to the instrumentation— and,
 persistently, a thermal overload induced on the reference asset.
 

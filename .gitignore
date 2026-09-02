@@ -13,6 +13,10 @@ server/.env
 hardware/fotos/*.html
 hardware/fotos/*_files/
 
+# Presentación de la defensa: material de trabajo, no forma parte del entregable
+# público del repositorio (incluye el PDF de solicitud con datos personales).
+presentacion/
+
 # Datos experimentales locales (descomentar si el dataset crece demasiado para git)
 # server/data/*.csv
 

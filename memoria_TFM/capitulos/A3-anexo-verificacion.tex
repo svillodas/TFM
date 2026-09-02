@@ -20,7 +20,7 @@ registradas, sin desviación medible respecto del valor nominal. El cálculo com
 características de los tres ejes y de la ventana acústica consumió entre \mbox{29 ms} y
 \mbox{30 ms}, frente a un periodo de \mbox{30 s} entre ráfagas.
 
-El cuadro~\ref{table:validacion-nodo} recoge la repetibilidad de las características sobre el
+La tabla~\ref{table:validacion-nodo} recoge la repetibilidad de las características sobre el
 activo en régimen estable, que es la magnitud que determina si un cambio de estado resultará
 detectable.
 
@@ -55,9 +55,8 @@ El canal térmico registró un salto de \mbox{5,7 °C} entre la superficie del c
 ambiente, magnitud que discrimina sin ambigüedad el activo en marcha del activo detenido.
 \section{Resiliencia frente al fallo del bus}
 
-El cuadro~\ref{table:resiliencia} recoge el comportamiento de los mecanismos de integridad
-durante la campaña EXP-002. Los contadores de salud descritos en el
-capítulo~\ref{cap:diseno} permiten cuantificarlo sin instrumentación añadida.
+La tabla~\ref{table:resiliencia} recoge el comportamiento de los mecanismos de integridad
+durante la campaña EXP-002. Los contadores de salud descritos en el anexo~\ref{anexo:software} permiten cuantificarlo sin instrumentación añadida.
 
 \begin{table}[ht!]
 \caption{Mecanismos de integridad del dato durante la campaña EXP-002, de cuatro minutos.}
@@ -84,7 +83,7 @@ El resultado relevante no es la magnitud de los contadores sino la relación ent
 71 reintentos y 17 rechazos por continuidad, únicamente dos ráfagas se descartaron por
 completo: el mecanismo de reintento absorbió la práctica totalidad de los fallos aislados del
 bus sin sacrificar la ráfaga entera. Ello confirma el razonamiento de diseño expuesto en el
-capítulo~\ref{cap:diseno}, según el cual descartar la ráfaga completa ante cualquier fallo
+anexo~\ref{anexo:software}, según el cual descartar la ráfaga completa ante cualquier fallo
 habría reducido la supervivencia a una fracción reducida del total.
 
 Procede señalar un resultado no previsto, de utilidad directa para la preparación del conjunto
@@ -121,7 +120,7 @@ la situación real —se ajusta con lo capturado y se despliega sobre lo que ven
 mientras que una partición aleatoria reparte episodios contiguos entre ambos lados y filtra
 información del futuro.
 
-El cuadro~\ref{table:protocolo} recoge el resultado.
+La tabla~\ref{table:protocolo} recoge el resultado.
 
 \begin{table}[ht!]
 \caption{Resultado del protocolo con separación estricta entre desarrollo y prueba.}
@@ -150,7 +149,7 @@ elección estaba contaminada: de haber sido correcta, ambos procedimientos habr�
 
 El procedimiento inicial adolecía de un segundo defecto, de naturaleza distinta. Entre los
 criterios de selección se incluyó la viabilidad de embarcar cada modelo, y varios candidatos se
-descartaron por ese motivo \textbf{sin haberlo medido}. El cuadro~\ref{table:coste-nodo} recoge
+descartaron por ese motivo \textbf{sin haberlo medido}. La tabla~\ref{table:coste-nodo} recoge
 la medición.
 
 \begin{table}[ht!]
@@ -167,7 +166,7 @@ Regla sobre n.\textsuperscript{o} de picos & \mbox{8 B} & 3 \\
 \hline
 \textit{One-Class SVM} & \mbox{2,3 KB} & 1110 \\
 \hline
-LOF & \mbox{32 KB} & 15\,150 \\
+LOF & \mbox{32 KB} & 15.150 \\
 \hline
 \textit{Isolation Forest} & \mbox{274 KB} & 4800 \\
 \hline
@@ -175,7 +174,7 @@ LOF & \mbox{32 KB} & 15\,150 \\
 \end{table}
 
 La plataforma dispone de \mbox{512 KB} de memoria estática y \mbox{8 MB} de memoria
-pseudoestática, y \mbox{15\,150} operaciones en coma flotante a \mbox{240 MHz} corresponden al
+pseudoestática, y \mbox{15.150} operaciones en coma flotante a \mbox{240 MHz} corresponden al
 orden de \mbox{0,1 ms} frente a una ráfaga cada \mbox{30 s}. \textbf{Los cinco modelos son
 embarcables con amplio margen}, de modo que la restricción empleada como criterio de descarte no
 existía y orientaba la selección hacia los modelos más simples sin fundamento.
@@ -190,7 +189,7 @@ Para localizar los puntos ciegos se realizó un análisis de sensibilidad: se pe
 nominal en las direcciones que la literatura asocia a modos de fallo característicos y se
 observó qué candidatos reaccionaban. \textbf{Los datos así generados son sintéticos y no
 constituyen evidencia experimental}; el análisis localiza puntos ciegos del detector, no
-establece su rendimiento. El cuadro~\ref{table:cobertura-modos} recoge el resultado.
+establece su rendimiento. La tabla~\ref{table:cobertura-modos} recoge el resultado.
 
 \begin{table}[ht!]
 \caption{Análisis de sensibilidad frente a direcciones de fallo no observadas. Datos sintéticos.}
@@ -234,7 +233,7 @@ su propio activo, de modo que ha de aprenderla durante una fase de referencia y 
 veredicto sobre su primera ráfaga.
 
 Confrontar ese resultado con la validación por episodios pone de manifiesto un compromiso que
-los datos disponibles no permiten resolver, y que el cuadro~\ref{table:compromiso} resume.
+los datos disponibles no permiten resolver, y que la tabla~\ref{table:compromiso} resume.
 
 \begin{table}[ht!]
 \caption{Compromiso entre especificidad medida y cobertura de modos de fallo.}
@@ -295,14 +294,14 @@ ESP32-S3 en la campaña EXP-007 (\mbox{21,54 h} de operación ininterrumpida).
 
 Las rutinas del detector se escribieron \textbf{sin dependencias del entorno de ejecución del
 microcontrolador}, siguiendo el criterio ya aplicado a la extracción de características: ello
-permite compilarlas en un computador y contrastarlas frente a la implementación de referencia
+permite compilarlas en un ordenador y contrastarlas frente a la implementación de referencia
 antes de emplear un ciclo de programación de la placa. Los parámetros ajustados se generan en un
 fichero de cabecera independiente de las rutinas, de modo que reentrenar el modelo no obligue a
 modificar código.
 
 La verificación cruzada previa sobre las \textbf{1161 ráfagas reales} de las dos primeras
 campañas arrojó coincidencia plena (0 discrepancias sobre 1161 casos, con un error relativo de
-\mbox{2,1$\cdot$10$^{-7}$} en LOF), tal como resume el cuadro~\ref{table:verificacion-nodo}.
+\mbox{2,1$\cdot$10$^{-7}$} en LOF), tal como resume la tabla~\ref{table:verificacion-nodo}.
 
 \begin{table}[ht!]
 \caption{Verificación del código embarcado frente a la implementación de referencia.}
@@ -340,7 +339,7 @@ defecto de la derivación de características —anular el gradiente térmico em
 en lugar de mejorarla— sino la precisión en coma flotante de treinta y dos bits del
 microcontrolador frente a la de sesenta y cuatro del equipo de análisis.
 
-El cuadro~\ref{table:coste-inferencia} recoge el coste medido de cada alternativa.
+La tabla~\ref{table:coste-inferencia} recoge el coste medido de cada alternativa.
 
 \begin{table}[ht!]
 \caption{Coste de embarcar cada modelo, medido sobre los parámetros ajustados.}
@@ -356,7 +355,7 @@ Regla sobre n.\textsuperscript{o} de picos & \mbox{8 B} & 3 \\
 \hline
 \textit{One-Class SVM} & \mbox{2,3 KB} & 1110 \\
 \hline
-Modelo seleccionado (LOF) & \mbox{31,6 KB} & 15\,150 \\
+Modelo seleccionado (LOF) & \mbox{31,6 KB} & 15.150 \\
 \hline
 \textit{Isolation Forest} & \mbox{274 KB} & 4800 \\
 \hline
@@ -381,7 +380,7 @@ Procede señalar aquí una propiedad del diseño que resulta ventajosa. La hist�
 \textbf{política de notificación y no una medida}: no altera el veredicto ni las puntuaciones,
 solo el aviso y la cuenta de racha. Y al ser una función pura de la secuencia de veredictos,
 cualquier política alternativa se evalúa \textbf{sobre los datos ya capturados}, sin modificar el
-firmware ni repetir ninguna campaña. El cuadro~\ref{table:politica} recoge esa evaluación.
+firmware ni repetir ninguna campaña. La tabla~\ref{table:politica} recoge esa evaluación.
 
 \begin{table}[ht!]
 \caption{Evaluación de un tiempo mínimo entre avisos sobre los veredictos capturados.}

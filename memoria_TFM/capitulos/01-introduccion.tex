@@ -18,7 +18,7 @@ vida útil. El mantenimiento predictivo se apoya en la medida continua de variab
 para estimar el estado real del activo y anticipar la intervención únicamente cuando el
 comportamiento se desvía del nominal.
 
-La adopción de este paradigma se ve limitada, en la práctica, por el coste de la
+La adopción de este paradigma está limitada en la práctica por el coste de la
 infraestructura de captura y por el volumen de datos que genera un muestreo de señales
 mecánicas y acústicas. Enviar de forma continua señales de vibración a la nube resulta
 costoso en ancho de banda y en almacenamiento, e introduce una dependencia de conectividad
@@ -26,7 +26,8 @@ que un activo industrial no siempre puede asumir.
 
 \section{Planteamiento del problema}
 
-Este trabajo aborda el diseño e implementación de un sistema de monitorización modular que
+Este Trabajo de Fin de Máster (TFM) aborda el diseño e implementación de un sistema de
+monitorización modular que
 desplaza la lógica de diagnóstico hacia el extremo de la red (\textit{edge}). El nodo de
 medida captura variables físicas del activo --vibración, temperatura y firma acústica-- y
 el objetivo último es que la detección de anomalías se resuelva en el propio nodo, sin
@@ -43,13 +44,13 @@ validación del sistema propuesto.
 
 El capítulo~\ref{cap:estado-arte} contextualiza el problema y revisa el estado del arte,
 centrándose en las soluciones actuales de mantenimiento predictivo y la aplicación de
-inteligencia artificial en el extremo (\textit{Edge Computing}). A partir de las necesidades
+inteligencia artificial en el borde (\textit{Edge Computing}). A partir de las necesidades
 detectadas, el capítulo~\ref{cap:objetivos} detalla los objetivos principales y específicos que
 persigue este trabajo.
 
 A continuación, el capítulo~\ref{cap:metodologia} describe la metodología aplicada para el
 desarrollo del proyecto, mientras que el capítulo~\ref{cap:diseno} profundiza en la arquitectura
-del sistema. En este último se justifican las decisiones técnicas adoptadas tanto a nivel de
+del sistema. En este último capítulo se justifican las decisiones técnicas adoptadas tanto a nivel de
 hardware —como la elección del nodo sensor— como de software, incluyendo los estándares de
 comunicación empleados.
 
@@ -58,5 +59,12 @@ experimentales obtenidos durante las pruebas en un entorno real de refrigeració
 capítulo~\ref{cap:conclusiones} recoge la discusión de dichos resultados, expone las conclusiones
 del estudio y plantea las futuras líneas de trabajo orientadas a la explotación del sistema.
 
-El documento concluye con una serie de anexos técnicos que completan la información detallada
-sobre la instrumentación y construcción del sistema.
+El documento concluye con tres anexos técnicos. El
+anexo~\ref{anexo:hardware} describe el hardware y el montaje: el conexionado del nodo, el
+banco de pruebas, la selección del punto de medida sobre el compresor y las limitaciones que el
+montaje impone a la medida. El anexo~\ref{anexo:software} recoge el software y el formato de los
+datos: la disponibilidad del código, la estructura de las tramas de ambos canales, el
+aprovisionamiento del concentrador y el procedimiento de despliegue del modelo en el nodo. El
+anexo~\ref{anexo:verificacion} reúne los procedimientos de verificación y selección del modelo: la validación de la cadena de sensado, el protocolo libre de sesgo de espionaje, el
+análisis de cobertura frente a modos de fallo no observados y la evaluación de la política de
+avisos.

@@ -38,8 +38,8 @@ una campaña, citarla también en la entrada correspondiente de
 | :--- | :--- | :--- | :--- |
 | `nevera_vieja.jpeg` | 2026-08-25 | Compresor `TW146-US-416` del activo antiguo, con el módulo del acelerómetro apoyado sobre la cúpula y el nodo sobre protoboard. Documenta el montaje de la fase de depuración | — (depuración) |
 | `nevera baseline/…18.16.55.jpeg` | 2026-08-25 | Conjunto del banco: activo, nodo y concentrador Raspberry Pi con cable de gestión | Baseline (pendiente) |
-| `nevera baseline/…18.16.56.jpeg` | 2026-08-25 | Compresor `PW58B` del activo de referencia, con el acelerómetro adherido al lateral de la cúpula. Se aprecia el cableado I2C sobre protoboard discurriendo en paralelo al cableado de red del compresor | Baseline (pendiente) |
-| `nevera baseline/…18.16.56 (1).jpeg` | 2026-08-25 | Vista complementaria del montaje | Baseline (pendiente) |
+| `nevera baseline/…18.16.56.jpeg` | 2026-08-25 | Compresor `PW58B` del activo de referencia, con el acelerómetro adherido al **lateral del cuerpo**, sobre la placa de características. Se aprecia el cableado I2C sobre protoboard discurriendo en paralelo al cableado de red del compresor | Baseline (pendiente) |
+| **`nevera baseline/…18.16.56 (1).jpeg`** | 2026-08-25 | **La fijación adoptada.** Misma posición, vista más cercana: se ven a la vez el módulo sobre la placa de características, la salida del tubo de descarga a su misma altura y una pata de anclaje al chasis con su taco elástico. Recortada en la memoria como `banco-fijacion-adoptada.jpg` | Baseline |
 | `nevera baseline/…18.16.56 (2).jpeg` | 2026-08-25 | Vista complementaria del montaje | Baseline (pendiente) |
 
 Las tres primeras se han incorporado a la memoria como
@@ -53,9 +53,15 @@ fotografía del banco está en el artefacto publicado el 2026-08-25.
 
 | Posición | Fecha | `rms_z` sin filtrar | Fundamental de 49 Hz | Veredicto |
 | :--- | :--- | ---: | :--- | :--- |
-| Cúpula del compresor | 2026-08-25 | 0,047 | 4 de 52 ráfagas | Descartada. El fabricante aísla la cúpula del motor con muelles internos, de modo que se medía por el lado tranquilo de la suspensión |
-| Anclaje al chasis (posición 1) | 2026-08-26 | — | — | Evaluada, no adoptada |
-| **Tubo de descarga (posición 2)** | 2026-08-26 | 0,35 – 0,69 | **6 de 7 ráfagas** (tercer pico) | **Adoptada.** El nivel subió entre 9 y 20 veces según el eje. Unido rígidamente al cuerpo de la bomba, transporta la pulsación sin atravesar la suspensión interna del compresor |
+| Domo del compresor | 2026-08-25 | 0,047 | 4 de 52 ráfagas | Descartada. Tapa amplia y alejada del cuerpo de la bomba |
+| **Lateral del cuerpo, sobre la placa de características** | 2026-08-26 | 0,35 – 0,69 | **6 de 7 ráfagas** (tercer pico) | **Adoptada.** El nivel subió entre 9 y 20 veces según el eje. Superficie de doble curvatura, próxima al conjunto motor-bomba y a la salida de descarga |
+| Anclaje al chasis (posición 1 de la guía visual) | — | — | — | Propuesta, **no ensayada** |
+| Tubo de descarga (posición 2 de la guía visual) | — | — | — | Propuesta, **no ensayada** |
+
+> Las dos posiciones ensayadas están **sobre la carcasa**, de modo que la diferencia entre
+> ellas no procede de la suspensión interna del compresor —que afecta a toda la superficie
+> exterior por igual— sino de la rigidez local y de la distancia a la bomba. Es una
+> explicación plausible, no un resultado: la vía de transmisión no se caracterizó.
 
 De la posición adoptada, dos observaciones que condicionan el análisis:
 
@@ -71,8 +77,8 @@ De la posición adoptada, dos observaciones que condicionan el análisis:
 
 Detalle completo en [EXP-002](../../docs/EXPERIMENTOS.md).
 
-**Pendiente:** fotografía de detalle de la posición adoptada. Al añadirla, nombrarla
-`2026-08-26-fijacion-adoptada.jpg` y anotarla en la tabla de arriba.
+La fotografía de detalle de la posición adoptada es
+`nevera baseline/…18.16.56 (1).jpeg`, anotada en la tabla de fotos.
 
 ## Fotos que hacen falta para la memoria
 

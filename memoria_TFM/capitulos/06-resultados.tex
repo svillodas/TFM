@@ -2,8 +2,116 @@
 % Extensión orientativa: 5-7 páginas.
 % REGLA: aquí solo van resultados MEDIDOS. Toda cifra debe proceder de una campaña
 % registrada en docs/EXPERIMENTOS.md. Nunca estimaciones ni valores plausibles.
-\chapter{Resultados}
+\chapter{Pruebas y resultados}
 \label{cap:resultados}
+
+\section{El escenario de pruebas}
+
+Antes de exponer los resultados es importante describir el entorno de pruebas, dado que
+el montaje condiciona cuanto sigue: la posición del acelerómetro determina qué parte del
+espectro llega a medirse, y el conexionado determina cuántas medidas sobreviven. Las
+limitaciones que ese montaje impone y el conexionado completo del nodo figuran en el
+anexo~\ref{anexo:hardware}.
+
+La figura~\ref{fig:banco-conjunto} muestra el conjunto del banco: el activo de refrigeración,
+el nodo de captura situado en su base y el concentrador Raspberry~Pi, este último con cable
+de red para gestión mientras su interfaz inalámbrica opera como punto de acceso.
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=0.65\textwidth]{figuras/banco-conjunto-hub.jpg}
+\caption{Conjunto del banco de pruebas: activo de refrigeración, nodo de captura en su base
+y concentrador Raspberry~Pi.}
+\label{fig:banco-conjunto}
+\end{figure}
+
+La figura~\ref{fig:banco-fijacion} recoge el detalle de la fijación adoptada sobre el
+compresor del activo de referencia. El acelerómetro se adhiere al lateral del cuerpo de la
+carcasa hermética, sobre su placa de características y a la altura de la salida del tubo de
+descarga; a su derecha queda a la vista una de las patas de anclaje al chasis, con su tornillo
+y su taco elástico. El cableado del bus discurre hasta la placa de prototipado situada en la
+base del alojamiento.
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=0.65\textwidth]{figuras/banco-fijacion-adoptada.jpg}
+\caption{Fijación adoptada: acelerómetro adherido al lateral del cuerpo del compresor, sobre
+su placa de características. A la derecha, una pata de anclaje al chasis con su taco
+elástico.}
+\label{fig:banco-fijacion}
+\end{figure}
+
+La posición del acelerómetro resultó ser la decisión con mayor efecto sobre la calidad de la
+medida, por encima del tipo de fijación. La posición de partida era la contraria: el módulo
+apoyado sobre el domo del compresor, tal como lo señala la figura~\ref{fig:puntos-medida}
+sobre el montaje de la fase de depuración.
+
+\begin{figure}[ht!]
+\centering
+\begin{tikzpicture}
+  \node[anchor=south west, inner sep=0] (foto) at (0,0)
+    {\includegraphics[width=0.65\textwidth]{figuras/banco-compresor-antiguo.jpg}};
+  \begin{scope}[x={(foto.south east)}, y={(foto.north west)},
+                marca/.style={circle, draw, line width=1.1pt, minimum size=15pt},
+                etiq/.style={fill, text=white, font=\bfseries\scriptsize,
+                             inner sep=2.2pt, rounded corners=1.5pt}]
+    % Posicion de partida, descartada: el domo del compresor
+    \draw[red!75!black, line width=1.1pt, dashed] (0.255,0.825) -- (0.430,0.640);
+    \node[marca, red!75!black, minimum size=19pt] at (0.455,0.608) {};
+    \node[red!75!black, font=\bfseries] at (0.455,0.608) {$\times$};
+    \node[etiq, fill=red!75!black] at (0.225,0.855) {domo};
+
+  \end{scope}
+\end{tikzpicture}
+\caption{Posición de partida, descartada: el módulo apoyado sobre el domo del compresor.
+La fotografía corresponde al montaje de la fase de depuración.}
+\label{fig:puntos-medida}
+\end{figure}
+
+La tabla~\ref{table:puntos-medida} recoge el resultado de la comparación.
+
+\begin{table}[ht!]
+\caption{Comparación de los puntos de medida evaluados.}
+\label{table:puntos-medida}
+\centering
+\begin{tabular}{|p{4.3cm}|p{2.5cm}|p{2.6cm}|p{2.9cm}|}
+\hline
+\textbf{Punto} & \textbf{Valor eficaz} & \textbf{Fundamental} & \textbf{Resultado} \\
+\hline
+Domo del compresor & \mbox{0,047 m/s$^2$} & 4 de 52 ráfagas & Descartado \\
+\hline
+Lateral del cuerpo & \mbox{0,35--0,69 m/s$^2$} & 6 de 7 ráfagas & \textbf{Adoptado} \\
+\hline
+\end{tabular}
+\end{table}
+
+Ambas posiciones están sobre la carcasa, de modo que la diferencia entre ellas no procede de
+la suspensión interna del compresor. Un compresor hermético lleva el conjunto motor-bomba
+suspendido sobre muelles \textit{dentro} de la carcasa, solución que reduce el ruido radiado
+y que, en consecuencia, sitúa toda la superficie exterior del lado amortiguado de esa
+suspensión: eso fija el nivel general, no el reparto entre una zona de la chapa y otra.
+
+Lo que separa las dos posiciones es la rigidez local y la distancia a la bomba. El domo es
+una tapa amplia y alejada del cuerpo, mientras que el lateral, a la altura de la salida de
+descarga, es una superficie de doble curvatura próxima al conjunto motor-bomba y a sus
+apoyos internos. El traslado elevó el valor eficaz entre nueve y veinte veces según el eje, y
+la frecuencia fundamental pasó de identificarse en el 8 \% de las ráfagas a hacerlo en la
+práctica totalidad. Esa atribución es sin embargo una explicación plausible y no un resultado:
+la vía de transmisión no se caracterizó por separado, y lo medido es el nivel resultante en
+cada posición.
+
+Procede precisar cómo se reparte esa mejora entre las características, porque el dato en
+bruto induce a error. En torno al 95 \% del incremento reside en la componente tonal de alta
+frecuencia analizada en el capítulo~\ref{cap:diseno}: el valor eficaz en la banda que
+describen los estadísticos temporales es de \mbox{0,062 m/s$^2$} frente a los
+\mbox{0,35 m/s$^2$} sin filtrar, de modo que la ganancia sobre esos estadísticos es de un
+factor próximo a 1,6 y no de quince. La parte restante no es sin embargo señal desechable:
+corresponde a la banda donde este capítulo identifica la firma del fallo.
+
+Ese montaje de la figura~\ref{fig:puntos-medida}, correspondiente a un segundo activo de
+mayor antigüedad, es además el empleado durante la fase de depuración del firmware: sobre él
+se caracterizaron las incidencias de integridad del bus descritas en el
+anexo~\ref{anexo:software}.
 
 \section{La cadena de medida y su fiabilidad}
 
@@ -27,7 +135,7 @@ El resultado de mayor consecuencia práctica de la campaña de referencia no afe
 a la validez de la medida, y no era observable con las campañas breves anteriores.
 
 \textbf{Los reintentos del bus de comunicación con el acelerómetro reproducen la firma del
-fallo sobre un activo sano.} El cuadro~\ref{table:reintentos-artefacto} lo recoge sobre el
+fallo sobre un activo sano.} La tabla~\ref{table:reintentos-artefacto} lo recoge sobre el
 activo de referencia, cuyo estado es nominal.
 
 \begin{table}[ht!]
@@ -70,7 +178,7 @@ más de observaciones: 505 ráfagas frente a 278.
 De lo anterior se sigue una comprobación ineludible: la coincidencia entre el artefacto y la firma
 obliga a descartar que el hallazgo de EXP-003 sea una manifestación del mismo defecto. La
 comprobación consiste en restringir ambos conjuntos a las ráfagas capturadas \textbf{sin ningún
-reintento}, y su resultado es la última fila del cuadro~\ref{table:reintentos-artefacto}: el activo
+reintento}, y su resultado es la última fila de la tabla~\ref{table:reintentos-artefacto}: el activo
 averiado conserva sus tres picos y su fundamental en \mbox{49,76 Hz}, mientras que el artefacto del
 bus sobre el activo sano produce tres picos con la fundamental derrumbada.
 
@@ -87,7 +195,7 @@ del bus no puede producir un valor que el propio bus no altera.
 La campaña de referencia comprende \mbox{21,53 h} continuas sobre el activo en uso doméstico
 normal, con 2106 ráfagas de las que 505 resultan utilizables tras descartar las capturadas con
 el compresor detenido y las que no superan el filtro de calidad. El
-cuadro~\ref{table:firma-nominal} recoge la firma operativa resultante.
+tabla~\ref{table:firma-nominal} recoge la firma operativa resultante.
 
 \begin{table}[ht!]
 \caption{Firma operativa del activo en estado nominal (campaña EXP-005, 505 ráfagas en 24 episodios).}
@@ -159,7 +267,7 @@ tarde y noche, atribuible al uso del aparato.}
 
 La figura~\ref{fig:ciclos} representa esos ciclos a lo largo de las \mbox{21,5 h} de la
 campaña. El canal lento
-aporta 65 636 tramas sobre el mismo intervalo. La temperatura ambiente osciló
+aporta 65.636 tramas sobre el mismo intervalo. La temperatura ambiente osciló
 entre \mbox{22,4 °C} y \mbox{34,4 °C} y la del motor entre \mbox{27,5 °C} y \mbox{54,6 °C}, con
 un diferencial medio de \mbox{11,69 °C}. Debe recordarse que esa temperatura la proporciona el
 sensor integrado del acelerómetro y no una sonda sobre la carcasa del motor, de modo que
@@ -175,7 +283,7 @@ instrumentación, y frente a un activo de referencia en estado nominal medido co
 firmware en el mismo intervalo temporal. Los resultados proceden de las campañas EXP-003 y
 EXP-004.
 
-El cuadro~\ref{table:firma-fallo} recoge la firma detectada.
+La tabla~\ref{table:firma-fallo} recoge la firma detectada.
 
 \begin{table}[ht!]
 \caption{Firma del fallo real (campaña EXP-003) frente al activo de referencia, con el mismo firmware.}
@@ -237,7 +345,7 @@ límite de la instrumentación empleada: con tres picos no se puede caracterizar
 armónica de más de dos componentes.
 
 La confirmación llega de una segunda modalidad, recogida en las dos últimas filas del
-cuadro~\ref{table:firma-fallo}. La disponibilidad de un activo de referencia permite descartar que
+tabla~\ref{table:firma-fallo}. La disponibilidad de un activo de referencia permite descartar que
 la componente sea un artefacto de la cadena de medida.
 
 El reparto de energía acústica resulta \textit{invertido} entre ambos activos, y las
@@ -321,7 +429,7 @@ la perturbación el inicio de la marcha continua: el compresor había arrancado 
 \mbox{11:32}, treinta y siete minutos antes de la apertura.
 
 La perturbación tuvo, sin embargo, una consecuencia física sostenida que conviene separar del
-transitorio acústico. El cuadro~\ref{table:puerta-termico} recoge la evolución del estado
+transitorio acústico. La tabla~\ref{table:puerta-termico} recoge la evolución del estado
 térmico.
 
 \begin{table}[ht!]
@@ -412,7 +520,7 @@ excelente obtenida sobre el atributo equivocado.
 La formulación adoptada emplea en su lugar \textbf{características adimensionales}, invariantes
 a la escala de la máquina: la kurtosis, el factor de cresta, la relación de cada pico espectral
 secundario con la fundamental, su amplitud relativa y el reparto de energía acústica por bandas.
-El cuadro~\ref{table:separacion-caracteristicas} recoge la separación que cada una alcanza,
+La tabla~\ref{table:separacion-caracteristicas} recoge la separación que cada una alcanza,
 expresada en desviaciones típicas.
 
 \begin{table}[ht!]
@@ -455,7 +563,7 @@ modelo sobre los restantes y midiendo los falsos positivos sobre una condición 
 el modelo no había visto. Es la única forma de estimar si el detector generaliza entre arranques
 del compresor y no solamente entre ráfagas correlacionadas de un mismo arranque, y exigió la
 campaña de referencia prolongada: con un único episodio no era posible. El
-cuadro~\ref{table:validacion-episodios} recoge el resultado sobre los 24 episodios disponibles.
+tabla~\ref{table:validacion-episodios} recoge el resultado sobre los 24 episodios disponibles.
 
 \begin{table}[ht!]
 \caption{Validación cruzada por episodios sobre el conjunto de referencia (24 episodios, 505 ráfagas).}
@@ -576,7 +684,7 @@ niegue a juzgar antes que juzgar sobre una medida que, según se expuso más arr
 artificialmente la firma del fallo.
 
 La segunda cuestión que el despliegue plantea es la carga de alarmas. Un detector que notifica ante una única ráfaga anómala resulta inservible en operación. El
-cuadro~\ref{table:histeresis} recoge el número de avisos que se emitirían sobre la secuencia
+tabla~\ref{table:histeresis} recoge el número de avisos que se emitirían sobre la secuencia
 completa de ráfagas según el número de ráfagas anómalas consecutivas exigidas.
 
 \begin{table}[ht!]
@@ -612,9 +720,9 @@ Las cifras expuestas hasta aquí proceden del recálculo sobre la campaña de re
 capturada antes de que el detector estuviese embarcado. Procede advertir que la campaña que sigue
 —EXP-007, con el detector ya en el nodo— duró \mbox{21,54 h} frente a las \mbox{21,53 h} de
 aquella: son dos campañas distintas de duración casi idéntica, coincidencia que conviene tener
-presente para no leer una por otra. Procede contrastarlas con lo que el nodo hizo por
+presente para no confundir una con la otra. Procede contrastarlas con lo que el nodo hizo por
 sí mismo una vez desplegado, porque la comparación afecta a la conclusión principal sobre la
-utilidad del sistema. El cuadro~\ref{table:evolucion} recoge los veredictos emitidos.
+utilidad del sistema. La tabla~\ref{table:evolucion} recoge los veredictos emitidos.
 
 \begin{table}[ht!]
 \caption{Veredictos emitidos por el detector embarcado sobre el activo de referencia, en estado nominal y bajo perturbación inducida.}
@@ -655,7 +763,9 @@ acoplamiento adhesivo del sensor evolucione. Ninguna se ha verificado.
 \textbf{Esta es la limitación de mayor peso para el uso del sistema en explotación}, por encima
 de las relativas al alcance de la evidencia que se exponen a continuación: catorce avisos en poco
 más de veintiuna horas sobre una máquina sana desaconsejan el despliegue sin reducir antes esa
-tasa. Debe consignarse no obstante que la validación cruzada estima el comportamiento sobre
+tasa. La vía que los datos sugieren, y que el capítulo~\ref{cap:conclusiones} recoge como línea
+de continuación, es exigir que la desviación se manifieste también en el canal de vibración antes
+de notificar. Debe consignarse no obstante que la validación cruzada estima el comportamiento sobre
 episodios no vistos del \textit{mismo} conjunto, mientras que la cifra de operación procede de
 una jornada distinta: la comparación entre ambas es informativa, pero no mide exactamente lo
 mismo.
@@ -670,7 +780,7 @@ ráfagas no constituyen 656 observaciones independientes. Ese desequilibrio no s
 la captura, dado que ese activo permaneció en marcha el 95 \% del tiempo: obtener más episodios
 exigiría provocar una parada.
 
-El cuadro~\ref{table:alcance} recoge lo que la evidencia no permite afirmar y por qué, junto a los
+La tabla~\ref{table:alcance} recoge lo que la evidencia no permite afirmar y por qué, junto a los
 objetivos que no se alcanzaron. La discusión de sus implicaciones figura en el
 capítulo~\ref{cap:conclusiones}.
 

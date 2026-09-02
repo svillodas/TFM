@@ -55,7 +55,7 @@ bruto; el concentrador entrena el modelo y lo devuelve al nodo, que ejecuta la i
 
 \section{Adquisición: sensores, plataforma y frecuencias de muestreo}
 
-El cuadro~\ref{table:sensores} recoge los sensores seleccionados y la magnitud que aporta
+La tabla~\ref{table:sensores} recoge los sensores seleccionados y la magnitud que aporta
 cada uno al diagnóstico.
 
 \begin{table}[ht!]
@@ -85,7 +85,7 @@ seleccionó el ESP32 por integrar en un mismo encapsulado los tres requeridos
 (I\textsuperscript{2}C, 1-Wire por software e I2S nativo), conectividad inalámbrica y capacidad
 de cómputo suficiente para ejecutar inferencia embarcada~\cite{esp32datasheet}, con un consumo y
 un coste compatibles con el despliegue en activos de valor moderado. El
-cuadro~\ref{table:requisitos} expresa esa elección en términos de requisitos medibles derivados
+tabla~\ref{table:requisitos} expresa esa elección en términos de requisitos medibles derivados
 del propio sistema, en lugar de una preferencia general por la plataforma.
 
 \begin{table}[ht!]
@@ -147,7 +147,7 @@ Transmitir de forma continua los tres ejes a la frecuencia requerida supondría 
 3000 valores por segundo, volumen incompatible con el enlace inalámbrico y contrario al
 planteamiento del trabajo. La solución adoptada consiste en desacoplar las dos escalas
 temporales del problema mediante dos canales de adquisición y publicación independientes,
-según recoge el cuadro~\ref{table:muestreo}.
+según recoge la tabla~\ref{table:muestreo}.
 
 \begin{table}[ht!]
 \caption{Canales de adquisición y sus parámetros de muestreo.}
@@ -202,7 +202,7 @@ persigue el trabajo.
 El cálculo espectral aplica una ventana de Hann antes de la transformada, con objeto de
 reducir la fuga espectral de una señal que no es periódica en la ventana de análisis. La
 estimación del pico se refina mediante interpolación parabólica sobre la logaritmo-magnitud
-de los tres coeficientes centrales. El cuadro~\ref{table:estimador} recoge la mejora
+de los tres coeficientes centrales. La tabla~\ref{table:estimador} recoge la mejora
 obtenida, medida sobre señales sintéticas de frecuencia y amplitud conocidas en el intervalo
 comprendido entre \mbox{45 Hz} y \mbox{97 Hz}.
 
@@ -225,7 +225,7 @@ La interpolación resuelve la frecuencia unas sesenta veces por debajo del ancho
 coeficiente espectral, lo que permite seguir desplazamientos pequeños del régimen de giro,
 y acota el error de amplitud debido a la pérdida de festoneado de la ventana. Las rutinas de
 extracción se implementaron sin dependencias del entorno de ejecución del microcontrolador,
-de modo que pueden verificarse numéricamente en un computador frente a señales de
+de modo que pueden verificarse numéricamente en un ordenador frente a señales de
 propiedades conocidas analíticamente antes de su despliegue en la placa.
 
 \section{Protocolo y modelo de intercambio de datos}
@@ -242,7 +242,7 @@ porque el análisis opera sobre ventanas estadísticas y la pérdida ocasional d
 no altera el resultado, mientras que los mecanismos de confirmación introducirían
 sobrecarga en el nodo.
 
-El cuadro~\ref{table:variables} recoge las nueve variables del canal lento con su unidad y
+La tabla~\ref{table:variables} recoge las nueve variables del canal lento con su unidad y
 su intervalo esperado. Los valores de los intervalos corresponden a la configuración del
 firmware: fondo de escala de $\pm$\mbox{4 g} en el acelerómetro y de
 $\pm$\mbox{500 $^\circ$/s} en el giroscopio.
@@ -279,56 +279,9 @@ resulta físicamente imposible con el sensor operativo y sirve por tanto de cent
 ambigüedad; el registrador escribe los campos ausentes como celdas vacías y nunca como ceros, por
 el mismo motivo. El desglose completo de las tramas figura en el anexo~\ref{anexo:software}.
 
-\section{Integridad del dato frente al fallo del bus}
-
-El bucle principal no emplea esperas activas prolongadas: las dos cadencias se gobiernan
-comparando el reloj de milisegundos del microcontrolador con el instante de la última publicación
-de cada canal, y la conversión de la sonda de temperatura —unos \mbox{750 ms}— se solicita en un
-ciclo y se recoge en el siguiente. La captura de la ráfaga es la única excepción deliberada y
-bloquea el bucle unos \mbox{1,02 s}, porque el análisis frecuencial exige muestras equiespaciadas
-y cualquier trabajo intercalado introduciría ruido espectral.
-
-La vibración del activo provoca microcortes en el cableado del acelerómetro, que es precisamente
-la magnitud que el sistema debe medir. Esta circunstancia condiciona el diseño de la adquisición
-más que ninguna otra. El planteamiento inicial confiaba en que la biblioteca de acceso al bus
-señalase el fracaso de una transacción devolviendo menos bytes de los solicitados, y se comprobó
-que no lo hace: el controlador registra el error internamente mientras la función devuelve la
-cuenta pedida. El código leía entonces de un almacén vacío, cuya lectura devuelve $-1$, valor que
-al asignarse a una variable sin signo de ocho bits se convierte en \texttt{0xFF}, de modo que los
-tres ejes resultaban $-1$ y esa muestra se publicaba como medida válida.
-
-El efecto es desproporcionado respecto a la magnitud del fallo: una única muestra anómala entre
-las 1024 de una ráfaga elevó la kurtosis del eje vertical desde 2,9 hasta 847, en coincidencia
-exacta con la predicción analítica para un impulso aislado. Y la gravedad no reside en la pérdida
-de una medida sino en que \textit{el artefacto imita el fenómeno que el sistema debe detectar}: la
-kurtosis se seleccionó precisamente por su sensibilidad a los impulsos aislados, indicador
-temprano clásico del deterioro de un rodamiento, de modo que un impulso de origen eléctrico y un
-impacto mecánico incipiente resultan indistinguibles para ese estadístico. El efecto sobre la
-estimación espectral es equivalente, dado que un impulso aislado presenta espectro plano, domina
-la transformada y desplaza la frecuencia dominante a un valor arbitrario. La corrupción de una
-sola muestra inutiliza por tanto las dos características principales del sistema, y un modelo
-entrenado sobre datos así contaminados consideraría normal un intervalo de valores tan amplio que
-perdería toda capacidad de discriminación.
-
-La corrección se articula en tres mecanismos, cuyo detalle figura en el
-anexo~\ref{anexo:software}. El primero \textbf{valida cada transacción} en cuatro puntos y admite
-un reintento único por muestra, con lo que solo dos fallos consecutivos —que no responden a un
-microcorte sino a un bus caído— descartan la ráfaga completa. El segundo \textbf{recupera el bus}
-reiniciándolo y reconfigurando el sensor sin reiniciar el microcontrolador, porque un reinicio
-interrumpiría la continuidad temporal de la señal, que es la información que el análisis explota;
-lo acompaña una verificación de plausibilidad física del módulo de la aceleración, cuyo límite
-demostrado es que no detecta la caída de un solo eje. El tercero no corrige nada sino que
-\textbf{hace medible la calidad} de cada medida, y su ausencia es la que más daño causa: un dato
-perdido que no se contabiliza resulta indistinguible de uno correcto al analizar el conjunto.
-Ningún descarte se produce por tanto en silencio, y el nodo publica cuatro contadores de salud
-—ráfagas descartadas, tramas inválidas, y reintentos de la ráfaga en curso y acumulados— que
-convierten la calidad de cada medida en magnitud observable. El último, al ser monótono creciente
-por construcción, delata además un reinicio del microcontrolador, circunstancia que de otro modo
-no dejaría rastro en el conjunto de datos.
-
 \section{Diseño del motor de análisis}
 
-El cuadro~\ref{table:caracteristicas} recoge las características que el nodo extrae de cada
+La tabla~\ref{table:caracteristicas} recoge las características que el nodo extrae de cada
 ráfaga, con la interpretación diagnóstica de cada una. La selección responde a la práctica
 establecida en monitorización de condición de máquina rotativa y no a un criterio propio.
 
@@ -429,8 +382,9 @@ porque con el tamaño de muestra disponible la simplicidad es la propiedad que h
 verificable.
 
 El procedimiento completo, con los umbrales declarados de forma explícita, está en
-\texttt{server/analisis/}, cuyo fichero \texttt{README.md} recoge la justificación de cada
-decisión de limpieza y de derivación de características.
+el repositorio del trabajo~\cite{repotfm}, dentro de la carpeta de análisis, cuyo fichero de
+documentación recoge la justificación de cada decisión de limpieza y de derivación de
+características.
 
 \section{Los modelos considerados y el criterio de elección}
 
@@ -441,7 +395,7 @@ tanto la capacidad de detección como el coste de embarcar la inferencia.
 Se consideraron cinco modelos y dos reglas de decisión. Los cuatro primeros se designan por su
 nombre habitual en la literatura, que es el inglés; se acompaña la traducción al castellano en
 su primera aparición y en lo sucesivo se emplea la denominación original, todos ellos ajustables únicamente sobre
-observaciones del estado nominal. El cuadro~\ref{table:modelos} resume su fundamento.
+observaciones del estado nominal. La tabla~\ref{table:modelos} resume su fundamento.
 
 \begin{table}[ht!]
 \caption{Modelos de detección de una clase considerados.}
@@ -549,7 +503,7 @@ arroja cocientes incoherentes cuando un armónico supera a la fundamental y le a
 posición de dominante. El capítulo~\ref{cap:resultados} recoge el defecto que esa
 circunstancia introdujo.
 
-El cuadro~\ref{table:resonancia-efecto} resume el efecto medido de ambas medidas sobre la misma señal.
+La tabla~\ref{table:resonancia-efecto} resume el efecto medido de ambas medidas sobre la misma señal.
 
 \begin{table}[ht!]
 \caption{Efecto de las correcciones sobre las características del eje vertical.}

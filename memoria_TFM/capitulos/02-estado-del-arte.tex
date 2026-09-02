@@ -25,7 +25,7 @@ El sistema debe satisfacer los siguientes requisitos, derivados del escenario de
 
 \section{Mantenimiento predictivo basado en señales físicas}
 
-La monitorización de condición de máquina rotativa se apoya en un conjunto de indicadores
+La monitorización de la condición de una máquina rotativa se apoya en un conjunto de indicadores
 consolidado, cuya elección responde a que cada uno resulta sensible a una familia distinta de
 mecanismos de fallo~\cite{randall2011}. Esa correspondencia entre indicador y mecanismo es la
 que justifica la selección de características descrita en el capítulo~\ref{cap:diseno}.
@@ -38,7 +38,7 @@ contrapartida de esa robustez: al promediar sobre toda la ventana, atenúa los e
 frecuentes.
 
 La kurtosis cubre precisamente ese hueco. Al ser el cuarto momento normalizado de la
-distribución de amplitudes, cuantifica la impulsividad de la señal y no su magnitud, con lo
+distribución de las amplitudes, cuantifica la impulsividad de la señal y no su magnitud, con lo
 que responde a la aparición de impactos aislados antes de que estos alteren el valor
 eficaz~\cite{randall2011}. Es el indicador clásico del deterioro incipiente de rodamientos, y
 su interpretación se apoya en dos valores de referencia analíticos: 3 para ruido gaussiano y
@@ -161,14 +161,14 @@ resulta preferible a un valor arbitrario.
 
 \section{Síntesis y aportación de este trabajo}
 
-Los trabajos revisados abordan por separado las tres cuestiones que este proyecto integra: los
+Los trabajos revisados abordan por separado las tres cuestiones que este TFM integra: los
 indicadores de condición sobre señal de vibración, el despliegue de inferencia en
 microcontroladores y la detección de anomalías con una sola clase. La combinación de las tres
 sobre una plataforma de coste reducido está menos explorada, y es donde este trabajo pretende
 aportar.
 
 Existe además una circunstancia que la literatura consultada tiende a no abordar, y que en la
-práctica de este proyecto resultó ser la determinante. Los métodos de monitorización de
+práctica de este TFM resultó ser la determinante. Los métodos de monitorización de
 condición se formulan asumiendo instrumentación de calidad y adquisición fiable: acelerómetros
 acoplados de forma rígida y una cadena de medida que entrega las muestras que se le piden. Al
 trasladar esos métodos a hardware de prototipado adherido a una máquina en vibración, ninguna

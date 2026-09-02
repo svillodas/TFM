@@ -46,7 +46,7 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       (2026-08-24). Pendiente de estrenar con datos reales.
 - [x] Nodo redirigido al broker local (2026-08-25). Se abandona el broker público.
 - [x] **Componente tonal de alta frecuencia acotada por software** (2026-08-26). Al reubicar
-      el sensor desde la cúpula del compresor a un punto con mejor transmisión, el nivel de
+      el sensor desde el domo del compresor al lateral de su cuerpo, el nivel de
       vibración subió entre 9 y 20 veces según el eje, y apareció una componente entre 398 Hz
       y 448 Hz que se lleva el 95 % de la energía. Se atribuyó entonces a una resonancia del
       pegado adhesivo; **el 26 se demostró que es el noveno armónico del giro, es decir un
@@ -69,9 +69,10 @@ Solo queda la campaña de referencia, que es tiempo de reloj. El trabajo activo 
       **6 de 7 ráfagas** a 49,77 Hz (CV 0,15 %) como tercer pico. Amplitud 0,0660 m/s² con
       CV del 7,4 %, lo que sitúa el umbral de detección en un cambio del 21 %. Ver
       [informe](informes/2026-08-26-punto-medida-resonancia.md).
-- [x] **Punto de medida seleccionado: el tubo de descarga** (2026-08-26). Se descartó la cúpula
-      del compresor: un compresor hermético lleva el motor suspendido sobre muelles internos,
-      de modo que la cúpula es el lado amortiguado de esa suspensión. El traslado elevó el
+- [x] **Punto de medida seleccionado: el lateral del cuerpo del compresor** (2026-08-26). Se
+      descartó el domo, que es una tapa amplia y alejada del cuerpo de la bomba, frente al
+      lateral, próximo al conjunto motor-bomba y a la salida de descarga. Ambas posiciones están
+      sobre la carcasa, de modo que la suspensión interna no separa una de otra. El traslado elevó el
       nivel entre 9 y 20 veces. El 95 % de ese incremento está en la banda de la familia
       armónica y no en la que describen los estadísticos filtrados, cuya ganancia es de ~1,6
       veces. Se creyó una pérdida y era lo contrario: es la banda donde estaba el fallo.
